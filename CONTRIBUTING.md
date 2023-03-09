@@ -1,6 +1,6 @@
 # Issues and Features
 
-Issues reported on [GitHub](https://github.com/FooSoft/yomichan/issues) should include information about:
+Issues reported on [GitHub](https://github.com/Ajatt-Tools/rikaitan/issues) should include information about:
 
 * What the problem, question, or request is.
 * What browser is being used.

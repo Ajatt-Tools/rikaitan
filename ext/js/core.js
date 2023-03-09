@@ -723,7 +723,7 @@ class Logger extends EventDispatcher {
         if (typeof errorData !== 'undefined') {
             message += `\nData: ${JSON.stringify(errorData, null, 4)}`;
         }
-        message += '\n\nIssues can be reported at https://github.com/FooSoft/yomichan/issues';
+        message += '\n\nIssues can be reported at https://github.com/Ajatt-Tools/rikaitan/issues';
 
         switch (level) {
             case 'info': console.info(message); break;

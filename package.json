@@ -19,7 +19,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/FooSoft/yomichan.git"
+        "url": "git+https://github.com/Ajatt-Tools/rikaitan.git"
     },
     "license": "GPL-3.0-or-later",
     "licenses": [
@@ -29,7 +29,7 @@
         }
     ],
     "bugs": {
-        "url": "https://github.com/FooSoft/yomichan/issues"
+        "url": "https://github.com/Ajatt-Tools/rikaitan/issues"
     },
     "homepage": "https://foosoft.net/projects/yomichan/",
     "webExt": {

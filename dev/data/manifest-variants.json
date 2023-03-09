@@ -259,7 +259,7 @@
                 {
                     "action": "set",
                     "path": ["browser_specific_settings", "gecko", "update_url"],
-                    "value": "https://raw.githubusercontent.com/FooSoft/yomichan/metadata/updates.json"
+                    "value": "https://raw.githubusercontent.com/Ajatt-Tools/rikaitan/metadata/updates.json"
                 }
             ],
             "excludeFiles": [
