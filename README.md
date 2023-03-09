@@ -80,7 +80,8 @@ Import](https://foosoft.net/projects/yomichan-import) page to learn how to conve
 Be aware that the non-English dictionaries contain fewer entries than their English counterparts. Even if your primary
 language is not English, you may consider also importing the English version for better coverage.
 
-👉 https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries
+* [Our recommended dictionaries](https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries)
+* [Other dictionaries](https://github.com/Ajatt-Tools/rikaitan#dictionaries)
 
 ## Basic Usage
 
