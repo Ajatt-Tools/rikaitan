@@ -4,7 +4,7 @@ Issues reported on [GitHub](https://github.com/Ajatt-Tools/rikaitan/issues) shou
 
 * What the problem, question, or request is.
 * What browser is being used.
-* What version of Yomichan is being used.
+* What version of Rikaitan is being used.
 * If applicable, an export of the settings file.
 
 # Development
@@ -21,7 +21,7 @@ Below are a few guidelines to ensure contributions have a good level of quality 
 
 ## Setup
 
-Yomichan uses [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) tools for building and testing.
+Rikaitan uses [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) tools for building and testing.
 After installing these Node.js, the development environment can be set up by running `npm ci`.
 
 ## Testing

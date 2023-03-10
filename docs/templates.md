@@ -2,7 +2,7 @@
 
 ## Helpers
 
-Yomichan supports several custom Handlebars helpers for rendering templates.
+Rikaitan supports several custom Handlebars helpers for rendering templates.
 The source code for these templates can be found [here](../ext/js/templates/sandbox/anki-template-renderer.js).
 
 
@@ -846,8 +846,8 @@ Converts hiragana text to katakana.
 
 ## Legacy Helpers
 
-Yomichan has historically used Handlebars templates to generate the HTML used on the search page and results popup.
-To simplify the and improve Yomichan's capabilities, the HTML elements are now generated directly using a different process.
+Rikaitan has historically used Handlebars templates to generate the HTML used on the search page and results popup.
+To simplify the and improve Rikaitan's capabilities, the HTML elements are now generated directly using a different process.
 
 As such, there are several leftover Handlebars helpers that do not have much utility for Anki templates, but are kept for compatibility purposes.
 
