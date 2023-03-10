@@ -12,7 +12,7 @@
 > Given this is a distributed effort, we wholeheartedly welcome any new
 > contributors. Please feel free to look through the issue tracker,
 > or join us on the [DJT Matrix](https://tatsumoto.neocities.org/blog/join-our-community)
-> at [#tools](https://matrix.to/#/#tools:g33k.se).
+> at [#tools](https://matrix.to/#/#tools:midov.pl).
 
 Rikaitan turns your web browser into a tool for building Japanese language literacy by helping you to decipher texts
 which would be otherwise too difficult tackle. This extension is similar to
