@@ -16,7 +16,7 @@
 
 Rikaitan turns your web browser into a tool for building Japanese language literacy by helping you to decipher texts
 which would be otherwise too difficult tackle. This extension is similar to
-[Rikaichamp](https://addons.mozilla.org/en-US/firefox/addon/rikaichamp/) for Firefox and
+[10ten Japanese Reader (formerly Rikaichamp)](https://addons.mozilla.org/en-US/firefox/addon/10ten-ja-reader/) for Firefox and
 [Rikaikun](https://chrome.google.com/webstore/detail/rikaikun/jipdnfibhldikgcjhfnomkfpcebammhp?hl=en) for Chrome, but it
 stands apart in its goal of being an all-encompassing learning tool as opposed to a mere browser-based dictionary.
 
@@ -81,7 +81,7 @@ Be aware that the non-English dictionaries contain fewer entries than their Engl
 language is not English, you may consider also importing the English version for better coverage.
 
 * [Our recommended dictionaries](https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries)
-* [Other dictionaries](https://github.com/Ajatt-Tools/rikaitan#dictionaries)
+* [Other dictionaries](https://github.com/Ajatt-Tools/rikaitan/tree/dictionaries)
 
 ## Basic Usage
 
