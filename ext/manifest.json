@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
-    "name": "Yomichan",
+    "name": "Rikaitan",
     "version": "22.10.23.0",
     "description": "Japanese dictionary with Anki integration",
-    "author": "Alex Yatskov",
+    "author": "Ajatt-Tools and contributors",
     "icons": {
         "16": "images/icon16.png",
         "19": "images/icon19.png",
@@ -23,7 +23,7 @@
             "64": "images/icon64.png",
             "128": "images/icon128.png"
         },
-        "default_title": "Yomichan",
+        "default_title": "Rikaitan",
         "default_popup": "action-popup.html"
     },
     "background": {

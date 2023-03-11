@@ -1,5 +1,5 @@
 {
-    "name": "yomichan",
+    "name": "rikaitan",
     "version": "0.0.0",
     "description": "Japanese pop-up dictionary extension for Chrome and Firefox.",
     "directories": {
@@ -31,7 +31,7 @@
     "bugs": {
         "url": "https://github.com/Ajatt-Tools/rikaitan/issues"
     },
-    "homepage": "https://foosoft.net/projects/yomichan/",
+    "homepage": "https://github.com/Ajatt-Tools/rikaitan/",
     "webExt": {
         "sourceDir": "ext"
     },

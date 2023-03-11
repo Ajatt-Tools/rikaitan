@@ -1,10 +1,10 @@
 {
     "manifest": {
         "manifest_version": 2,
-        "name": "Yomichan",
+        "name": "Rikaitan",
         "version": "22.10.23.0",
         "description": "Japanese dictionary with Anki integration",
-        "author": "Alex Yatskov",
+        "author": "Ajatt-Tools and contributors",
         "icons": {
             "16": "images/icon16.png",
             "19": "images/icon19.png",
@@ -24,7 +24,7 @@
                 "64": "images/icon64.png",
                 "128": "images/icon128.png"
             },
-            "default_title": "Yomichan",
+            "default_title": "Rikaitan",
             "default_popup": "action-popup.html"
         },
         "background": {
@@ -129,7 +129,7 @@
         {
             "name": "chrome",
             "inherit": "base",
-            "fileName": "yomichan-chrome.zip",
+            "fileName": "rikaitan-chrome.zip",
             "excludeFiles": [
                 "sw.js",
                 "js/dom/simple-dom-parser.js",
@@ -139,7 +139,7 @@
         {
             "name": "chrome-dev",
             "inherit": "chrome",
-            "fileName": "yomichan-chrome-dev.zip",
+            "fileName": "rikaitan-chrome-dev.zip",
             "modifications": [
                 {
                     "action": "replace",
@@ -160,7 +160,7 @@
         {
             "name": "chrome-mv3",
             "inherit": "base",
-            "fileName": "yomichan-chrome-mv3.zip",
+            "fileName": "rikaitan-chrome-mv3.zip",
             "modifications": [
                 {"action": "set",    "path": ["manifest_version"], "value": 3},
                 {"action": "set",    "path": ["minimum_chrome_version"], "value": "96.0.0.0"},
@@ -189,7 +189,7 @@
         {
             "name": "firefox",
             "inherit": "base",
-            "fileName": "yomichan-firefox.xpi",
+            "fileName": "rikaitan-firefox.xpi",
             "modifications": [
                 {
                     "action": "remove",
@@ -210,7 +210,7 @@
                     "path": ["browser_specific_settings"],
                     "value": {
                         "gecko": {
-                            "id": "alex@foosoft.net",
+                            "id": "tatsu@autistici.org",
                             "strict_min_version": "57.0"
                         }
                     }
@@ -235,7 +235,7 @@
         {
             "name": "firefox-dev",
             "inherit": "firefox",
-            "fileName": "yomichan-firefox-dev.xpi",
+            "fileName": "rikaitan-firefox-dev.xpi",
             "modifications": [
                 {
                     "action": "replace",
@@ -254,7 +254,7 @@
                 {
                     "action": "set",
                     "path": ["browser_specific_settings", "gecko", "id"],
-                    "value": "alex.testing@foosoft.net"
+                    "value": "tatsu@autistici.org"
                 },
                 {
                     "action": "set",
@@ -271,7 +271,7 @@
         {
             "name": "firefox-mv3",
             "inherit": "firefox",
-            "fileName": "yomichan-firefox-mv3.xpi",
+            "fileName": "rikaitan-firefox-mv3.xpi",
             "modifications": [
                 {"action": "set",    "path": ["manifest_version"], "value": 3},
                 {"action": "set",    "path": ["browser_specific_settings", "gecko", "strict_min_version"], "value": "101.0"},
