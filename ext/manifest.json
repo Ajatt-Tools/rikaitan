@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Rikaitan",
     "version": "22.10.23.0",
     "description": "Japanese dictionary with Anki integration",
@@ -13,7 +13,7 @@
         "64": "images/icon64.png",
         "128": "images/icon128.png"
     },
-    "browser_action": {
+    "action": {
         "default_icon": {
             "16": "images/icon16.png",
             "19": "images/icon19.png",
@@ -27,17 +27,12 @@
         "default_popup": "action-popup.html"
     },
     "background": {
-        "page": "background.html",
-        "persistent": true
+        "service_worker": "sw.js"
     },
     "content_scripts": [
         {
             "run_at": "document_idle",
-            "matches": [
-                "http://*/*",
-                "https://*/*",
-                "file://*/*"
-            ],
+            "matches": ["http://*/*", "https://*/*", "file://*/*"],
             "match_about_blank": true,
             "all_frames": true,
             "js": [
@@ -66,30 +61,24 @@
             ]
         }
     ],
-    "minimum_chrome_version": "57.0.0.0",
+    "minimum_chrome_version": "96.0.0.0",
     "options_ui": {
         "page": "settings.html",
         "open_in_tab": true
     },
     "sandbox": {
-        "pages": [
-            "template-renderer.html"
-        ],
-        "content_security_policy": "sandbox allow-scripts; default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'unsafe-inline'"
+        "pages": ["template-renderer.html"]
     },
     "permissions": [
-        "<all_urls>",
         "storage",
         "clipboardWrite",
         "unlimitedStorage",
         "webRequest",
-        "webRequestBlocking"
+        "declarativeNetRequest",
+        "scripting"
     ],
-    "optional_permissions": [
-        "clipboardRead",
-        "nativeMessaging",
-        "webNavigation"
-    ],
+    "optional_permissions": ["clipboardRead", "nativeMessaging"],
+    "host_permissions": ["<all_urls>"],
     "commands": {
         "toggleTextScanning": {
             "suggested_key": {
@@ -114,8 +103,13 @@
         }
     },
     "web_accessible_resources": [
-        "popup.html",
-        "template-renderer.html"
+        {
+            "resources": ["popup.html", "template-renderer.html"],
+            "matches": ["<all_urls>"]
+        }
     ],
-    "content_security_policy": "default-src 'self'; img-src blob: 'self'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *"
+    "content_security_policy": {
+        "extension_pages": "default-src 'self'; img-src blob: 'self'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *",
+        "sandbox": "sandbox allow-scripts; default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'unsafe-inline'"
+    }
 }
