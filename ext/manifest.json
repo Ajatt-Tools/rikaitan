@@ -32,7 +32,11 @@
     "content_scripts": [
         {
             "run_at": "document_idle",
-            "matches": ["http://*/*", "https://*/*", "file://*/*"],
+            "matches": [
+                "http://*/*",
+                "https://*/*",
+                "file://*/*"
+            ],
             "match_about_blank": true,
             "all_frames": true,
             "js": [
@@ -67,7 +71,9 @@
         "open_in_tab": true
     },
     "sandbox": {
-        "pages": ["template-renderer.html"]
+        "pages": [
+            "template-renderer.html"
+        ]
     },
     "permissions": [
         "storage",
@@ -77,8 +83,13 @@
         "declarativeNetRequest",
         "scripting"
     ],
-    "optional_permissions": ["clipboardRead", "nativeMessaging"],
-    "host_permissions": ["<all_urls>"],
+    "optional_permissions": [
+        "clipboardRead",
+        "nativeMessaging"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
     "commands": {
         "toggleTextScanning": {
             "suggested_key": {
@@ -104,8 +115,13 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["popup.html", "template-renderer.html"],
-            "matches": ["<all_urls>"]
+            "resources": [
+                "popup.html",
+                "template-renderer.html"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
         }
     ],
     "content_security_policy": {
