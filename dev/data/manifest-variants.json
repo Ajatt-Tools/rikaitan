@@ -2,7 +2,7 @@
     "manifest": {
         "manifest_version": 3,
         "name": "Rikaitan",
-        "version": "22.10.23.1",
+        "version": "22.10.23.2",
         "description": "Japanese dictionary with Anki integration",
         "author": "Ajatt-Tools and contributors",
         "icons": {
