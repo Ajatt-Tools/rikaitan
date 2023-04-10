@@ -45,7 +45,7 @@
         "eslint-plugin-jsonc": "^2.6.0",
         "eslint-plugin-no-unsanitized": "^4.0.1",
         "fake-indexeddb": "^4.0.1",
-        "html-validate": "^7.6.0",
+        "html-validate": "^7.15.1",
         "jsdom": "^21.1.1",
         "parse5": "^7.1.2",
         "stylelint": "^14.16.1",
