@@ -1,5 +1,3 @@
-# Rikaitan
-
 > This project is a community-driven fork of Yomichan,
 > which is no longer  maintained.
 > Our primary objective is to maintain the project,
@@ -11,12 +9,11 @@
 >
 > Given this is a distributed effort, we wholeheartedly welcome any new
 > contributors. Please feel free to look through the issue tracker,
-> or join us on the [DJT Matrix](https://tatsumoto.neocities.org/blog/join-our-community)
-> at [#tools](https://matrix.to/#/#tools:midov.pl).
+> or join us on the [DJT Matrix](https://tatsumoto.neocities.org/blog/join-our-community).
 
 Rikaitan turns your web browser into a tool for building Japanese language literacy by helping you to decipher texts
 which would be otherwise too difficult tackle. This extension is similar to
-[10ten Japanese Reader (formerly Rikaichamp)](https://addons.mozilla.org/en-US/firefox/addon/10ten-ja-reader/) for Firefox and
+[10ten Japanese Reader](https://addons.mozilla.org/en-US/firefox/addon/10ten-ja-reader/) for Firefox and
 [Rikaikun](https://chrome.google.com/webstore/detail/rikaikun/jipdnfibhldikgcjhfnomkfpcebammhp?hl=en) for Chrome, but it
 stands apart in its goal of being an all-encompassing learning tool as opposed to a mere browser-based dictionary.
 
@@ -65,14 +62,12 @@ submitting issues on GitHub, try the *testing* version; otherwise, the *stable* 
 
 <summary>Old Yomichan releases</summary>
 
-* **Google Chrome**
-  ([stable](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) or [testing](https://chrome.google.com/webstore/detail/yomichan-testing/bcknnfebhefllbjhagijobjklocakpdm))
-
+* **Google Chrome** ([stable](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) or [testing](https://chrome.google.com/webstore/detail/yomichan-testing/bcknnfebhefllbjhagijobjklocakpdm))
+  
   [![image](img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami)
-
-* **Mozilla Firefox**
-  ([stable](https://addons.mozilla.org/en-US/firefox/addon/yomichan/) or [testing](https://github.com/FooSoft/yomichan/releases)<sup>*</sup>)
-
+  
+* **Mozilla Firefox** ([stable](https://addons.mozilla.org/en-US/firefox/addon/yomichan/) or [testing](https://github.com/FooSoft/yomichan/releases)<sup>*</sup>)
+  
   <sup>*</sup>Unlike Chrome, Firefox does not allow extensions meant for testing to be hosted in the marketplace.
   You will have to download a desired version and side-load it yourself. You only need to do this once and will get
   updates automatically.
