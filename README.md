@@ -48,31 +48,20 @@ Rikaitan provides advanced features not available in other browser-based diction
 
 ## Installation
 
-Rikaitan comes in two flavors: *stable* and *testing*. Over the years, this extension has evolved to contain many
-complex features which have become increasingly difficult to test across different browsers, versions, and environments.
-New changes are initially introduced into the *testing* version, and after some time spent ensuring that they are
-relatively bug free, they will be promoted to the *stable* version. If you are technically savvy and don't mind
-submitting issues on GitHub, try the *testing* version; otherwise, the *stable* version will be your best bet.
+Currently Rikaitan is available for [Firefox](https://wiki.archlinux.org/title/Firefox)-based web browsers.
+We recommend [LibreWolf](https://librewolf.net/) as your everyday web browser.
 
 **Download from Firefox Browser add-ons:**
 
 [![image](img/firefox-marketplace.png)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
 
-<details>
+**[Old Yomichan releases](#old-yomichan-releases)**
 
-<summary>Old Yomichan releases</summary>
-
-* **Google Chrome** ([stable](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) or [testing](https://chrome.google.com/webstore/detail/yomichan-testing/bcknnfebhefllbjhagijobjklocakpdm))
-  
-  [![image](img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami)
-  
-* **Mozilla Firefox** ([stable](https://addons.mozilla.org/en-US/firefox/addon/yomichan/) or [testing](https://github.com/FooSoft/yomichan/releases)<sup>*</sup>)
-  
-  <sup>*</sup>Unlike Chrome, Firefox does not allow extensions meant for testing to be hosted in the marketplace.
-  You will have to download a desired version and side-load it yourself. You only need to do this once and will get
-  updates automatically.
-
-</details>
+Rikaitan comes in two flavors: *stable* and *testing*. Over the years, this extension has evolved to contain many
+complex features which have become increasingly difficult to test across different browsers, versions, and environments.
+New changes are initially introduced into the *testing* version, and after some time spent ensuring that they are
+relatively bug free, they will be promoted to the *stable* version. If you are technically savvy and don't mind
+submitting issues on GitHub, try the *testing* version; otherwise, the *stable* version will be your best bet.
 
 ## Dictionaries
 
@@ -335,3 +324,18 @@ versions packaged.
 *   JSZip: [homepage](https://stuk.github.io/jszip/) - [snapshot](https://github.com/Stuk/jszip/blob/v3.9.1/dist/jszip.min.js) - [license](https://github.com/Stuk/jszip/blob/v3.9.1/LICENSE.markdown)
 *   WanaKana: [homepage](https://wanakana.com/) - [snapshot](https://unpkg.com/wanakana@4.0.2/umd/wanakana.min.js) - [license](https://github.com/WaniKani/WanaKana/blob/4.0.2/LICENSE)
 *   parse5: [homepage](https://github.com/inikulin/parse5) - [snapshot](https://github.com/inikulin/parse5/tree/v7.1.2/packages/parse5) - [license](https://github.com/inikulin/parse5/blob/v7.1.2/LICENSE) _(Only used in MV3 build)_
+
+## Old Yomichan releases
+
+Yomichan is the previous name of this add-on.
+The versions below were created before the original developer quit.
+
+* **Google Chrome** ([stable](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) or [testing](https://chrome.google.com/webstore/detail/yomichan-testing/bcknnfebhefllbjhagijobjklocakpdm))
+  
+  [![image](img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami)
+
+* **Mozilla Firefox** ([stable](https://addons.mozilla.org/en-US/firefox/addon/yomichan/) or [testing](https://github.com/FooSoft/yomichan/releases)<sup>*</sup>)
+  
+  <sup>*</sup>Unlike Chrome, Firefox does not allow extensions meant for testing to be hosted in the marketplace.
+  You will have to download a desired version and side-load it yourself. You only need to do this once and will get
+  updates automatically.
