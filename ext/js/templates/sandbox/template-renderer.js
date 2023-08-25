@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,6 +18,7 @@
 
 /* global
  * Handlebars
+ * handlebarsCompileFnName
  */
 
 class TemplateRenderer {
@@ -82,7 +84,7 @@ class TemplateRenderer {
         let instance = cache.get(template);
         if (typeof instance === 'undefined') {
             this._updateCacheSize(this._cacheMaxSize - 1);
-            instance = Handlebars.compile(template);
+            instance = Handlebars[handlebarsCompileFnName](template);
             cache.set(template, instance);
         }
 

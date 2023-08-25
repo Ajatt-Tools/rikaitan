@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -173,7 +174,6 @@ function ensureFilesExist(directory, files) {
         assert.ok(fs.existsSync(path.join(directory, file)));
     }
 }
-
 
 async function main(argv) {
     const args = getArgs(argv, new Map([

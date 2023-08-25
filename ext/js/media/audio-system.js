@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -79,7 +80,7 @@ class AudioSystem extends EventDispatcher {
                 const duration = audio.duration;
                 return (
                     duration !== 5.694694 && // Invalid audio (Chrome)
-                    duration !== 5.720718 // Invalid audio (Firefox)
+                    duration !== 5.651111 // Invalid audio (Firefox)
                 );
             }
             default:

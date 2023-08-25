@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -678,6 +679,16 @@ select.short-height {
     flex: 0 1 auto;
     padding-top: var(--padding);
     padding-right: var(--padding);
+}
+.settings-item-progress-report {
+    display: none;
+    font-weight: bold;
+    color: #4169e1;
+}
+.settings-item-error-report {
+    display: none;
+    font-weight: bold;
+    color: #8b0000;
 }
 
 

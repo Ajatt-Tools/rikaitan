@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -1145,7 +1146,7 @@ async function testFieldTemplatesUpdate(extDir) {
         {{~/each~}}
         {{~#if (op ">" pitchCount 1)~}}</ol>{{~/if~}}
     {{~else~}}
-        No pitch accent data
+
     {{~/if~}}
 {{/inline}}
 
@@ -1195,7 +1196,7 @@ async function testFieldTemplatesUpdate(extDir) {
         {{~/each~}}
         {{~#if (op ">" pitchCount 1)~}}</ol>{{~/if~}}
     {{~else~}}
-        No pitch accent data
+
     {{~/if~}}
 {{/inline}}
 

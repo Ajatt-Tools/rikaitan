@@ -1516,7 +1516,7 @@
         <div class="settings-item"><div class="settings-item-inner settings-item-inner-wrappable">
             <div class="settings-item-left">
                 <div class="settings-item-label">Convert half width characters to full width</div>
-                <div class="settings-item-description" lang="ja">ﾖﾐﾁｬﾝ&#x3000;&rarr;&#x3000;ヨミチャン</div>
+                <div class="settings-item-description" lang="ja">ﾘｶｲﾀﾝ&#x3000;&rarr;&#x3000;リカイタン</div>
             </div>
             <div class="settings-item-right">
                 <select data-setting="translation.convertHalfWidthCharacters">
@@ -1542,7 +1542,7 @@
         <div class="settings-item"><div class="settings-item-inner settings-item-inner-wrappable">
             <div class="settings-item-left">
                 <div class="settings-item-label">Convert alphabetic characters to hiragana</div>
-                <div class="settings-item-description" lang="ja">yomichan&#x3000;&rarr;&#x3000;よみちゃん</div>
+                <div class="settings-item-description" lang="ja">rikaitan&#x3000;&rarr;&#x3000;りかいたん</div>
             </div>
             <div class="settings-item-right">
                 <select data-setting="translation.convertAlphabeticCharacters">
@@ -1555,7 +1555,7 @@
         <div class="settings-item"><div class="settings-item-inner settings-item-inner-wrappable">
             <div class="settings-item-left">
                 <div class="settings-item-label">Convert hiragana to katakana</div>
-                <div class="settings-item-description" lang="ja">よみちゃん&#x3000;&rarr;&#x3000;ヨミチャン</div>
+                <div class="settings-item-description" lang="ja">りかいたん&#x3000;&rarr;&#x3000;リカイタン</div>
             </div>
             <div class="settings-item-right">
                 <select data-setting="translation.convertHiraganaToKatakana">
@@ -1568,7 +1568,7 @@
         <div class="settings-item"><div class="settings-item-inner settings-item-inner-wrappable">
             <div class="settings-item-left">
                 <div class="settings-item-label">Convert katakana to hiragana</div>
-                <div class="settings-item-description" lang="ja">ヨミチャン&#x3000;&rarr;&#x3000;よみちゃん</div>
+                <div class="settings-item-description" lang="ja">リカイタン&#x3000;&rarr;&#x3000;りかいたん</div>
             </div>
             <div class="settings-item-right">
                 <select data-setting="translation.convertKatakanaToHiragana">
@@ -2033,9 +2033,14 @@
         <div class="settings-item"><div class="settings-item-inner">
             <div class="settings-item-left">
                 <div class="settings-item-label">
-                    Rikaitan can import and export settings files which can be used to restore settings, share settings across devices, and to help to debug problems.
-                    These files will only contain settings and will not contain dictionaries.
+                    Rikaitan can import and export settings files which can be
+                    used to restore settings, share settings across devices,
+                    and to help to debug problems. These files will only
+                    contain settings and will not contain dictionaries.
                     Dictionaries must be imported separately.
+
+                    However, you can also import a previously exported collection of
+                    dictionaries. See the next section about that.
                 </div>
             </div>
         </div></div>
@@ -2052,6 +2057,47 @@
                     <div class="settings-item-button-group-item">
                         <button class="low-emphasis danger" id="settings-reset-button">Reset Settings</button>
                     </div>
+                </div>
+            </div>
+        </div></div>
+        <div class="settings-item"><div class="settings-item-inner">
+            <div class="settings-item-left">
+                <div class="settings-item-label">
+                    You can try to export the entire collection of your
+                    dictionaries into a single large file that you can try to
+                    import from other browsers or devices. Importing the
+                    collection like that is a destructive operation and will
+                    replace your current database of dictionaries so please
+                    proceed with caution. These operations can take a lot of
+                    time depending on the size of your database, especially to
+                    start and to complete, so have patience.
+                </div>
+            </div>
+        </div></div>
+        <div class="settings-item"><div class="settings-item-inner">
+            <div class="settings-item-right settings-item-button-group-container">
+                <div class="settings-item-button-group">
+                    <div class="settings-item-button-group-item">
+                        <button class="low-emphasis" id="settings-import-db-button">Import Dictionary Collection</button>
+                        <div hidden><input type="file" id="settings-import-db" accept=".json,application/json"></div>
+                    </div>
+                    <div class="settings-item-button-group-item">
+                        <button class="low-emphasis" id="settings-export-db-button">Export Dictionary Collection</button>
+                    </div>
+                </div>
+            </div>
+        </div></div>
+        <div class="settings-item"><div class="settings-item-inner">
+            <div class="settings-item-left">
+                <div class="settings-item-progress-report" id="db-ops-progress-report">
+                    Placeholder text.
+                </div>
+            </div>
+        </div></div>
+        <div class="settings-item"><div class="settings-item-inner">
+            <div class="settings-item-left">
+                <div class="settings-item-error-report" id="db-ops-error-report">
+                    Placeholder text.
                 </div>
             </div>
         </div></div>
@@ -2407,8 +2453,8 @@
 
         <div class="warning-text margin-above no-dictionaries-installed-warning" hidden>
             No dictionaries have been installed yet.
-            Visit the <a href="https://foosoft.net/projects/yomichan/#dictionaries" target="_blank" rel="noopener noreferrer">Rikaitan homepage</a>
-            for a list free dictionaries or click the <em>Import</em> button below to select a dictionary file to import.
+            Visit the <a href="https://tatsumoto-ren.github.io/blog/yomichan-and-epwing-dictionaries.html" target="_blank" rel="noopener noreferrer">Tatsumoto website</a>
+            for a list of free dictionaries, or click the <em>Import</em> button below to select a dictionary file to import.
         </div>
         <div id="dictionary-error" class="danger-text margin-above" hidden></div>
         <div id="dictionary-list" class="dictionary-list generic-list" data-count="0">
@@ -2430,6 +2476,7 @@
         <div class="progress-bar-track"><div class="progress-bar"></div></div>
     </div>
     <div class="modal-footer">
+        <button class="low-emphasis" id="get-third-party-dictionaries">Get dictionaries</button>
         <button class="low-emphasis danger dictionary-database-mutating-input" id="dictionary-delete-all-button">Delete All</button>
         <button class="low-emphasis dictionary-database-mutating-input" id="dictionary-check-integrity">Check Integrity</button>
         <button class="low-emphasis dictionary-database-mutating-input" id="dictionary-import-file-button">Import</button>
@@ -3803,6 +3850,13 @@
 
 
 <!-- Scripts -->
+<script src="/lib/dexie.min.js"></script>
+
+<!-- The linter enforces a lexicographical order for each 'group' of imported scripts as demarked by newline between groups
+     but this extension to dexie must be loaded after the main dexie library, hence breaking it out into its own group.
+     Perhaps The linter could be smarter and ignore 3p libaries for import order. -->
+<script src="/lib/dexie-export-import.min.js"></script>
+
 <script src="/lib/wanakana.min.js"></script>
 
 <script src="/js/core.js"></script>

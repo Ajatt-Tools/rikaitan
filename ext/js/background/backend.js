@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -238,7 +239,7 @@ class Backend {
 
             const options = this._getProfileOptions({current: true});
             if (options.general.showGuide) {
-                this._openWelcomeGuidePage();
+                this._openWelcomeGuidePageOnce();
             }
 
             this._clipboardMonitor.on('change', this._onClipboardTextChange.bind(this));
@@ -592,7 +593,7 @@ class Backend {
     async _onApiInjectStylesheet({type, value}, sender) {
         const {frameId, tab} = sender;
         if (!isObject(tab)) { throw new Error('Invalid tab'); }
-        return await this._scriptManager.injectStylesheet(type, value, tab.id, frameId, false, true, 'document_start');
+        return await this._scriptManager.injectStylesheet(type, value, tab.id, frameId, false);
     }
 
     async _onApiGetStylesheetContent({url}) {
@@ -789,7 +790,7 @@ class Backend {
         if (typeof tabId !== 'number') { throw new Error('Sender has invalid tab ID'); }
         const {frameId} = sender;
         for (const file of files) {
-            await this._scriptManager.injectScript(file, tabId, frameId, false, true, 'document_start');
+            await this._scriptManager.injectScript(file, tabId, frameId, false);
         }
     }
 
@@ -1378,16 +1379,16 @@ class Backend {
 
     _getBrowserIconTitle() {
         return (
-            isObject(chrome.browserAction) &&
-            typeof chrome.browserAction.getTitle === 'function' ?
-                new Promise((resolve) => chrome.browserAction.getTitle({}, resolve)) :
+            isObject(chrome.action) &&
+            typeof chrome.action.getTitle === 'function' ?
+                new Promise((resolve) => chrome.action.getTitle({}, resolve)) :
                 Promise.resolve('')
         );
     }
 
     _updateBadge() {
         let title = this._defaultBrowserActionTitle;
-        if (title === null || !isObject(chrome.browserAction)) {
+        if (title === null || !isObject(chrome.action)) {
             // Not ready or invalid
             return;
         }
@@ -1436,17 +1437,17 @@ class Backend {
             }
         }
 
-        if (color !== null && typeof chrome.browserAction.setBadgeBackgroundColor === 'function') {
-            chrome.browserAction.setBadgeBackgroundColor({color});
+        if (color !== null && typeof chrome.action.setBadgeBackgroundColor === 'function') {
+            chrome.action.setBadgeBackgroundColor({color});
         }
-        if (text !== null && typeof chrome.browserAction.setBadgeText === 'function') {
-            chrome.browserAction.setBadgeText({text});
+        if (text !== null && typeof chrome.action.setBadgeText === 'function') {
+            chrome.action.setBadgeText({text});
         }
-        if (typeof chrome.browserAction.setTitle === 'function') {
+        if (typeof chrome.action.setTitle === 'function') {
             if (status !== null) {
                 title = `${title} - ${status}`;
             }
-            chrome.browserAction.setTitle({title});
+            chrome.action.setTitle({title});
         }
     }
 
@@ -2149,6 +2150,23 @@ class Backend {
             textReplacements.unshift(null);
         }
         return textReplacements;
+    }
+
+    async _openWelcomeGuidePageOnce() {
+        if (isObject(chrome.storage) && isObject(chrome.storage.session)) {
+            // Chrome
+            chrome.storage.session.get(['openedWelcomePage']).then((result) => {
+                if (!result.openedWelcomePage) {
+                    this._openWelcomeGuidePage();
+                    chrome.storage.session.set({'openedWelcomePage': true});
+                }
+            });
+        } else {
+            // Firefox (storage.session is not supported yet)
+            // NOTE: This means that the welcome page will repeatedly open in Firefox
+            // until they support storage.session.
+            this._openWelcomeGuidePage();
+        }
     }
 
     async _openWelcomeGuidePage() {

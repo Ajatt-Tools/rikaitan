@@ -1,0 +1,75 @@
+#!/bin/python3
+
+import dataclasses
+import datetime
+import functools
+import json
+import os.path
+
+MANIFEST_VARIANTS = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    'dev', 'data', 'manifest-variants.json',
+)
+
+
+@dataclasses.dataclass
+class Version:
+    year: str
+    month: str
+    day: str
+    revision: str
+
+    def as_str(self):
+        return '.'.join(dataclasses.astuple(self))
+
+    @classmethod
+    def from_str(cls, string: str):
+        return cls(*string.split('.'))
+
+    def __eq__(self, other):
+        return (
+                self.year == other.year
+                and self.month == other.month
+                and self.day == other.day
+        )
+
+    def bump_rev(self):
+        self.revision = str(int(self.revision) + 1)
+        return self
+
+
+@functools.cache
+def today_date():
+    return datetime.date.today()
+
+
+def make_new_version() -> Version:
+    return Version(
+        str(today_date().year)[-2:],
+        str(today_date().month),
+        str(today_date().day),
+        '0'
+    )
+
+
+def calc_new_version(old_version: Version) -> Version:
+    new_version = make_new_version()
+    if old_version == new_version:
+        new_version = old_version.bump_rev()
+    return new_version
+
+
+def main():
+    with open(MANIFEST_VARIANTS, encoding='utf8') as f:
+        data = json.load(f)
+
+    data['manifest']['version'] = calc_new_version(Version.from_str(data['manifest']['version'])).as_str()
+
+    print("New version", data['manifest']['version'])
+
+    with open(MANIFEST_VARIANTS, 'w', encoding='utf8') as of:
+        json.dump(data, of, indent=4)
+
+
+if __name__ == '__main__':
+    main()

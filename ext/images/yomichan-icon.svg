@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="16" height="16" version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
- <rect width="16" height="16" rx="1.625" ry="1.625"/>
- <path d="m2 2v2h3v3h-3v2h3v3h-3v2h5v-12h-5zm7 0v2h5v-2h-5zm0 5v2h5v-2h-5zm0 5v2h5v-2h-5z" fill="#fff"/>
+ <g>
+  <rect ry="2" rx="2" height="16" width="16" fill="black"/>
+  <path fill="white" d="m2,2 v8 h2 v-8 z"/>
+  <path fill="white" d="m5,2 v12 h2 v-12 z"/>
+  <path fill="white" d="m8,5 h6 v8 h-2 v-6 h-4 z"/>
+  <path fill="white" d="m9,2 v12 h2 v-12 z"/>
+ </g>
 </svg>

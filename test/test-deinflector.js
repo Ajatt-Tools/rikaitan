@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -920,8 +921,8 @@ function testDeinflections() {
     vm.execute(['js/language/deinflector.js']);
     const [Deinflector] = vm.get(['Deinflector']);
 
-    const deinflectionReasions = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'ext', 'data/deinflect.json')));
-    const deinflector = new Deinflector(deinflectionReasions);
+    const deinflectionReasons = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'ext', 'data/deinflect.json')));
+    const deinflector = new Deinflector(deinflectionReasons);
 
     for (const {valid, tests} of data) {
         for (const {source, term, rule, reasons} of tests) {

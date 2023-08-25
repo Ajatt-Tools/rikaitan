@@ -1,0 +1,48 @@
+name: Create prerelease on tag
+on:
+  push:
+    tags:
+      - "*.*.*.*"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-release-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ".node-version"
+
+      - name: Lint
+        run: npm run-script build
+        shell: bash
+
+      - name: Release
+        id: release
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # pin@v0.1.15
+        with:
+          generate_release_notes: true
+          prerelease: true
+          files: builds/*
+
+      - name: Dispatch publish-chrome-development
+        uses: aurelien-baudet/workflow-dispatch@93e95b157d791ae7f42aef8f8a0d3d723eba1c31 # pin@v2
+        with:
+          workflow: publish-chrome-development
+          token: ${{ secrets.GITHUB_TOKEN }}
+          wait-for-completion: false
+
+      - name: Dispatch publish-firefox-development
+        uses: aurelien-baudet/workflow-dispatch@93e95b157d791ae7f42aef8f8a0d3d723eba1c31 # pin@v2
+        with:
+          workflow: publish-firefox-development
+          token: ${{ secrets.GITHUB_TOKEN }}
+          wait-for-completion: false
+          inputs: '{ "upload_url": "${{ steps.release.outputs.upload_url }}" }'

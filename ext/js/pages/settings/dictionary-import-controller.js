@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +23,7 @@
 
 class DictionaryImportController {
     constructor(settingsController, modalController, statusFooter) {
+        this._getUrl = 'https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#yomichan';
         this._settingsController = settingsController;
         this._modalController = modalController;
         this._statusFooter = statusFooter;
@@ -47,6 +49,7 @@ class DictionaryImportController {
     }
 
     async prepare() {
+        this._getButton = document.querySelector('#get-third-party-dictionaries');
         this._purgeButton = document.querySelector('#dictionary-delete-all-button');
         this._purgeConfirmButton = document.querySelector('#dictionary-confirm-delete-all-button');
         this._importFileButton = document.querySelector('#dictionary-import-file-button');
@@ -56,6 +59,7 @@ class DictionaryImportController {
         this._spinner = document.querySelector('#dictionary-spinner');
         this._purgeNotification = document.querySelector('#dictionary-delete-all-status');
 
+        this._getButton.addEventListener('click', this._onGetButtonClick.bind(this), false);
         this._purgeButton.addEventListener('click', this._onPurgeButtonClick.bind(this), false);
         this._purgeConfirmButton.addEventListener('click', this._onPurgeConfirmButtonClick.bind(this), false);
         this._importFileButton.addEventListener('click', this._onImportButtonClick.bind(this), false);
@@ -66,6 +70,11 @@ class DictionaryImportController {
 
     _onImportButtonClick() {
         this._importFileInput.click();
+    }
+
+    _onGetButtonClick(e) {
+        e.preventDefault();
+        window.open(this._getUrl, '_blank');
     }
 
     _onPurgeButtonClick(e) {

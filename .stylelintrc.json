@@ -6,7 +6,6 @@
     "rules": {
         "font-family-name-quotes": "always-where-recommended",
         "string-quotes": "single",
-        "color-named": "never",
         "declaration-no-important": true,
         "function-calc-no-unspaced-operator": true,
         "string-no-newline": true,

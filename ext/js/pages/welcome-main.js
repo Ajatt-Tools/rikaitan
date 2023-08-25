@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +23,7 @@
  * ExtensionContentController
  * GenericSettingController
  * ModalController
+ * RecommendedPermissionsController
  * ScanInputsSimpleController
  * SettingsController
  * SettingsDisplayController
@@ -75,6 +77,9 @@ async function setupGenericSettingsController(genericSettingController) {
 
         const simpleScanningInputController = new ScanInputsSimpleController(settingsController);
         simpleScanningInputController.prepare();
+
+        const recommendedPermissionsController = new RecommendedPermissionsController(settingsController);
+        recommendedPermissionsController.prepare();
 
         await Promise.all(preparePromises);
 

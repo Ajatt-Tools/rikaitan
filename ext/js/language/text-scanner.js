@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2023  Rikaitan Authors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -144,7 +145,8 @@ class TextScanner extends EventDispatcher {
 
         if (value) {
             this._hookEvents();
-            this._userHasNotSelectedAnythingManually = window.getSelection().isCollapsed;
+            const selection = window.getSelection();
+            this._userHasNotSelectedAnythingManually = (selection === null) ? true : selection.isCollapsed;
         }
     }
 

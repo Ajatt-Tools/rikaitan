@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Rikaitan",
-    "version": "22.10.23.2",
+    "version": "23.8.21.1",
     "description": "Japanese dictionary with Anki integration",
     "author": "Ajatt-Tools and contributors",
     "icons": {
@@ -65,7 +65,7 @@
             ]
         }
     ],
-    "minimum_chrome_version": "96.0.0.0",
+    "minimum_chrome_version": "102.0.0.0",
     "options_ui": {
         "page": "settings.html",
         "open_in_tab": true

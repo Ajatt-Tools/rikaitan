@@ -2,7 +2,7 @@
     "manifest": {
         "manifest_version": 3,
         "name": "Rikaitan",
-        "version": "22.10.23.2",
+        "version": "23.8.21.1",
         "description": "Japanese dictionary with Anki integration",
         "author": "Ajatt-Tools and contributors",
         "icons": {
@@ -33,7 +33,11 @@
         "content_scripts": [
             {
                 "run_at": "document_idle",
-                "matches": ["http://*/*", "https://*/*", "file://*/*"],
+                "matches": [
+                    "http://*/*",
+                    "https://*/*",
+                    "file://*/*"
+                ],
                 "match_about_blank": true,
                 "all_frames": true,
                 "js": [
@@ -62,13 +66,15 @@
                 ]
             }
         ],
-        "minimum_chrome_version": "96.0.0.0",
+        "minimum_chrome_version": "102.0.0.0",
         "options_ui": {
             "page": "settings.html",
             "open_in_tab": true
         },
         "sandbox": {
-            "pages": ["template-renderer.html"]
+            "pages": [
+                "template-renderer.html"
+            ]
         },
         "permissions": [
             "storage",
@@ -78,8 +84,13 @@
             "declarativeNetRequest",
             "scripting"
         ],
-        "optional_permissions": ["clipboardRead", "nativeMessaging"],
-        "host_permissions": ["<all_urls>"],
+        "optional_permissions": [
+            "clipboardRead",
+            "nativeMessaging"
+        ],
+        "host_permissions": [
+            "<all_urls>"
+        ],
         "commands": {
             "toggleTextScanning": {
                 "suggested_key": {
@@ -105,8 +116,13 @@
         },
         "web_accessible_resources": [
             {
-                "resources": ["popup.html", "template-renderer.html"],
-                "matches": ["<all_urls>"]
+                "resources": [
+                    "popup.html",
+                    "template-renderer.html"
+                ],
+                "matches": [
+                    "<all_urls>"
+                ]
             }
         ],
         "content_security_policy": {
@@ -124,7 +140,10 @@
             "name": "chrome",
             "inherit": "base",
             "fileName": "rikaitan-chrome.zip",
-            "excludeFiles": ["background.html", "js/dom/native-simple-dom-parser.js"]
+            "excludeFiles": [
+                "background.html",
+                "js/dom/native-simple-dom-parser.js"
+            ]
         },
         {
             "name": "chrome-dev",
@@ -133,14 +152,18 @@
             "modifications": [
                 {
                     "action": "replace",
-                    "path": ["name"],
+                    "path": [
+                        "name"
+                    ],
                     "pattern": "^.*$",
                     "patternFlags": "",
                     "replacement": "$& (development build)"
                 },
                 {
                     "action": "replace",
-                    "path": ["description"],
+                    "path": [
+                        "description"
+                    ],
                     "pattern": "^(.*)(?:\\.\\s*)?$",
                     "patternFlags": "",
                     "replacement": "$1. This is a development build."
@@ -154,49 +177,90 @@
             "modifications": [
                 {
                     "action": "delete",
-                    "path": ["service_worker"]
+                    "path": [
+                        "background",
+                        "service_worker"
+                    ]
                 },
                 {
                     "action": "set",
-                    "path": ["page"],
+                    "path": [
+                        "background",
+                        "page"
+                    ],
                     "value": "background.html"
                 },
                 {
                     "action": "remove",
-                    "path": ["web_accessible_resources", 0, "resources"],
+                    "path": [
+                        "web_accessible_resources",
+                        0,
+                        "resources"
+                    ],
                     "item": "template-renderer.html"
                 },
                 {
                     "action": "delete",
-                    "path": ["sandbox"]
+                    "path": [
+                        "sandbox"
+                    ]
+                },
+                {
+                    "action": "delete",
+                    "path": [
+                        "content_security_policy",
+                        "sandbox"
+                    ]
                 },
                 {
                     "action": "set",
-                    "path": ["content_security_policy", "extension_pages"],
-                    "value": "default-src 'self'; script-src 'self' 'unsafe-eval'; img-src blob: 'self'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *"
+                    "path": [
+                        "content_security_policy",
+                        "extension_pages"
+                    ],
+                    "value": "default-src 'self'; script-src 'self'; img-src blob: 'self'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *"
                 },
                 {
                     "action": "set",
-                    "path": ["browser_specific_settings"],
+                    "path": [
+                        "browser_specific_settings"
+                    ],
                     "value": {
                         "gecko": {
                             "id": "tatsu@autistici.org",
-                            "strict_min_version": "101.0"
+                            "strict_min_version": "102.0"
                         }
                     }
                 },
                 {
                     "action": "remove",
-                    "path": ["optional_permissions"],
+                    "path": [
+                        "optional_permissions"
+                    ],
                     "item": "nativeMessaging"
                 },
                 {
                     "action": "add",
-                    "path": ["permissions"],
-                    "items": ["nativeMessaging"]
+                    "path": [
+                        "permissions"
+                    ],
+                    "items": [
+                        "nativeMessaging"
+                    ]
+                },
+                {
+                    "action": "remove",
+                    "path": [
+                        "permissions"
+                    ],
+                    "item": "declarativeNetRequest"
                 }
             ],
-            "excludeFiles": ["sw.js", "js/dom/simple-dom-parser.js", "lib/parse5.js"]
+            "excludeFiles": [
+                "sw.js",
+                "js/dom/simple-dom-parser.js",
+                "lib/parse5.js"
+            ]
         },
         {
             "name": "firefox-dev",
@@ -205,30 +269,46 @@
             "modifications": [
                 {
                     "action": "replace",
-                    "path": ["name"],
+                    "path": [
+                        "name"
+                    ],
                     "pattern": "^.*$",
                     "patternFlags": "",
                     "replacement": "$& (development build)"
                 },
                 {
                     "action": "replace",
-                    "path": ["description"],
+                    "path": [
+                        "description"
+                    ],
                     "pattern": "^(.*)(?:\\.\\s*)?$",
                     "patternFlags": "",
-                    "replacement": "$1. This is a development build; get the stable version here: https://tinyurl.com/yaatdjmp"
+                    "replacement": "$1. This is a development build."
                 },
                 {
                     "action": "set",
-                    "path": ["browser_specific_settings", "gecko", "id"],
+                    "path": [
+                        "browser_specific_settings",
+                        "gecko",
+                        "id"
+                    ],
                     "value": "tatsu@autistici.org"
                 },
                 {
                     "action": "set",
-                    "path": ["browser_specific_settings", "gecko", "update_url"],
+                    "path": [
+                        "browser_specific_settings",
+                        "gecko",
+                        "update_url"
+                    ],
                     "value": "https://raw.githubusercontent.com/Ajatt-Tools/rikaitan/metadata/updates.json"
                 }
             ],
-            "excludeFiles": ["sw.js", "js/dom/simple-dom-parser.js", "lib/parse5.js"]
+            "excludeFiles": [
+                "sw.js",
+                "js/dom/simple-dom-parser.js",
+                "lib/parse5.js"
+            ]
         },
         {
             "name": "safari",
@@ -236,29 +316,45 @@
             "modifications": [
                 {
                     "action": "remove",
-                    "path": ["optional_permissions"],
+                    "path": [
+                        "optional_permissions"
+                    ],
                     "item": "clipboardRead"
                 },
                 {
                     "action": "remove",
-                    "path": ["permissions"],
+                    "path": [
+                        "permissions"
+                    ],
                     "item": "webRequestBlocking"
                 },
                 {
                     "action": "delete",
-                    "path": ["content_scripts", 0, "match_about_blank"]
+                    "path": [
+                        "content_scripts",
+                        0,
+                        "match_about_blank"
+                    ]
                 },
                 {
                     "action": "delete",
-                    "path": ["sandbox"]
+                    "path": [
+                        "sandbox"
+                    ]
                 },
                 {
                     "action": "set",
-                    "path": ["content_security_policy"],
+                    "path": [
+                        "content_security_policy"
+                    ],
                     "value": "default-src 'self'; script-src 'self' 'unsafe-eval'; img-src blob: 'self'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *"
                 }
             ],
-            "excludeFiles": ["sw.js", "js/dom/simple-dom-parser.js", "lib/parse5.js"]
+            "excludeFiles": [
+                "sw.js",
+                "js/dom/simple-dom-parser.js",
+                "lib/parse5.js"
+            ]
         }
     ]
 }
