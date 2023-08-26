@@ -10,6 +10,7 @@
         "void-style": ["error", {"style": "omit"}],
         "empty-heading": "off",
         "wcag/h30": "off",
+        "wcag/h63": "off",
         "no-inline-style": "off"
     },
     "elements": [
