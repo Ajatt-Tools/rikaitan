@@ -2,5 +2,4 @@
 
 rm -v -rf -- ./builds/*
 mkdir -p -- ./builds
-./bump_ver
-npm run-script build -- "$@"
+npm run-script build -- --all --rikaitan-version "$(./bump_ver)" "$@"

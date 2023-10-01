@@ -5,10 +5,11 @@ import datetime
 import functools
 import json
 import os.path
+from typing import Optional
 
 MANIFEST_VARIANTS = os.path.join(
     os.path.abspath(os.path.dirname(__file__)),
-    'dev', 'data', 'manifest-variants.json',
+    'ext', 'manifest.json',
 )
 
 
@@ -52,23 +53,26 @@ def make_new_version() -> Version:
     )
 
 
-def calc_new_version(old_version: Version) -> Version:
+def increase_ver_num(old_version: Version) -> Version:
     new_version = make_new_version()
     if old_version == new_version:
         new_version = old_version.bump_rev()
     return new_version
 
 
+def find_old_version() -> Optional[Version]:
+    try:
+        with open(MANIFEST_VARIANTS, encoding='utf8') as f:
+            data = json.load(f)
+        return Version.from_str(data['version'])
+    except (FileNotFoundError, TypeError, KeyError, json.JSONDecodeError):
+        return None
+
+
 def main():
-    with open(MANIFEST_VARIANTS, encoding='utf8') as f:
-        data = json.load(f)
-
-    data['manifest']['version'] = calc_new_version(Version.from_str(data['manifest']['version'])).as_str()
-
-    print("New version", data['manifest']['version'])
-
-    with open(MANIFEST_VARIANTS, 'w', encoding='utf8') as of:
-        json.dump(data, of, indent=4)
+    old_version = find_old_version()
+    new_version = increase_ver_num(old_version) if old_version else make_new_version()
+    print(new_version.as_str())
 
 
 if __name__ == '__main__':

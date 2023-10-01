@@ -35,8 +35,10 @@ Rikaitan provides advanced features not available in other browser-based diction
 ## Table of Contents
 
 *   [Installation](#installation)
+*   [Migrating from Yomichan](#migrating-from-yomichan)
 *   [Dictionaries](#dictionaries)
 *   [Basic Usage](#basic-usage)
+    *   [Importing Dictionaries](#importing-dictionaries)
 *   [Custom Dictionaries](#custom-dictionaries)
 *   [Anki Integration](#anki-integration)
     *   [Flashcard Configuration](#flashcard-configuration)
@@ -62,6 +64,14 @@ complex features which have become increasingly difficult to test across differe
 New changes are initially introduced into the *testing* version, and after some time spent ensuring that they are
 relatively bug free, they will be promoted to the *stable* version. If you are technically savvy and don't mind
 submitting issues on GitHub, try the *testing* version; otherwise, the *stable* version will be your best bet.
+
+## Migrating from Yomichan
+
+If you are an existing user of Yomichan, you can export your dictionary collection and settings such that they can be imported into Rikaitan to reflect your setup exactly as it was.
+
+You can export your settings from Yomichan's Settings page. Go to the `Backup` section and click on `Export Settings`.
+
+You can then import the exported files into Rikaitan from the `Backup` section of the `Settings` page. Please see [the section on importing dictionaries](#importing-dictionaries) further below for more explicit steps.
 
 ## Dictionaries
 
@@ -107,6 +117,32 @@ language is not English, you may consider also importing the English version for
     including stroke order diagrams, readings, meanings, as well as other useful data.
 
     <img src="resources/images/search-popup-kanji.png" alt="">
+
+### Importing Dictionaries
+
+You can import individual dictionaries from the settings page as described above.
+
+Rikaitan also supports exporting and importing your entire collection of dictionaries.
+
+#### Importing a Dictionary Collection
+
+- Go to Rikaitan's Settings page (Click on the extension's icon then click on the cog icon from the popup)
+- Click `Import Dictionary Collection` and select the database file you want to import
+- Wait for the import to finish then turn all the dictionaries back on from the `Dictionaries > Configure installed and enabled dictionaries` section
+- Refresh the browser tab to see the dictionaries in effect
+
+#### Exporting the Dictionary Collection
+
+- Click `Export Dictionary Collection` from the backup section of Rikaitan's settings page
+- It will show you a progress report as it exports the data then initiates a
+  download for a file named something like  `rikaitan-dictionaries-YYYY-MM-DD-HH-mm-ss.json`
+  (e.g. `rikaitan-dictionaries-2023-07-05-02-42-04.json`)
+
+### Importing and Exporting Personal Configuration
+
+Note that you can also similarly export and import your Rikaitan settings from the `Backup` section of the Settings page.
+
+You should be able to replicate your exact Rikaitan setup across devices by exporting your settings and dictionary collection from the source device then importing those from the destination.
 
 ## Custom Dictionaries
 
@@ -331,11 +367,11 @@ Yomichan is the previous name of this add-on.
 The versions below were created before the original developer quit.
 
 * **Google Chrome** ([stable](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami) or [testing](https://chrome.google.com/webstore/detail/yomichan-testing/bcknnfebhefllbjhagijobjklocakpdm))
-  
+
   [![image](img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/yomichan/ogmnaimimemjmbakcfefmnahgdfhfami)
 
 * **Mozilla Firefox** ([stable](https://addons.mozilla.org/en-US/firefox/addon/yomichan/) or [testing](https://github.com/FooSoft/yomichan/releases)<sup>*</sup>)
-  
+
   <sup>*</sup>Unlike Chrome, Firefox does not allow extensions meant for testing to be hosted in the marketplace.
   You will have to download a desired version and side-load it yourself. You only need to do this once and will get
   updates automatically.

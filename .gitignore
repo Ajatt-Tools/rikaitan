@@ -8,3 +8,4 @@ dictionaries/
 /test/playwright/__screenshots__/
 .idea/
 .vscode/
+ext/manifest.json

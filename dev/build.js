@@ -108,7 +108,7 @@ function getIndexOfFilePath(array, item) {
     return -1;
 }
 
-async function build(buildDir, extDir, manifestUtil, variantNames, manifestPath, dryRun, dryRunBuildZip) {
+async function build(buildDir, extDir, manifestUtil, variantNames, manifestPath, dryRun, dryRunBuildZip, rikaitanVersion) {
     const sevenZipExes = ['7za', '7z'];
 
     // Create build directory
@@ -130,6 +130,8 @@ async function build(buildDir, extDir, manifestUtil, variantNames, manifestPath,
         process.stdout.write(message);
     };
 
+    process.stdout.write(`Version: ${rikaitanVersion}...\n`);
+
     for (const variantName of variantNames) {
         const variant = manifestUtil.getVariant(variantName);
         if (typeof variant === 'undefined' || variant.buildable === false) { continue; }
@@ -148,7 +150,7 @@ async function build(buildDir, extDir, manifestUtil, variantNames, manifestPath,
             const fileNameSafe = path.basename(fileName);
             const fullFileName = path.join(buildDir, fileNameSafe);
             if (!dryRun) {
-                fs.writeFileSync(manifestPath, ManifestUtil.createManifestString(modifiedManifest));
+                fs.writeFileSync(manifestPath, ManifestUtil.createManifestString(modifiedManifest).replace('$RIKAITAN_VERSION', rikaitanVersion));
             }
 
             if (!dryRun || dryRunBuildZip) {
@@ -182,11 +184,13 @@ async function main(argv) {
         ['manifest', null],
         ['dry-run', false],
         ['dry-run-build-zip', false],
+        ['rikaitan-version', '0.0.0.0'],
         [null, []]
     ]));
 
     const dryRun = args.get('dry-run');
     const dryRunBuildZip = args.get('dry-run-build-zip');
+    const rikaitanVersion = args.get('rikaitan-version');
 
     const manifestUtil = new ManifestUtil();
 
@@ -201,14 +205,14 @@ async function main(argv) {
             manifestUtil.getVariants().filter(({buildable}) => buildable !== false).map(({name}) => name) :
             args.get(null)
         );
-        await build(buildDir, extDir, manifestUtil, variantNames, manifestPath, dryRun, dryRunBuildZip);
+        await build(buildDir, extDir, manifestUtil, variantNames, manifestPath, dryRun, dryRunBuildZip, rikaitanVersion);
     } finally {
         // Restore manifest
         const manifestName = (!args.get('default') && args.get('manifest') !== null) ? args.get('manifest') : null;
         const restoreManifest = manifestUtil.getManifest(manifestName);
         process.stdout.write('Restoring manifest...\n');
         if (!dryRun) {
-            fs.writeFileSync(manifestPath, ManifestUtil.createManifestString(restoreManifest));
+            fs.writeFileSync(manifestPath, ManifestUtil.createManifestString(restoreManifest).replace('$RIKAITAN_VERSION', rikaitanVersion));
         }
     }
 }
