@@ -34,7 +34,7 @@ Rikaitan provides advanced features not available in other browser-based diction
 - Kanji stroke order diagrams are just a click away for most characters.
 - Custom search page for easily executing custom search queries.
 - Support for multiple dictionary formats including [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
-- Automatic note creation for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://foosoft.net/projects/anki-connect) plugin.
+- Automatic note creation for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
 - Clean, modern code makes it easy for developers to [contribute](https://github.com/Ajatt-Tools/rikaitan/blob/master/CONTRIBUTING.md) new features.
 
 [![Term definitions](img/ss-terms-thumb.png)](img/ss-terms.png)
@@ -192,7 +192,7 @@ Import](https://github.com/Ajatt-Tools/rikaitan-import). Check the project page 
 ## Anki Integration
 
 Rikaitan features automatic flashcard creation for [Anki](https://apps.ankiweb.net/), a free application designed to help you
-retain knowledge. This feature requires the prior installation of an Anki plugin called [AnkiConnect](https://foosoft.net/projects/anki-connect).
+retain knowledge. This feature requires the prior installation of an Anki plugin called [AnkiConnect](https://ankiweb.net/shared/info/2055492159).
 Check the respective project page for more information about how to set up this software.
 
 ### Flashcard Configuration
@@ -205,7 +205,7 @@ flashcards that Rikaitan creates through AnkiConnect.
 Flashcard fields can be configured with the following steps:
 
 1.  Open the Rikaitan options page and scroll down to the section labeled _Anki Options_.
-2.  Tick the checkbox labeled _Enable Anki integration_ (Anki must be running with [AnkiConnect](https://foosoft.net/projects/anki-connect) installed).
+2.  Tick the checkbox labeled _Enable Anki integration_ (Anki must be running with [AnkiConnect](https://ankiweb.net/shared/info/2055492159) installed).
 3.  Select the type of template to configure by clicking on either the _Terms_ or _Kanji_ tabs.
 4.  Select the Anki deck and model to use for new creating new flashcards of this type.
 5.  Fill the model fields with markers corresponding to the information you wish to include (several can be used at
@@ -287,7 +287,7 @@ Below are some troubleshooting tips you can try if you are unable to create new 
 
 - Individual icons will appear grayed out if a flashcard cannot be created for the current definition (e.g. it already exists in the deck).
 - If all of the buttons appear grayed out, then you should double-check your deck and model configuration settings.
-- If no icons appear at all, make sure that Anki is running in the background and that [AnkiConnect](https://foosoft.net/projects/anki-connect) has been installed.
+- If no icons appear at all, make sure that Anki is running in the background and that [AnkiConnect](https://ankiweb.net/shared/info/2055492159) has been installed.
 
 ## Keyboard Shortcuts
 
