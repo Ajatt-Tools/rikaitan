@@ -1,6 +1,7 @@
 # Rikaitan <!-- omit from toc -->
 
 [![Firefox release](https://img.shields.io/badge/Firefox-Release-orange.svg)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+[![Chromium release](https://img.shields.io/badge/Chromium-Release-blue.svg)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
 
 ## Project Introduction
@@ -65,12 +66,20 @@ Rikaitan provides advanced features not available in other browser-based diction
 
 ## Installation
 
-Currently Rikaitan is available for [Firefox](https://wiki.archlinux.org/title/Firefox)-based web browsers.
+Rikaitan is available for
+[Firefox](https://wiki.archlinux.org/title/Firefox)-based web browsers
+and
+[Chromium](https://wiki.archlinux.org/title/Chromium)-based web browsers.
 We recommend [LibreWolf](https://librewolf.net/) as your everyday web browser.
+[Ungoogled-chromium](https://aur.archlinux.org/packages/ungoogled-chromium) is a good alternative.
 
 **Download from Firefox Browser add-ons:**
 
 [![image](img/firefox-marketplace.png)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+
+**Download from Chrome Web Store:**
+
+[![image](img/chrome-web-store.png)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 
 ## Migrating from Yomichan
 
