@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,16 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {EventDispatcher} from '../core.js';
+import {rikaitan} from '../rikaitan.js';
+
 /**
  * This class represents a popup that is hosted in a new native window.
+ * @augments EventDispatcher<import('popup').PopupAnyEventType>
  */
-class PopupWindow extends EventDispatcher {
+export class PopupWindow extends EventDispatcher {
     /**
      * Creates a new instance.
-     * @param {object} details Details about how to set up the instance.
-     * @param {string} details.id The ID of the popup.
-     * @param {number} details.depth The depth of the popup.
-     * @param {number} details.frameId The ID of the host frame.
+     * @param {import('popup').PopupWindowConstructorDetails} details Details about how to set up the instance.
      */
     constructor({
         id,
@@ -33,9 +34,13 @@ class PopupWindow extends EventDispatcher {
         frameId
     }) {
         super();
+        /** @type {string} */
         this._id = id;
+        /** @type {number} */
         this._depth = depth;
+        /** @type {number} */
         this._frameId = frameId;
+        /** @type {?number} */
         this._popupTabId = null;
     }
 
@@ -47,6 +52,9 @@ class PopupWindow extends EventDispatcher {
         return this._id;
     }
 
+    /**
+     * @type {?import('./popup.js').Popup}
+     */
     get parent() {
         return null;
     }
@@ -54,7 +62,7 @@ class PopupWindow extends EventDispatcher {
     /**
      * The parent of the popup, which is always `null` for `PopupWindow` instances,
      * since any potential parent popups are in a different frame.
-     * @param {Popup} _value The parent to assign.
+     * @param {import('./popup.js').Popup} _value The parent to assign.
      * @throws {Error} Throws an error, since this class doesn't support children.
      */
     set parent(_value) {
@@ -64,7 +72,7 @@ class PopupWindow extends EventDispatcher {
     /**
      * The popup child popup, which is always null for `PopupWindow` instances,
      * since any potential child popups are in a different frame.
-     * @type {Popup}
+     * @type {?import('./popup.js').Popup}
      */
     get child() {
         return null;
@@ -72,7 +80,7 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Attempts to set the child popup.
-     * @param {Popup} _value The child to assign.
+     * @param {import('./popup.js').Popup} _value The child to assign.
      * @throws Throws an error, since this class doesn't support children.
      */
     set child(_value) {
@@ -81,7 +89,7 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * The depth of the popup.
-     * @type {numer}
+     * @type {number}
      */
     get depth() {
         return this._depth;
@@ -90,7 +98,7 @@ class PopupWindow extends EventDispatcher {
     /**
      * Gets the content window of the frame. This value is null,
      * since the window is hosted in a different frame.
-     * @type {Window}
+     * @type {?Window}
      */
     get frameContentWindow() {
         return null;
@@ -98,7 +106,7 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Gets the DOM node that contains the frame.
-     * @type {Element}
+     * @type {?Element}
      */
     get container() {
         return null;
@@ -114,11 +122,11 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Sets the options context for the popup.
-     * @param {object} optionsContext The options context object.
+     * @param {import('settings').OptionsContext} optionsContext The options context object.
      * @returns {Promise<void>}
      */
-    setOptionsContext(optionsContext) {
-        return this._invoke(false, 'Display.setOptionsContext', {id: this._id, optionsContext});
+    async setOptionsContext(optionsContext) {
+        await this._invoke(false, 'Display.setOptionsContext', {id: this._id, optionsContext});
     }
 
     /**
@@ -134,14 +142,14 @@ class PopupWindow extends EventDispatcher {
      * @returns {Promise<boolean>} `true` if the popup is visible, `false` otherwise.
      */
     async isVisible() {
-        return (this._popupTabId !== null && await yomichan.api.isTabSearchPopup(this._popupTabId));
+        return (this._popupTabId !== null && await rikaitan.api.isTabSearchPopup(this._popupTabId));
     }
 
     /**
      * Force assigns the visibility of the popup.
      * @param {boolean} _value Whether or not the popup should be visible.
      * @param {number} _priority The priority of the override.
-     * @returns {Promise<string?>} A token used which can be passed to `clearVisibleOverride`,
+     * @returns {Promise<?import('core').TokenString>} A token used which can be passed to `clearVisibleOverride`,
      *   or null if the override wasn't assigned.
      */
     async setVisibleOverride(_value, _priority) {
@@ -150,10 +158,10 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Clears a visibility override that was generated by `setVisibleOverride`.
-     * @param {string} _token The token returned from `setVisibleOverride`.
-     * @returns {boolean} `true` if the override existed and was removed, `false` otherwise.
+     * @param {import('core').TokenString} _token The token returned from `setVisibleOverride`.
+     * @returns {Promise<boolean>} `true` if the override existed and was removed, `false` otherwise.
      */
-    clearVisibleOverride(_token) {
+    async clearVisibleOverride(_token) {
         return false;
     }
 
@@ -169,8 +177,8 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Shows and updates the positioning and content of the popup.
-     * @param {Popup.ContentDetails} _details Settings for the outer popup.
-     * @param {Display.ContentDetails} displayDetails The details parameter passed to `Display.setContent`.
+     * @param {import('popup').ContentDetails} _details Settings for the outer popup.
+     * @param {?import('display').ContentDetails} displayDetails The details parameter passed to `Display.setContent`.
      * @returns {Promise<void>}
      */
     async showContent(_details, displayDetails) {
@@ -183,23 +191,23 @@ class PopupWindow extends EventDispatcher {
      * @param {string} css The CSS rules.
      * @returns {Promise<void>}
      */
-    setCustomCss(css) {
-        return this._invoke(false, 'Display.setCustomCss', {id: this._id, css});
+    async setCustomCss(css) {
+        await this._invoke(false, 'Display.setCustomCss', {id: this._id, css});
     }
 
     /**
      * Stops the audio auto-play timer, if one has started.
      * @returns {Promise<void>}
      */
-    clearAutoPlayTimer() {
-        return this._invoke(false, 'Display.clearAutoPlayTimer', {id: this._id});
+    async clearAutoPlayTimer() {
+        await this._invoke(false, 'Display.clearAutoPlayTimer', {id: this._id});
     }
 
     /**
      * Sets the scaling factor of the popup content.
      * @param {number} _scale The scaling factor.
      */
-    setContentScale(_scale) {
+    async setContentScale(_scale) {
         // NOP
     }
 
@@ -231,7 +239,7 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Gets the rectangle of the DOM frame, synchronously.
-     * @returns {Popup.ValidRect} The rect.
+     * @returns {import('popup').ValidRect} The rect.
      *   `valid` is `false` for `PopupProxy`, since the DOM node is hosted in a different frame.
      */
     getFrameRect() {
@@ -240,7 +248,7 @@ class PopupWindow extends EventDispatcher {
 
     /**
      * Gets the size of the DOM frame.
-     * @returns {Promise<{width: number, height: number, valid: boolean}>} The size and whether or not it is valid.
+     * @returns {Promise<import('popup').ValidSize>} The size and whether or not it is valid.
      */
     async getFrameSize() {
         return {width: 0, height: 0, valid: false};
@@ -258,17 +266,25 @@ class PopupWindow extends EventDispatcher {
 
     // Private
 
-    async _invoke(open, action, params={}, defaultReturnValue) {
-        if (yomichan.isExtensionUnloaded) {
-            return defaultReturnValue;
+    /**
+     * @template {import('core').SerializableObject} TParams
+     * @template [TReturn=unknown]
+     * @param {boolean} open
+     * @param {string} action
+     * @param {TParams} params
+     * @returns {Promise<TReturn|undefined>}
+     */
+    async _invoke(open, action, params) {
+        if (rikaitan.isExtensionUnloaded) {
+            return void 0;
         }
 
         const frameId = 0;
         if (this._popupTabId !== null) {
             try {
-                return await yomichan.crossFrame.invokeTab(this._popupTabId, frameId, 'popupMessage', {action, params});
+                return await rikaitan.crossFrame.invokeTab(this._popupTabId, frameId, 'popupMessage', {action, params});
             } catch (e) {
-                if (yomichan.isExtensionUnloaded) {
+                if (rikaitan.isExtensionUnloaded) {
                     open = false;
                 }
             }
@@ -276,12 +292,12 @@ class PopupWindow extends EventDispatcher {
         }
 
         if (!open) {
-            return defaultReturnValue;
+            return void 0;
         }
 
-        const {tabId} = await yomichan.api.getOrCreateSearchPopup({focus: 'ifCreated'});
+        const {tabId} = await rikaitan.api.getOrCreateSearchPopup({focus: 'ifCreated'});
         this._popupTabId = tabId;
 
-        return await yomichan.crossFrame.invokeTab(this._popupTabId, frameId, 'popupMessage', {action, params});
+        return await rikaitan.crossFrame.invokeTab(this._popupTabId, frameId, 'popupMessage', {action, params});
     }
 }

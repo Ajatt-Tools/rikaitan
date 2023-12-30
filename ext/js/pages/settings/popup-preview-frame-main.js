@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,17 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * HotkeyHandler
- * PopupFactory
- * PopupPreviewFrame
- */
+import {PopupFactory} from '../../app/popup-factory.js';
+import {log} from '../../core.js';
+import {HotkeyHandler} from '../../input/hotkey-handler.js';
+import {rikaitan} from '../../rikaitan.js';
+import {PopupPreviewFrame} from './popup-preview-frame.js';
 
-(async () => {
+/** Entry point. */
+async function main() {
     try {
-        await yomichan.prepare();
+        await rikaitan.prepare();
 
-        const {tabId, frameId} = await yomichan.api.frameInformationGet();
+        const {tabId, frameId} = await rikaitan.api.frameInformationGet();
+        if (typeof tabId === 'undefined') {
+            throw new Error('Failed to get tabId');
+        }
+        if (typeof frameId === 'undefined') {
+            throw new Error('Failed to get frameId');
+        }
 
         const hotkeyHandler = new HotkeyHandler();
         hotkeyHandler.prepare();
@@ -41,4 +48,6 @@
     } catch (e) {
         log.error(e);
     }
-})();
+}
+
+await main();

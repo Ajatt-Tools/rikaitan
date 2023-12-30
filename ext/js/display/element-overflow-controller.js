@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,18 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class ElementOverflowController {
+import {EventListenerCollection} from '../core.js';
+
+export class ElementOverflowController {
     constructor() {
+        /** @type {Element[]} */
         this._elements = [];
+        /** @type {?(number|import('core').Timeout)} */
         this._checkTimer = null;
+        /** @type {EventListenerCollection} */
         this._eventListeners = new EventListenerCollection();
+        /** @type {EventListenerCollection} */
         this._windowEventListeners = new EventListenerCollection();
+        /** @type {Map<string, {collapsed: boolean, force: boolean}>} */
         this._dictionaries = new Map();
+        /** @type {() => void} */
         this._updateBind = this._update.bind(this);
+        /** @type {() => void} */
         this._onWindowResizeBind = this._onWindowResize.bind(this);
+        /** @type {(event: MouseEvent) => void} */
         this._onToggleButtonClickBind = this._onToggleButtonClick.bind(this);
     }
 
+    /**
+     * @param {import('settings').ProfileOptions} options
+     */
     setOptions(options) {
         this._dictionaries.clear();
         for (const {name, definitionsCollapsible} of options.dictionaries) {
@@ -57,12 +70,18 @@ class ElementOverflowController {
         }
     }
 
+    /**
+     * @param {Element} entry
+     */
     addElements(entry) {
         if (this._dictionaries.size === 0) { return; }
 
         const elements = entry.querySelectorAll('.definition-item-inner');
         for (const element of elements) {
-            const {dictionary} = element.parentNode.dataset;
+            const {parentNode} = element;
+            if (parentNode === null) { continue; }
+            const {dictionary} = /** @type {HTMLElement} */ (parentNode).dataset;
+            if (typeof dictionary === 'undefined') { continue; }
             const dictionaryInfo = this._dictionaries.get(dictionary);
             if (typeof dictionaryInfo === 'undefined') { continue; }
 
@@ -88,6 +107,7 @@ class ElementOverflowController {
         }
     }
 
+    /** */
     clearElements() {
         this._elements.length = 0;
         this._windowEventListeners.removeAllEventListeners();
@@ -95,6 +115,7 @@ class ElementOverflowController {
 
     // Private
 
+    /** */
     _onWindowResize() {
         if (this._checkTimer !== null) {
             this._cancelIdleCallback(this._checkTimer);
@@ -102,18 +123,26 @@ class ElementOverflowController {
         this._checkTimer = this._requestIdleCallback(this._updateBind, 100);
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onToggleButtonClick(e) {
-        const container = e.currentTarget.closest('.definition-item-inner');
+        const element = /** @type {Element} */ (e.currentTarget);
+        const container = element.closest('.definition-item-inner');
         if (container === null) { return; }
         container.classList.toggle('collapsed');
     }
 
+    /** */
     _update() {
         for (const element of this._elements) {
             this._updateElement(element);
         }
     }
 
+    /**
+     * @param {Element} element
+     */
     _updateElement(element) {
         const {classList} = element;
         classList.add('collapse-test');
@@ -122,6 +151,11 @@ class ElementOverflowController {
         classList.remove('collapse-test');
     }
 
+    /**
+     * @param {() => void} callback
+     * @param {number} timeout
+     * @returns {number|import('core').Timeout}
+     */
     _requestIdleCallback(callback, timeout) {
         if (typeof requestIdleCallback === 'function') {
             return requestIdleCallback(callback, {timeout});
@@ -130,9 +164,12 @@ class ElementOverflowController {
         }
     }
 
+    /**
+     * @param {number|import('core').Timeout} handle
+     */
     _cancelIdleCallback(handle) {
         if (typeof cancelIdleCallback === 'function') {
-            cancelIdleCallback(handle);
+            cancelIdleCallback(/** @type {number} */ (handle));
         } else {
             clearTimeout(handle);
         }

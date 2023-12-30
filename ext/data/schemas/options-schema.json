@@ -1,4 +1,5 @@
 {
+    "$id": "options",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "required": [
@@ -495,6 +496,7 @@
                                             }
                                         ],
                                         "items": {
+                                            "type": "object",
                                             "required": [
                                                 "include",
                                                 "exclude",
@@ -540,9 +542,12 @@
                                                         "searchKanji",
                                                         "scanOnTouchMove",
                                                         "scanOnTouchPress",
+                                                        "scanOnTouchRelease",
                                                         "scanOnPenMove",
                                                         "scanOnPenHover",
                                                         "scanOnPenReleaseHover",
+                                                        "scanOnPenPress",
+                                                        "scanOnPenRelease",
                                                         "preventTouchScrolling",
                                                         "preventPenScrolling"
                                                     ],
@@ -772,6 +777,7 @@
                                                 "items": {
                                                     "type": "array",
                                                     "items": {
+                                                        "type": "object",
                                                         "required": [
                                                             "pattern",
                                                             "ignoreCase",

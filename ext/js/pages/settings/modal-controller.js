@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,19 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Modal
- */
+import {Modal} from './modal.js';
 
-class ModalController {
+export class ModalController {
     constructor() {
+        /** @type {Modal[]} */
         this._modals = [];
+        /** @type {Map<string|Element, Modal>} */
         this._modalMap = new Map();
     }
 
+    /** */
     prepare() {
         const idSuffix = '-modal';
-        for (const node of document.querySelectorAll('.modal')) {
+        for (const node of /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.modal'))) {
             let {id} = node;
             if (typeof id !== 'string') { continue; }
 
@@ -44,11 +45,18 @@ class ModalController {
         }
     }
 
+    /**
+     * @param {string|Element} nameOrNode
+     * @returns {?Modal}
+     */
     getModal(nameOrNode) {
         const modal = this._modalMap.get(nameOrNode);
         return (typeof modal !== 'undefined' ? modal : null);
     }
 
+    /**
+     * @returns {?Modal}
+     */
     getTopVisibleModal() {
         for (let i = this._modals.length - 1; i >= 0; --i) {
             const modal = this._modals[i];

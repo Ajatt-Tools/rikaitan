@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DictionaryWorkerHandler
- */
+import {log} from '../core.js';
+import {DictionaryWorkerHandler} from './dictionary-worker-handler.js';
 
-self.importScripts(
-    '/lib/jszip.min.js',
-    '/js/core.js',
-    '/js/data/database.js',
-    '/js/data/json-schema.js',
-    '/js/general/cache-map.js',
-    '/js/language/dictionary-database.js',
-    '/js/language/dictionary-importer.js',
-    '/js/language/dictionary-worker-handler.js',
-    '/js/language/dictionary-worker-media-loader.js',
-    '/js/media/media-util.js'
-);
-
-(() => {
+/** Entry point. */
+function main() {
     try {
         const dictionaryWorkerHandler = new DictionaryWorkerHandler();
         dictionaryWorkerHandler.prepare();
     } catch (e) {
         log.error(e);
     }
-})();
+}
+
+main();

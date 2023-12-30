@@ -1,4 +1,5 @@
 {
+    "$id": "dictionaryTermMetaBankV3",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
         "frequency": {
@@ -30,6 +31,7 @@
         "type": "array",
         "description": "Metadata about a single term.",
         "minItems": 3,
+        "maxItems": 3,
         "additionalItems": false,
         "items": [
             {
@@ -47,6 +49,8 @@
         ],
         "oneOf": [
             {
+                "minItems": 3,
+                "maxItems": 3,
                 "items": [
                     {},
                     {"const": "freq"},
@@ -79,6 +83,8 @@
                 ]
             },
             {
+                "minItems": 3,
+                "maxItems": 3,
                 "items": [
                     {},
                     {"const": "pitch"},

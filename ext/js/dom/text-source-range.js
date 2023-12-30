@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,17 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DOMTextScanner
- * DocumentUtil
- */
+import {DocumentUtil} from './document-util.js';
+import {DOMTextScanner} from './dom-text-scanner.js';
 
 /**
  * This class represents a text source that comes from text nodes in the document.
  * Sometimes a temporary "imposter" element is created and used to store the text.
  * This element is typically hidden from the page and removed after scanning has completed.
  */
-class TextSourceRange {
+export class TextSourceRange {
     /**
      * Creates a new instance of the class.
      * @param {Range} range The selection range.
@@ -37,26 +35,33 @@ class TextSourceRange {
      * @param {?Element} imposterElement The temporary imposter element.
      * @param {?Element} imposterSourceElement The source element which the imposter is imitating.
      *   Must not be `null` if imposterElement is specified.
-     * @param {?Rect[]} cachedRects A set of cached `DOMRect`s representing the rects of the text source,
+     * @param {?DOMRect[]} cachedRects A set of cached `DOMRect`s representing the rects of the text source,
      *   which can be used after the imposter element is removed from the page.
      *   Must not be `null` if imposterElement is specified.
-     * @param {?Rect} cachedSourceRect A cached `DOMRect` representing the rect of the `imposterSourceElement`,
+     * @param {?DOMRect} cachedSourceRect A cached `DOMRect` representing the rect of the `imposterSourceElement`,
      *   which can be used after the imposter element is removed from the page.
      *   Must not be `null` if imposterElement is specified.
      */
     constructor(range, rangeStartOffset, content, imposterElement, imposterSourceElement, cachedRects, cachedSourceRect) {
+        /** @type {Range} */
         this._range = range;
+        /** @type {number} */
         this._rangeStartOffset = rangeStartOffset;
+        /** @type {string} */
         this._content = content;
+        /** @type {?Element} */
         this._imposterElement = imposterElement;
+        /** @type {?Element} */
         this._imposterSourceElement = imposterSourceElement;
+        /** @type {?DOMRect[]} */
         this._cachedRects = cachedRects;
+        /** @type {?DOMRect} */
         this._cachedSourceRect = cachedSourceRect;
     }
 
     /**
      * Gets the type name of this instance.
-     * @type {string}
+     * @type {'range'}
      */
     get type() {
         return 'range';
@@ -72,7 +77,7 @@ class TextSourceRange {
 
     /**
      * The starting offset for the range.
-     * @type {Range}
+     * @type {number}
      */
     get rangeStartOffset() {
         return this._rangeStartOffset;
@@ -170,12 +175,12 @@ class TextSourceRange {
     /**
      * Gets writing mode that is used for this element.
      * See: https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode.
-     * @returns {string} The rects.
+     * @returns {import('document-util').NormalizedWritingMode} The writing mode.
      */
     getWritingMode() {
         let node = this._isImposterDisconnected() ? this._imposterSourceElement : this._range.startContainer;
         if (node !== null && node.nodeType !== Node.ELEMENT_NODE) { node = node.parentElement; }
-        return DocumentUtil.getElementWritingMode(node);
+        return DocumentUtil.getElementWritingMode(/** @type {?Element} */ (node));
     }
 
     /**
@@ -184,6 +189,7 @@ class TextSourceRange {
     select() {
         if (this._imposterElement !== null) { return; }
         const selection = window.getSelection();
+        if (selection === null) { return; }
         selection.removeAllRanges();
         selection.addRange(this._range);
     }
@@ -194,12 +200,13 @@ class TextSourceRange {
     deselect() {
         if (this._imposterElement !== null) { return; }
         const selection = window.getSelection();
+        if (selection === null) { return; }
         selection.removeAllRanges();
     }
 
     /**
      * Checks whether another text source has the same starting point.
-     * @param {TextSourceElement|TextSourceRange} other The other source to test.
+     * @param {import('text-source').TextSource} other The other source to test.
      * @returns {boolean} `true` if the starting points are equivalent, `false` otherwise.
      * @throws {Error} An exception can be thrown if `Range.compareBoundaryPoints` fails,
      *   which shouldn't happen, but the handler is kept in case of unexpected errors.
@@ -221,7 +228,7 @@ class TextSourceRange {
             try {
                 return this._range.compareBoundaryPoints(Range.START_TO_START, other.range) === 0;
             } catch (e) {
-                if (e.name === 'WrongDocumentError') {
+                if (e instanceof Error && e.name === 'WrongDocumentError') {
                     // This can happen with shadow DOMs if the ranges are in different documents.
                     return false;
                 }
@@ -270,9 +277,17 @@ class TextSourceRange {
 
     /**
      * Gets the cached rects for a disconnected imposter element.
-     * @returns {Rect[]} The rects for the element.
+     * @returns {DOMRect[]} The rects for the element.
+     * @throws {Error}
      */
     _getCachedRects() {
+        if (
+            this._cachedRects === null ||
+            this._cachedSourceRect === null ||
+            this._imposterSourceElement === null
+        ) {
+            throw new Error('Cached rects not valid for this instance');
+        }
         const sourceRect = DocumentUtil.convertRectZoomCoordinates(this._imposterSourceElement.getBoundingClientRect(), this._imposterSourceElement);
         return DocumentUtil.offsetDOMRects(
             this._cachedRects,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,15 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 /**
  * This class provides some general utility functions for regular expressions.
  */
-class RegexUtil {
+export class RegexUtil {
+    /** @type {RegExp} @readonly */
+    static _matchReplacementPattern = /\$(?:\$|&|`|'|(\d\d?)|<([^>]*)>)/g;
+
     /**
      * Applies string.replace using a regular expression and replacement string as arguments.
      * A source map of the changes is also maintained.
      * @param {string} text A string of the text to replace.
-     * @param {TextSourceMap} sourceMap An instance of `TextSourceMap` which corresponds to `text`.
+     * @param {import('./text-source-map.js').TextSourceMap} sourceMap An instance of `TextSourceMap` which corresponds to `text`.
      * @param {RegExp} pattern A regular expression to use as the replacement.
      * @param {string} replacement A replacement string that follows the format of the standard
      *   JavaScript regular expression replacement string.
@@ -60,7 +64,7 @@ class RegexUtil {
      * Applies the replacement string for a given regular expression match.
      * @param {string} replacement The replacement string that follows the format of the standard
      *   JavaScript regular expression replacement string.
-     * @param {object} match A match object returned from RegExp.match.
+     * @param {RegExpMatchArray} match A match object returned from RegExp.match.
      * @returns {string} A new string with the pattern replacement applied.
      */
     static applyMatchReplacement(replacement, match) {
@@ -78,17 +82,16 @@ class RegexUtil {
                     return groups[g2];
                 }
             } else {
+                let {index} = match;
+                if (typeof index !== 'number') { index = 0; }
                 switch (g0) {
                     case '$': return '$';
                     case '&': return match[0];
-                    case '`': return replacement.substring(0, match.index);
-                    case '\'': return replacement.substring(match.index + g0.length);
+                    case '`': return replacement.substring(0, index);
+                    case '\'': return replacement.substring(index + g0.length);
                 }
             }
             return g0;
         });
     }
 }
-
-// eslint-disable-next-line no-underscore-dangle
-RegexUtil._matchReplacementPattern = /\$(?:\$|&|`|'|(\d\d?)|<([^>]*)>)/g;

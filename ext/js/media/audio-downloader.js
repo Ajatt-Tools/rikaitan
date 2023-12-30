@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2017-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,20 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * ArrayBufferUtil
- * JsonSchema
- * NativeSimpleDOMParser
- * RequestBuilder
- * SimpleDOMParser
- */
+import {RequestBuilder} from '../background/request-builder.js';
+import {ExtensionError} from '../core/extension-error.js';
+import {readResponseJson} from '../core/json.js';
+import {JsonSchema} from '../data/json-schema.js';
+import {ArrayBufferUtil} from '../data/sandbox/array-buffer-util.js';
+import {NativeSimpleDOMParser} from '../dom/native-simple-dom-parser.js';
+import {SimpleDOMParser} from '../dom/simple-dom-parser.js';
 
-class AudioDownloader {
+export class AudioDownloader {
+    /**
+     * @param {{japaneseUtil: import('../language/sandbox/japanese-util.js').JapaneseUtil, requestBuilder: RequestBuilder}} details
+     */
     constructor({japaneseUtil, requestBuilder}) {
+        /** @type {import('../language/sandbox/japanese-util.js').JapaneseUtil} */
         this._japaneseUtil = japaneseUtil;
+        /** @type {RequestBuilder} */
         this._requestBuilder = requestBuilder;
+        /** @type {?JsonSchema} */
         this._customAudioListSchema = null;
-        this._getInfoHandlers = new Map([
+        /** @type {Map<import('settings').AudioSourceType, import('audio-downloader').GetInfoHandler>} */
+        this._getInfoHandlers = new Map(/** @type {[name: import('settings').AudioSourceType, handler: import('audio-downloader').GetInfoHandler][]} */ ([
             ['jpod101', this._getInfoJpod101.bind(this)],
             ['jpod101-alternate', this._getInfoJpod101Alternate.bind(this)],
             ['jisho', this._getInfoJisho.bind(this)],
@@ -37,9 +44,15 @@ class AudioDownloader {
             ['text-to-speech-reading', this._getInfoTextToSpeechReading.bind(this)],
             ['custom', this._getInfoCustom.bind(this)],
             ['custom-json', this._getInfoCustomJson.bind(this)]
-        ]);
+        ]));
     }
 
+    /**
+     * @param {import('audio').AudioSourceInfo} source
+     * @param {string} term
+     * @param {string} reading
+     * @returns {Promise<import('audio-downloader').Info[]>}
+     */
     async getTermAudioInfoList(source, term, reading) {
         const handler = this._getInfoHandlers.get(source.type);
         if (typeof handler === 'function') {
@@ -52,6 +65,14 @@ class AudioDownloader {
         return [];
     }
 
+    /**
+     * @param {import('audio').AudioSourceInfo[]} sources
+     * @param {?number} preferredAudioIndex
+     * @param {string} term
+     * @param {string} reading
+     * @param {?number} idleTimeout
+     * @returns {Promise<import('audio-downloader').AudioBinaryBase64>}
+     */
     async downloadTermAudio(sources, preferredAudioIndex, term, reading, idleTimeout) {
         const errors = [];
         for (const source of sources) {
@@ -72,28 +93,34 @@ class AudioDownloader {
             }
         }
 
-        const error = new Error('Could not download audio');
+        const error = new ExtensionError('Could not download audio');
         error.data = {errors};
         throw error;
     }
 
     // Private
 
+    /**
+     * @param {string} url
+     * @param {string} base
+     * @returns {string}
+     */
     _normalizeUrl(url, base) {
         return new URL(url, base).href;
     }
 
+    /** @type {import('audio-downloader').GetInfoHandler} */
     async _getInfoJpod101(term, reading) {
         if (reading === term && this._japaneseUtil.isStringEntirelyKana(term)) {
             reading = term;
-            term = null;
+            term = '';
         }
 
         const params = new URLSearchParams();
-        if (term) {
+        if (term.length > 0) {
             params.set('kanji', term);
         }
-        if (reading) {
+        if (reading.length > 0) {
             params.set('kana', reading);
         }
 
@@ -101,6 +128,7 @@ class AudioDownloader {
         return [{type: 'url', url}];
     }
 
+    /** @type {import('audio-downloader').GetInfoHandler} */
     async _getInfoJpod101Alternate(term, reading) {
         const fetchUrl = 'https://www.japanesepod101.com/learningcenter/reference/dictionary_post';
         const data = new URLSearchParams({
@@ -151,6 +179,7 @@ class AudioDownloader {
         throw new Error('Failed to find audio URL');
     }
 
+    /** @type {import('audio-downloader').GetInfoHandler} */
     async _getInfoJisho(term, reading) {
         const fetchUrl = `https://jisho.org/search/${term}`;
         const response = await this._requestBuilder.fetchAnonymous(fetchUrl, {
@@ -183,26 +212,52 @@ class AudioDownloader {
         throw new Error('Failed to find audio URL');
     }
 
-    async _getInfoTextToSpeech(term, reading, {voice}) {
-        if (!voice) {
-            throw new Error('No voice');
+    /** @type {import('audio-downloader').GetInfoHandler} */
+    async _getInfoTextToSpeech(term, reading, details) {
+        if (typeof details !== 'object' || details === null) {
+            throw new Error('Invalid arguments');
+        }
+        const {voice} = details;
+        if (typeof voice !== 'string') {
+            throw new Error('Invalid voice');
         }
         return [{type: 'tts', text: term, voice: voice}];
     }
 
-    async _getInfoTextToSpeechReading(term, reading, {voice}) {
-        if (!voice) {
-            throw new Error('No voice');
+    /** @type {import('audio-downloader').GetInfoHandler} */
+    async _getInfoTextToSpeechReading(term, reading, details) {
+        if (typeof details !== 'object' || details === null) {
+            throw new Error('Invalid arguments');
+        }
+        const {voice} = details;
+        if (typeof voice !== 'string') {
+            throw new Error('Invalid voice');
         }
         return [{type: 'tts', text: reading, voice: voice}];
     }
 
-    async _getInfoCustom(term, reading, {url}) {
+    /** @type {import('audio-downloader').GetInfoHandler} */
+    async _getInfoCustom(term, reading, details) {
+        if (typeof details !== 'object' || details === null) {
+            throw new Error('Invalid arguments');
+        }
+        let {url} = details;
+        if (typeof url !== 'string') {
+            throw new Error('Invalid url');
+        }
         url = this._getCustomUrl(term, reading, url);
         return [{type: 'url', url}];
     }
 
-    async _getInfoCustomJson(term, reading, {url}) {
+    /** @type {import('audio-downloader').GetInfoHandler} */
+    async _getInfoCustomJson(term, reading, details) {
+        if (typeof details !== 'object' || details === null) {
+            throw new Error('Invalid arguments');
+        }
+        let {url} = details;
+        if (typeof url !== 'string') {
+            throw new Error('Invalid url');
+        }
         url = this._getCustomUrl(term, reading, url);
 
         const response = await this._requestBuilder.fetchAnonymous(url, {
@@ -218,16 +273,19 @@ class AudioDownloader {
             throw new Error(`Invalid response: ${response.status}`);
         }
 
-        const responseJson = await response.json();
+        /** @type {import('audio-downloader').CustomAudioList} */
+        const responseJson = await readResponseJson(response);
 
         if (this._customAudioListSchema === null) {
             const schema = await this._getCustomAudioListSchema();
-            this._customAudioListSchema = new JsonSchema(schema);
+            this._customAudioListSchema = new JsonSchema(/** @type {import('ext/json-schema').Schema} */ (schema));
         }
         this._customAudioListSchema.validate(responseJson);
 
+        /** @type {import('audio-downloader').Info[]} */
         const results = [];
         for (const {url: url2, name} of responseJson.audioSources) {
+            /** @type {import('audio-downloader').Info1} */
             const info = {type: 'url', url: url2};
             if (typeof name === 'string') { info.name = name; }
             results.push(info);
@@ -235,17 +293,32 @@ class AudioDownloader {
         return results;
     }
 
+    /**
+     * @param {string} term
+     * @param {string} reading
+     * @param {string} url
+     * @returns {string}
+     * @throws {Error}
+     */
     _getCustomUrl(term, reading, url) {
         if (typeof url !== 'string') {
             throw new Error('No custom URL defined');
         }
         const data = {term, reading};
-        return url.replace(/\{([^}]*)\}/g, (m0, m1) => (Object.prototype.hasOwnProperty.call(data, m1) ? `${data[m1]}` : m0));
+        return url.replace(/\{([^}]*)\}/g, (m0, m1) => (Object.prototype.hasOwnProperty.call(data, m1) ? `${data[/** @type {'term'|'reading'} */ (m1)]}` : m0));
     }
 
+    /**
+     * @param {string} url
+     * @param {import('settings').AudioSourceType} sourceType
+     * @param {?number} idleTimeout
+     * @returns {Promise<import('audio-downloader').AudioBinaryBase64>}
+     */
     async _downloadAudioFromUrl(url, sourceType, idleTimeout) {
         let signal;
+        /** @type {?import('request-builder.js').ProgressCallback} */
         let onProgress = null;
+        /** @type {?import('core').Timeout} */
         let idleTimer = null;
         if (typeof idleTimeout === 'number') {
             const abortController = new AbortController();
@@ -254,7 +327,9 @@ class AudioDownloader {
                 abortController.abort('Idle timeout');
             };
             onProgress = (done) => {
-                clearTimeout(idleTimer);
+                if (idleTimer !== null) {
+                    clearTimeout(idleTimer);
+                }
                 idleTimer = done ? null : setTimeout(onIdleTimeout, idleTimeout);
             };
             idleTimer = setTimeout(onIdleTimeout, idleTimeout);
@@ -289,6 +364,11 @@ class AudioDownloader {
         return {data, contentType};
     }
 
+    /**
+     * @param {ArrayBuffer} arrayBuffer
+     * @param {import('settings').AudioSourceType} sourceType
+     * @returns {Promise<boolean>}
+     */
     async _isAudioBinaryValid(arrayBuffer, sourceType) {
         switch (sourceType) {
             case 'jpod101':
@@ -306,6 +386,10 @@ class AudioDownloader {
         }
     }
 
+    /**
+     * @param {ArrayBuffer} arrayBuffer
+     * @returns {Promise<string>}
+     */
     async _arrayBufferDigest(arrayBuffer) {
         const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', new Uint8Array(arrayBuffer)));
         let digest = '';
@@ -315,6 +399,11 @@ class AudioDownloader {
         return digest;
     }
 
+    /**
+     * @param {string} content
+     * @returns {import('simple-dom-parser').ISimpleDomParser}
+     * @throws {Error}
+     */
     _createSimpleDOMParser(content) {
         if (typeof NativeSimpleDOMParser !== 'undefined' && NativeSimpleDOMParser.isSupported()) {
             return new NativeSimpleDOMParser(content);
@@ -325,6 +414,9 @@ class AudioDownloader {
         }
     }
 
+    /**
+     * @returns {Promise<unknown>}
+     */
     async _getCustomAudioListSchema() {
         const url = chrome.runtime.getURL('/data/schemas/custom-audio-list-schema.json');
         const response = await fetch(url, {
@@ -335,6 +427,6 @@ class AudioDownloader {
             redirect: 'follow',
             referrerPolicy: 'no-referrer'
         });
-        return await response.json();
+        return await readResponseJson(response);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class SearchPersistentStateController extends EventDispatcher {
+import {EventDispatcher} from '../core.js';
+
+/**
+ * @augments EventDispatcher<import('display').SearchPersistentStateControllerEventType>
+ */
+export class SearchPersistentStateController extends EventDispatcher {
     constructor() {
         super();
+        /** @type {import('display').SearchMode} */
         this._mode = null;
     }
 
+    /** @type {import('display').SearchMode} */
     get mode() {
         return this._mode;
     }
@@ -30,12 +37,14 @@ class SearchPersistentStateController extends EventDispatcher {
         this._setMode(value, true);
     }
 
+    /** */
     prepare() {
         this._updateMode();
     }
 
     // Private
 
+    /** */
     _updateMode() {
         let mode = null;
         try {
@@ -43,9 +52,13 @@ class SearchPersistentStateController extends EventDispatcher {
         } catch (e) {
             // Browsers can throw a SecurityError when cookie blocking is enabled.
         }
-        this._setMode(mode, false);
+        this._setMode(this._normalizeMode(mode), false);
     }
 
+    /**
+     * @param {import('display').SearchMode} mode
+     * @param {boolean} save
+     */
     _setMode(mode, save) {
         if (mode === this._mode) { return; }
         if (save) {
@@ -62,5 +75,19 @@ class SearchPersistentStateController extends EventDispatcher {
         this._mode = mode;
         document.documentElement.dataset.searchMode = (mode !== null ? mode : '');
         this.trigger('modeChange', {mode});
+    }
+
+    /**
+     * @param {?string} mode
+     * @returns {import('display').SearchMode}
+     */
+    _normalizeMode(mode) {
+        switch (mode) {
+            case 'popup':
+            case 'action-popup':
+                return mode;
+            default:
+                return null;
+        }
     }
 }

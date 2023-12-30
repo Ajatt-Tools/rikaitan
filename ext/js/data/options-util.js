@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * JsonSchema
- * TemplatePatcher
- */
+import {escapeRegExp, isObject} from '../core.js';
+import {parseJson, readResponseJson} from '../core/json.js';
+import {TemplatePatcher} from '../templates/template-patcher.js';
+import {JsonSchema} from './json-schema.js';
 
-class OptionsUtil {
+export class OptionsUtil {
     constructor() {
+        /** @type {?TemplatePatcher} */
         this._templatePatcher = null;
+        /** @type {?JsonSchema} */
         this._optionsSchema = null;
     }
 
+    /** */
     async prepare() {
-        const schema = await this._fetchAsset('/data/schemas/options-schema.json', true);
+        /** @type {import('ext/json-schema').Schema} */
+        const schema = await this._fetchJson('/data/schemas/options-schema.json');
         this._optionsSchema = new JsonSchema(schema);
     }
 
-    async update(options, targetVersion=null) {
+    /**
+     * @param {unknown} optionsInput
+     * @param {?number} [targetVersion]
+     * @returns {Promise<import('settings').Options>}
+     */
+    async update(optionsInput, targetVersion = null) {
         // Invalid options
-        if (!isObject(options)) {
-            options = {};
-        }
+        let options = /** @type {{[key: string]: unknown}} */ (
+            typeof optionsInput === 'object' && optionsInput !== null && !Array.isArray(optionsInput) ?
+            optionsInput : {}
+        );
 
         // Check for legacy options
         let defaultProfileOptions = {};
@@ -51,7 +61,7 @@ class OptionsUtil {
         }
 
         // Remove invalid profiles
-        const profiles = options.profiles;
+        const profiles = /** @type {unknown[]} */ (options.profiles);
         for (let i = profiles.length - 1; i >= 0; --i) {
             if (!isObject(profiles[i])) {
                 profiles.splice(i, 1);
@@ -88,12 +98,12 @@ class OptionsUtil {
         options = await this._applyUpdates(options, this._getVersionUpdates(targetVersion));
 
         // Validation
-        options = this._optionsSchema.getValidValueOrDefault(options);
-
-        // Result
-        return options;
+        return /** @type {import('settings').Options} */ (/** @type {JsonSchema} */ (this._optionsSchema).getValidValueOrDefault(options));
     }
 
+    /**
+     * @returns {Promise<import('settings').Options>}
+     */
     async load() {
         let options;
         try {
@@ -107,13 +117,14 @@ class OptionsUtil {
                     }
                 });
             });
-            options = JSON.parse(optionsStr);
+            options = parseJson(optionsStr);
         } catch (e) {
             // NOP
         }
 
         if (typeof options !== 'undefined') {
             options = await this.update(options);
+            await this.save(options);
         } else {
             options = this.getDefault();
         }
@@ -121,6 +132,10 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @param {import('settings').Options} options
+     * @returns {Promise<void>}
+     */
     save(options) {
         return new Promise((resolve, reject) => {
             chrome.storage.local.set({options: JSON.stringify(options)}, () => {
@@ -134,23 +149,36 @@ class OptionsUtil {
         });
     }
 
+    /**
+     * @returns {import('settings').Options}
+     */
     getDefault() {
-        const optionsVersion = this._getVersionUpdates().length;
-        const options = this._optionsSchema.getValidValueOrDefault();
+        const optionsVersion = this._getVersionUpdates(null).length;
+        const options = /** @type {import('settings').Options} */ (/** @type {JsonSchema} */ (this._optionsSchema).getValidValueOrDefault());
         options.version = optionsVersion;
         return options;
     }
 
+    /**
+     * @param {import('settings').Options} options
+     * @returns {import('settings').Options}
+     */
     createValidatingProxy(options) {
-        return this._optionsSchema.createProxy(options);
+        return /** @type {import('settings').Options} */ (/** @type {JsonSchema} */ (this._optionsSchema).createProxy(options));
     }
 
+    /**
+     * @param {import('settings').Options} options
+     */
     validate(options) {
-        return this._optionsSchema.validate(options);
+        /** @type {JsonSchema} */ (this._optionsSchema).validate(options);
     }
 
     // Legacy profile updating
 
+    /**
+     * @returns {(?import('options-util').LegacyUpdateFunction)[]}
+     */
     _legacyProfileUpdateGetUpdates() {
         return [
             null,
@@ -242,6 +270,9 @@ class OptionsUtil {
         ];
     }
 
+    /**
+     * @returns {import('options-util').LegacyOptions}
+     */
     _legacyProfileUpdateGetDefaults() {
         return {
             general: {
@@ -330,7 +361,7 @@ class OptionsUtil {
             anki: {
                 enable: false,
                 server: 'http://127.0.0.1:8765',
-                tags: ['yomichan'],
+                tags: ['rikaitan'],
                 sentenceExt: 200,
                 screenshot: {format: 'png', quality: 92},
                 terms: {deck: '', model: '', fields: {}},
@@ -341,9 +372,17 @@ class OptionsUtil {
         };
     }
 
+    /**
+     * @param {import('options-util').IntermediateOptions} options
+     * @returns {import('options-util').IntermediateOptions}
+     */
     _legacyProfileUpdateAssignDefaults(options) {
         const defaults = this._legacyProfileUpdateGetDefaults();
 
+        /**
+         * @param {import('options-util').IntermediateOptions} target
+         * @param {import('core').UnknownObject} source
+         */
         const combine = (target, source) => {
             for (const key in source) {
                 if (!Object.prototype.hasOwnProperty.call(target, key)) {
@@ -362,6 +401,10 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @param {import('options-util').IntermediateOptions} options
+     * @returns {import('options-util').IntermediateOptions}
+     */
     _legacyProfileUpdateUpdateVersion(options) {
         const updates = this._legacyProfileUpdateGetUpdates();
         this._legacyProfileUpdateAssignDefaults(options);
@@ -384,6 +427,10 @@ class OptionsUtil {
 
     // Private
 
+    /**
+     * @param {import('options-util').IntermediateOptions} options
+     * @param {string} modificationsUrl
+     */
     async _applyAnkiFieldTemplatesPatch(options, modificationsUrl) {
         let patch = null;
         for (const {options: profileOptions} of options.profiles) {
@@ -391,18 +438,22 @@ class OptionsUtil {
             if (fieldTemplates === null) { continue; }
 
             if (patch === null) {
-                const content = await this._fetchAsset(modificationsUrl);
+                const content = await this._fetchText(modificationsUrl);
                 if (this._templatePatcher === null) {
                     this._templatePatcher = new TemplatePatcher();
                 }
                 patch = this._templatePatcher.parsePatch(content);
             }
 
-            profileOptions.anki.fieldTemplates = this._templatePatcher.applyPatch(fieldTemplates, patch);
+            profileOptions.anki.fieldTemplates = /** @type {TemplatePatcher} */ (this._templatePatcher).applyPatch(fieldTemplates, patch);
         }
     }
 
-    async _fetchAsset(url, json=false) {
+    /**
+     * @param {string} url
+     * @returns {Promise<Response>}
+     */
+    async _fetchGeneric(url) {
         url = chrome.runtime.getURL(url);
         const response = await fetch(url, {
             method: 'GET',
@@ -415,9 +466,32 @@ class OptionsUtil {
         if (!response.ok) {
             throw new Error(`Failed to fetch ${url}: ${response.status}`);
         }
-        return await (json ? response.json() : response.text());
+        return response;
     }
 
+    /**
+     * @param {string} url
+     * @returns {Promise<string>}
+     */
+    async _fetchText(url) {
+        const response = await this._fetchGeneric(url);
+        return await response.text();
+    }
+
+    /**
+     * @template [T=unknown]
+     * @param {string} url
+     * @returns {Promise<T>}
+     */
+    async _fetchJson(url) {
+        const response = await this._fetchGeneric(url);
+        return await readResponseJson(response);
+    }
+
+    /**
+     * @param {string} string
+     * @returns {number}
+     */
     _getStringHashCode(string) {
         let hashCode = 0;
 
@@ -431,6 +505,11 @@ class OptionsUtil {
         return hashCode;
     }
 
+    /**
+     * @param {import('options-util').IntermediateOptions} options
+     * @param {import('options-util').ModernUpdate[]} updates
+     * @returns {Promise<import('settings').Options>}
+     */
     async _applyUpdates(options, updates) {
         const targetVersion = updates.length;
         let currentVersion = options.version;
@@ -449,7 +528,12 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @param {?number} targetVersion
+     * @returns {import('options-util').ModernUpdate[]}
+     */
     _getVersionUpdates(targetVersion) {
+        /* eslint-disable no-multi-spaces */
         const result = [
             {async: false, update: this._updateVersion1.bind(this)},
             {async: false, update: this._updateVersion2.bind(this)},
@@ -470,14 +554,19 @@ class OptionsUtil {
             {async: false, update: this._updateVersion17.bind(this)},
             {async: false, update: this._updateVersion18.bind(this)},
             {async: false, update: this._updateVersion19.bind(this)},
-            {async: false, update: this._updateVersion20.bind(this)}
+            {async: false, update: this._updateVersion20.bind(this)},
+            {async: true,  update: this._updateVersion21.bind(this)}
         ];
+        /* eslint-enable no-multi-spaces */
         if (typeof targetVersion === 'number' && targetVersion < result.length) {
             result.splice(targetVersion);
         }
         return result;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion1(options) {
         // Version 1 changes:
         //  Added options.global.database.prefixWildcardsSupported = false.
@@ -489,6 +578,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion2(options) {
         // Version 2 changes:
         //  Legacy profile update process moved into this upgrade function.
@@ -501,6 +593,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion3(options) {
         // Version 3 changes:
         //  Pitch accent Anki field templates added.
@@ -508,6 +603,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion4(options) {
         // Version 4 changes:
         //  Options conditions converted to string representations.
@@ -593,6 +691,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion5(options) {
         // Version 5 changes:
         //  Removed legacy version number from profile options.
@@ -602,6 +703,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion6(options) {
         // Version 6 changes:
         //  Updated handlebars templates to include "conjugation" definition.
@@ -624,6 +728,10 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @param {string} templates
+     * @returns {string}
+     */
     _updateVersion6AnkiTemplatesCompactTags(templates) {
         const rawPattern1 = '{{~#if definitionTags~}}<i>({{#each definitionTags}}{{name}}{{#unless @last}}, {{/unless}}{{/each}})</i> {{/if~}}';
         const pattern1 = new RegExp(`((\r?\n)?[ \t]*)${escapeRegExp(rawPattern1)}`, 'g');
@@ -648,6 +756,9 @@ class OptionsUtil {
         return templates;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion7(options) {
         // Version 7 changes:
         //  Added general.maximumClipboardSearchLength.
@@ -665,6 +776,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion8(options) {
         // Version 8 changes:
         //  Added translation.textReplacements.
@@ -709,6 +823,7 @@ class OptionsUtil {
             };
             delete profile.options.anki.sentenceExt;
             profile.options.general.popupActionBarLocation = 'top';
+            /* eslint-disable no-multi-spaces */
             profile.options.inputs = {
                 hotkeys: [
                     {action: 'close',             key: 'Escape',    modifiers: [],       scopes: ['popup'], enabled: true},
@@ -729,6 +844,7 @@ class OptionsUtil {
                     {action: 'copyHostSelection', key: 'KeyC',      modifiers: ['ctrl'], scopes: ['popup'], enabled: true}
                 ]
             };
+            /* eslint-enable no-multi-spaces */
             profile.options.anki.suspendNewCards = false;
             profile.options.popupWindow = {
                 width: profile.options.general.popupWidth,
@@ -754,6 +870,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion9(options) {
         // Version 9 changes:
         //  Added general.frequencyDisplayMode.
@@ -765,6 +884,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion10(options) {
         // Version 10 changes:
         //  Removed global option useSettingsV2.
@@ -802,6 +924,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion11(options) {
         // Version 11 changes:
         //  Changed dictionaries to an array.
@@ -826,6 +951,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion12(options) {
         // Version 12 changes:
         //  Changed sentenceParsing.enableTerminationCharacters to sentenceParsing.terminationCharacterMode.
@@ -840,7 +968,7 @@ class OptionsUtil {
             delete sentenceParsing.enableTerminationCharacters;
 
             const {sources, customSourceUrl, customSourceType, textToSpeechVoice} = audio;
-            audio.sources = sources.map((type) => {
+            audio.sources = /** @type {string[]} */ (sources).map((type) => {
                 switch (type) {
                     case 'text-to-speech':
                     case 'text-to-speech-reading':
@@ -858,6 +986,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
     async _updateVersion13(options) {
         // Version 13 changes:
         //  Handlebars templates updated to use formatGlossary.
@@ -873,6 +1004,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion14(options) {
         // Version 14 changes:
         //  Added accessibility options.
@@ -884,6 +1018,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion15(options) {
         // Version 15 changes:
         //  Added general.sortFrequencyDictionary.
@@ -895,6 +1032,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion16(options) {
         // Version 16 changes:
         //  Added scanning.matchTypePrefix.
@@ -904,12 +1044,16 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion17(options) {
         // Version 17 changes:
         //  Added vertical sentence punctuation to terminationCharacters.
         const additions = ['︒', '︕', '︖', '︙'];
         for (const profile of options.profiles) {
-            const {terminationCharacters} = profile.options.sentenceParsing;
+            /** @type {import('settings').SentenceParsingTerminationCharacterOption[]} */
+            const terminationCharacters = profile.options.sentenceParsing.terminationCharacters;
             const newAdditions = [];
             for (const character of additions) {
                 if (terminationCharacters.findIndex((value) => (value.character1 === character && value.character2 === null)) < 0) {
@@ -929,6 +1073,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion18(options) {
         // Version 18 changes:
         //  general.popupTheme's 'default' value changed to 'light'
@@ -951,6 +1098,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion19(options) {
         // Version 19 changes:
         //  Added anki.noteGuiMode.
@@ -978,6 +1128,9 @@ class OptionsUtil {
         return options;
     }
 
+    /**
+     * @type {import('options-util').ModernUpdateFunctionSync}
+     */
     _updateVersion20(options) {
         // Version 20 changes:
         //  Added anki.downloadTimeout.
@@ -996,5 +1149,31 @@ class OptionsUtil {
             }
         }
         return options;
+    }
+
+    /**
+     * @type {import('options-util').ModernUpdateFunctionAsync}
+     */
+    async _updateVersion21(options) {
+        await this._applyAnkiFieldTemplatesPatch(options, '/data/templates/anki-field-templates-upgrade-v21.handlebars');
+
+        return options;
+    }
+
+    /**
+     * @param {string} url
+     * @returns {Promise<chrome.tabs.Tab>}
+     */
+    _createTab(url) {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.create({url}, (tab) => {
+                const e = chrome.runtime.lastError;
+                if (e) {
+                    reject(new Error(e.message));
+                } else {
+                    resolve(tab);
+                }
+            });
+        });
     }
 }

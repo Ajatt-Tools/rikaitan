@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DictionaryController
- * DictionaryWorker
- */
+import {log} from '../../core.js';
+import {ExtensionError} from '../../core/extension-error.js';
+import {querySelectorNotNull} from '../../dom/query-selector.js';
+import {DictionaryWorker} from '../../language/dictionary-worker.js';
+import {rikaitan} from '../../rikaitan.js';
+import {DictionaryController} from './dictionary-controller.js';
 
-class DictionaryImportController {
+export class DictionaryImportController {
+    /**
+     * @param {import('./settings-controller.js').SettingsController} settingsController
+     * @param {import('./modal-controller.js').ModalController} modalController
+     * @param {import('./status-footer.js').StatusFooter} statusFooter
+     */
     constructor(settingsController, modalController, statusFooter) {
+        /** @type {string} */
         this._getUrl = 'https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#yomichan';
+        /** @type {import('./settings-controller.js').SettingsController} */
         this._settingsController = settingsController;
+        /** @type {import('./modal-controller.js').ModalController} */
         this._modalController = modalController;
+        /** @type {import('./status-footer.js').StatusFooter} */
         this._statusFooter = statusFooter;
+        /** @type {boolean} */
         this._modifying = false;
-        this._purgeButton = null;
-        this._purgeConfirmButton = null;
-        this._importFileButton = null;
-        this._importFileInput = null;
+        /** @type {HTMLButtonElement} */
+        this._purgeButton = querySelectorNotNull(document, '#dictionary-delete-all-button');
+        /** @type {HTMLButtonElement} */
+        this._purgeConfirmButton = querySelectorNotNull(document, '#dictionary-confirm-delete-all-button');
+        /** @type {HTMLButtonElement} */
+        this._importFileButton = querySelectorNotNull(document, '#dictionary-import-file-button');
+        /** @type {HTMLInputElement} */
+        this._importFileInput = querySelectorNotNull(document, '#dictionary-import-file-input');
+        /** @type {?import('./modal.js').Modal} */
         this._purgeConfirmModal = null;
-        this._errorContainer = null;
-        this._spinner = null;
-        this._purgeNotification = null;
+        /** @type {HTMLElement} */
+        this._errorContainer = querySelectorNotNull(document, '#dictionary-error');
+        /** @type {HTMLButtonElement} */
+        this._getDictsButton = querySelectorNotNull(document, '#get-third-party-dictionaries');
+
+        /** @type {[originalMessage: string, newMessage: string][]} */
         this._errorToStringOverrides = [
             [
                 'A mutation operation was attempted on a database that did not allow mutations.',
@@ -48,99 +68,104 @@ class DictionaryImportController {
         ];
     }
 
+    /** */
     async prepare() {
-        this._getButton = document.querySelector('#get-third-party-dictionaries');
-        this._purgeButton = document.querySelector('#dictionary-delete-all-button');
-        this._purgeConfirmButton = document.querySelector('#dictionary-confirm-delete-all-button');
-        this._importFileButton = document.querySelector('#dictionary-import-file-button');
-        this._importFileInput = document.querySelector('#dictionary-import-file-input');
         this._purgeConfirmModal = this._modalController.getModal('dictionary-confirm-delete-all');
-        this._errorContainer = document.querySelector('#dictionary-error');
-        this._spinner = document.querySelector('#dictionary-spinner');
-        this._purgeNotification = document.querySelector('#dictionary-delete-all-status');
 
-        this._getButton.addEventListener('click', this._onGetButtonClick.bind(this), false);
         this._purgeButton.addEventListener('click', this._onPurgeButtonClick.bind(this), false);
         this._purgeConfirmButton.addEventListener('click', this._onPurgeConfirmButtonClick.bind(this), false);
         this._importFileButton.addEventListener('click', this._onImportButtonClick.bind(this), false);
         this._importFileInput.addEventListener('change', this._onImportFileChange.bind(this), false);
+        this._getDictsButton.addEventListener('click', this._onGetButtonClick.bind(this), false);
     }
 
     // Private
 
+    /** */
     _onImportButtonClick() {
-        this._importFileInput.click();
+        /** @type {HTMLInputElement} */ (this._importFileInput).click();
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onGetButtonClick(e) {
         e.preventDefault();
         window.open(this._getUrl, '_blank');
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onPurgeButtonClick(e) {
         e.preventDefault();
-        this._purgeConfirmModal.setVisible(true);
+        /** @type {import('./modal.js').Modal} */ (this._purgeConfirmModal).setVisible(true);
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onPurgeConfirmButtonClick(e) {
         e.preventDefault();
-        this._purgeConfirmModal.setVisible(false);
+        /** @type {import('./modal.js').Modal} */ (this._purgeConfirmModal).setVisible(false);
         this._purgeDatabase();
     }
 
+    /**
+     * @param {Event} e
+     */
     _onImportFileChange(e) {
-        const node = e.currentTarget;
-        const files = [...node.files];
-        node.value = null;
-        this._importDictionaries(files);
+        const node = /** @type {HTMLInputElement} */ (e.currentTarget);
+        const {files} = node;
+        if (files === null) { return; }
+        const files2 = [...files];
+        node.value = '';
+        this._importDictionaries(files2);
     }
 
+    /** */
     async _purgeDatabase() {
         if (this._modifying) { return; }
 
-        const purgeNotification = this._purgeNotification;
         const prevention = this._preventPageExit();
 
         try {
             this._setModifying(true);
             this._hideErrors();
-            this._setSpinnerVisible(true);
-            if (purgeNotification !== null) { purgeNotification.hidden = false; }
 
-            await yomichan.api.purgeDatabase();
+            await rikaitan.api.purgeDatabase();
             const errors = await this._clearDictionarySettings();
 
             if (errors.length > 0) {
                 this._showErrors(errors);
             }
         } catch (error) {
-            this._showErrors([error]);
+            this._showErrors([error instanceof Error ? error : new Error(`${error}`)]);
         } finally {
             prevention.end();
-            if (purgeNotification !== null) { purgeNotification.hidden = true; }
-            this._setSpinnerVisible(false);
             this._setModifying(false);
             this._triggerStorageChanged();
         }
     }
 
+    /**
+     * @param {File[]} files
+     */
     async _importDictionaries(files) {
         if (this._modifying) { return; }
 
         const statusFooter = this._statusFooter;
-        const importInfo = document.querySelector('#dictionary-import-info');
         const progressSelector = '.dictionary-import-progress';
-        const progressContainers = document.querySelectorAll(`#dictionaries-modal ${progressSelector}`);
-        const progressBars = document.querySelectorAll(`${progressSelector} .progress-bar`);
-        const infoLabels = document.querySelectorAll(`${progressSelector} .progress-info`);
-        const statusLabels = document.querySelectorAll(`${progressSelector} .progress-status`);
+        const progressContainers = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(`#dictionaries-modal ${progressSelector}`));
+        const progressBars = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(`${progressSelector} .progress-bar`));
+        const infoLabels = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(`${progressSelector} .progress-info`));
+        const statusLabels = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(`${progressSelector} .progress-status`));
 
         const prevention = this._preventPageExit();
 
         try {
             this._setModifying(true);
             this._hideErrors();
-            this._setSpinnerVisible(true);
 
             for (const progress of progressContainers) { progress.hidden = false; }
 
@@ -151,6 +176,7 @@ class DictionaryImportController {
 
             let statusPrefix = '';
             let stepIndex = -2;
+            /** @type {import('dictionary-worker').ImportProgressCallback} */
             const onProgress = (data) => {
                 const {stepIndex: stepIndex2, index, count} = data;
                 if (stepIndex !== stepIndex2) {
@@ -175,11 +201,6 @@ class DictionaryImportController {
 
             const fileCount = files.length;
             for (let i = 0; i < fileCount; ++i) {
-                if (importInfo !== null && fileCount > 1) {
-                    importInfo.hidden = false;
-                    importInfo.textContent = `(${i + 1} of ${fileCount})`;
-                }
-
                 statusPrefix = `Importing dictionary${fileCount > 1 ? ` (${i + 1} of ${fileCount})` : ''}`;
                 onProgress({
                     stepIndex: -1,
@@ -192,21 +213,20 @@ class DictionaryImportController {
                 await this._importDictionary(files[i], importDetails, onProgress);
             }
         } catch (err) {
-            this._showErrors([err]);
+            this._showErrors([err instanceof Error ? err : new Error(`${err}`)]);
         } finally {
             prevention.end();
             for (const progress of progressContainers) { progress.hidden = true; }
             if (statusFooter !== null) { statusFooter.setTaskActive(progressSelector, false); }
-            if (importInfo !== null) {
-                importInfo.textContent = '';
-                importInfo.hidden = true;
-            }
-            this._setSpinnerVisible(false);
             this._setModifying(false);
             this._triggerStorageChanged();
         }
     }
 
+    /**
+     * @param {number} stepIndex
+     * @returns {string}
+     */
     _getImportLabel(stepIndex) {
         switch (stepIndex) {
             case -1:
@@ -220,10 +240,15 @@ class DictionaryImportController {
         }
     }
 
+    /**
+     * @param {File} file
+     * @param {import('dictionary-importer').ImportDetails} importDetails
+     * @param {import('dictionary-worker').ImportProgressCallback} onProgress
+     */
     async _importDictionary(file, importDetails, onProgress) {
         const archiveContent = await this._readFile(file);
         const {result, errors} = await new DictionaryWorker().importDictionary(archiveContent, importDetails, onProgress);
-        yomichan.api.triggerDatabaseUpdated('dictionary', 'import');
+        rikaitan.api.triggerDatabaseUpdated('dictionary', 'import');
         const errors2 = await this._addDictionarySettings(result.sequenced, result.title);
 
         if (errors.length > 0) {
@@ -233,8 +258,14 @@ class DictionaryImportController {
         }
     }
 
+    /**
+     * @param {boolean} sequenced
+     * @param {string} title
+     * @returns {Promise<Error[]>}
+     */
     async _addDictionarySettings(sequenced, title) {
         const optionsFull = await this._settingsController.getOptionsFull();
+        /** @type {import('settings-modifications').Modification[]} */
         const targets = [];
         const profileCount = optionsFull.profiles.length;
         for (let i = 0; i < profileCount; ++i) {
@@ -251,8 +282,12 @@ class DictionaryImportController {
         return await this._modifyGlobalSettings(targets);
     }
 
+    /**
+     * @returns {Promise<Error[]>}
+     */
     async _clearDictionarySettings() {
         const optionsFull = await this._settingsController.getOptionsFull();
+        /** @type {import('settings-modifications').Modification[]} */
         const targets = [];
         const profileCount = optionsFull.profiles.length;
         for (let i = 0; i < profileCount; ++i) {
@@ -264,16 +299,16 @@ class DictionaryImportController {
         return await this._modifyGlobalSettings(targets);
     }
 
-    _setSpinnerVisible(visible) {
-        if (this._spinner !== null) {
-            this._spinner.hidden = !visible;
-        }
-    }
-
+    /**
+     * @returns {import('settings-controller').PageExitPrevention}
+     */
     _preventPageExit() {
         return this._settingsController.preventPageExit();
     }
 
+    /**
+     * @param {Error[]} errors
+     */
     _showErrors(errors) {
         const uniqueErrors = new Map();
         for (const error of errors) {
@@ -300,60 +335,82 @@ class DictionaryImportController {
             fragment.appendChild(div);
         }
 
-        this._errorContainer.appendChild(fragment);
-        this._errorContainer.hidden = false;
+        const errorContainer = /** @type {HTMLElement} */ (this._errorContainer);
+        errorContainer.appendChild(fragment);
+        errorContainer.hidden = false;
     }
 
+    /** */
     _hideErrors() {
-        this._errorContainer.textContent = '';
-        this._errorContainer.hidden = true;
+        const errorContainer = /** @type {HTMLElement} */ (this._errorContainer);
+        errorContainer.textContent = '';
+        errorContainer.hidden = true;
     }
 
+    /**
+     * @param {File} file
+     * @returns {Promise<ArrayBuffer>}
+     */
     _readFile(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
+            reader.onload = () => resolve(/** @type {ArrayBuffer} */ (reader.result));
             reader.onerror = () => reject(reader.error);
             reader.readAsArrayBuffer(file);
         });
     }
 
+    /**
+     * @param {Error} error
+     * @returns {string}
+     */
     _errorToString(error) {
-        error = (typeof error.toString === 'function' ? error.toString() : `${error}`);
+        const errorMessage = error.toString();
 
         for (const [match, newErrorString] of this._errorToStringOverrides) {
-            if (error.includes(match)) {
+            if (errorMessage.includes(match)) {
                 return newErrorString;
             }
         }
 
-        return error;
+        return errorMessage;
     }
 
+    /**
+     * @param {boolean} value
+     */
     _setModifying(value) {
         this._modifying = value;
         this._setButtonsEnabled(!value);
     }
 
+    /**
+     * @param {boolean} value
+     */
     _setButtonsEnabled(value) {
         value = !value;
-        for (const node of document.querySelectorAll('.dictionary-database-mutating-input')) {
+        for (const node of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('.dictionary-database-mutating-input'))) {
             node.disabled = value;
         }
     }
 
+    /**
+     * @param {import('settings-modifications').Modification[]} targets
+     * @returns {Promise<Error[]>}
+     */
     async _modifyGlobalSettings(targets) {
         const results = await this._settingsController.modifyGlobalSettings(targets);
         const errors = [];
         for (const {error} of results) {
             if (typeof error !== 'undefined') {
-                errors.push(deserializeError(error));
+                errors.push(ExtensionError.deserialize(error));
             }
         }
         return errors;
     }
 
+    /** */
     _triggerStorageChanged() {
-        yomichan.trigger('storageChanged');
+        rikaitan.trigger('storageChanged');
     }
 }

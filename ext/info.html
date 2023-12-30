@@ -30,6 +30,7 @@
         <div class="settings-item"><div class="settings-item-inner"><div class="settings-item-left"><div class="settings-item-label">
             <ul>
                 <li>Extension version: <span id="version"></span></li>
+                <li>Manifest version: <span id="manifest_version"></span></li>
                 <li>Platform: <span id="platform"></span></li>
                 <li>Browser: <span id="browser"></span></li>
                 <li>Language: <span id="language"></span></li>
@@ -45,7 +46,7 @@
     <div class="settings-group">
         <div class="settings-item"><div class="settings-item-inner"><div class="settings-item-left"><div class="settings-item-label">
             <ul>
-                <li>Information and downloadable dictionaries: <a href="https://github.com/Ajatt-Tools/rikaitan#rikaitan" rel="noreferrer noopener">Homepage</a></li>
+                <li>Information and downloadable dictionaries: <a href="https://tatsumoto.neocities.org/blog/setting-up-yomichan.html" rel="noreferrer noopener">Homepage</a></li>
                 <li>Support and source code: <a href="https://github.com/Ajatt-Tools/rikaitan" rel="noreferrer noopener">Github</a></li>
                 <li>Release notes: <a href="https://github.com/Ajatt-Tools/rikaitan/releases" rel="noreferrer noopener" data-href-format="https://github.com/Ajatt-Tools/rikaitan/releases/tag/{version}" id="release-notes-this-version-link">This version</a> | <a href="https://github.com/Ajatt-Tools/rikaitan/releases" rel="noreferrer noopener">All versions</a></li>
                 <li>More extension information: <a href="/permissions.html">Permissions</a> | <a href="/legal.html">Licenses</a> | <a href="/issues.html">Issues</a></li>
@@ -60,21 +61,7 @@
 </div></div>
 
 <!-- Scripts -->
-<script src="/js/core.js"></script>
-
-<script src="/js/yomichan.js"></script>
-
-<script src="/js/comm/api.js"></script>
-<script src="/js/comm/cross-frame-api.js"></script>
-<script src="/js/data/anki-util.js"></script>
-<script src="/js/data/permissions-util.js"></script>
-<script src="/js/data/sandbox/array-buffer-util.js"></script>
-<script src="/js/dom/document-focus-controller.js"></script>
-<script src="/js/dom/html-template-collection.js"></script>
-<script src="/js/pages/settings/backup-controller.js"></script>
-<script src="/js/pages/settings/settings-controller.js"></script>
-
-<script src="/js/pages/info-main.js"></script>
+<script src="/js/pages/info-main.js" type="module"></script>
 
 </body>
 </html>

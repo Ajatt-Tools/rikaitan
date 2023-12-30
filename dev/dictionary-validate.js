@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,63 +16,85 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const fs = require('fs');
-const path = require('path');
-const {performance} = require('perf_hooks');
-const {JSZip} = require('./util');
-const {createJsonSchema} = require('./schema-validate');
+import fs from 'fs';
+import JSZip from 'jszip';
+import path from 'path';
+import {performance} from 'perf_hooks';
+import {fileURLToPath} from 'url';
+import {parseJson} from './json.js';
+import {createJsonSchema} from './schema-validate.js';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * @param {string} relativeFileName
+ * @returns {import('dev/dictionary-validate').Schema}
+ */
 function readSchema(relativeFileName) {
-    const fileName = path.join(__dirname, relativeFileName);
+    const fileName = path.join(dirname, relativeFileName);
     const source = fs.readFileSync(fileName, {encoding: 'utf8'});
-    return JSON.parse(source);
+    return parseJson(source);
 }
 
-
+/**
+ * @param {import('dev/schema-validate').ValidateMode} mode
+ * @param {import('jszip')} zip
+ * @param {string} fileNameFormat
+ * @param {import('dev/dictionary-validate').Schema} schema
+ */
 async function validateDictionaryBanks(mode, zip, fileNameFormat, schema) {
     let jsonSchema;
     try {
         jsonSchema = createJsonSchema(mode, schema);
     } catch (e) {
-        e.message += `\n(in file ${fileNameFormat})}`;
-        throw e;
+        const e2 = e instanceof Error ? e : new Error(`${e}`);
+        e2.message += `\n(in file ${fileNameFormat})}`;
+        throw e2;
     }
     let index = 1;
     while (true) {
-        const fileName = fileNameFormat.replace(/\?/, index);
+        const fileName = fileNameFormat.replace(/\?/, `${index}`);
 
         const file = zip.files[fileName];
         if (!file) { break; }
 
-        const data = JSON.parse(await file.async('string'));
+        const data = parseJson(await file.async('string'));
         try {
             jsonSchema.validate(data);
         } catch (e) {
-            e.message += `\n(in file ${fileName})}`;
-            throw e;
+            const e2 = e instanceof Error ? e : new Error(`${e}`);
+            e2.message += `\n(in file ${fileName})}`;
+            throw e2;
         }
 
         ++index;
     }
 }
 
-async function validateDictionary(mode, archive, schemas) {
+/**
+ * Validates a dictionary from its zip archive.
+ * @param {import('dev/schema-validate').ValidateMode} mode
+ * @param {import('jszip')} archive
+ * @param {import('dev/dictionary-validate').Schemas} schemas
+ */
+export async function validateDictionary(mode, archive, schemas) {
     const fileName = 'index.json';
     const indexFile = archive.files[fileName];
     if (!indexFile) {
         throw new Error('No dictionary index found in archive');
     }
 
-    const index = JSON.parse(await indexFile.async('string'));
+    /** @type {import('dictionary-data').Index} */
+    const index = parseJson(await indexFile.async('string'));
     const version = index.format || index.version;
 
     try {
         const jsonSchema = createJsonSchema(mode, schemas.index);
         jsonSchema.validate(index);
     } catch (e) {
-        e.message += `\n(in file ${fileName})}`;
-        throw e;
+        const e2 = e instanceof Error ? e : new Error(`${e}`);
+        e2.message += `\n(in file ${fileName})}`;
+        throw e2;
     }
 
     await validateDictionaryBanks(mode, archive, 'term_bank_?.json', version === 1 ? schemas.termBankV1 : schemas.termBankV3);
@@ -82,7 +104,11 @@ async function validateDictionary(mode, archive, schemas) {
     await validateDictionaryBanks(mode, archive, 'tag_bank_?.json', schemas.tagBankV3);
 }
 
-function getSchemas() {
+/**
+ * Returns a Schemas object from ext/data/schemas/*.
+ * @returns {import('dev/dictionary-validate').Schemas}
+ */
+export function getSchemas() {
     return {
         index: readSchema('../ext/data/schemas/dictionary-index-schema.json'),
         kanjiBankV1: readSchema('../ext/data/schemas/dictionary-kanji-bank-v1-schema.json'),
@@ -95,8 +121,12 @@ function getSchemas() {
     };
 }
 
-
-async function testDictionaryFiles(mode, dictionaryFileNames) {
+/**
+ * Validates dictionary files and logs the results to the console.
+ * @param {import('dev/schema-validate').ValidateMode} mode
+ * @param {string[]} dictionaryFileNames
+ */
+export async function testDictionaryFiles(mode, dictionaryFileNames) {
     const schemas = getSchemas();
 
     for (const dictionaryFileName of dictionaryFileNames) {
@@ -115,33 +145,3 @@ async function testDictionaryFiles(mode, dictionaryFileNames) {
         }
     }
 }
-
-
-async function main() {
-    const dictionaryFileNames = process.argv.slice(2);
-    if (dictionaryFileNames.length === 0) {
-        console.log([
-            'Usage:',
-            '  node dictionary-validate [--ajv] <dictionary-file-names>...'
-        ].join('\n'));
-        return;
-    }
-
-    let mode = null;
-    if (dictionaryFileNames[0] === '--ajv') {
-        mode = 'ajv';
-        dictionaryFileNames.splice(0, 1);
-    }
-
-    await testDictionaryFiles(mode, dictionaryFileNames);
-}
-
-
-if (require.main === module) { main(); }
-
-
-module.exports = {
-    getSchemas,
-    validateDictionary,
-    testDictionaryFiles
-};

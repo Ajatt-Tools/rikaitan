@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,36 +16,90 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class NativeSimpleDOMParser {
+export class NativeSimpleDOMParser {
+    /**
+     * @param {string} content
+     */
     constructor(content) {
+        /** @type {Document} */
         this._document = new DOMParser().parseFromString(content, 'text/html');
     }
 
-    getElementById(id, root=null) {
-        return (root || this._document).querySelector(`[id='${id}']`);
+    /**
+     * @param {string} id
+     * @param {import('simple-dom-parser').Element} [root]
+     * @returns {?import('simple-dom-parser').Element}
+     */
+    getElementById(id, root) {
+        return this._convertElementOrDocument(root).querySelector(`[id='${id}']`);
     }
 
-    getElementByTagName(tagName, root=null) {
-        return (root || this._document).querySelector(tagName);
+    /**
+     * @param {string} tagName
+     * @param {import('simple-dom-parser').Element} [root]
+     * @returns {?import('simple-dom-parser').Element}
+     */
+    getElementByTagName(tagName, root) {
+        return this._convertElementOrDocument(root).querySelector(tagName);
     }
 
-    getElementsByTagName(tagName, root=null) {
-        return [...(root || this._document).querySelectorAll(tagName)];
+    /**
+     * @param {string} tagName
+     * @param {import('simple-dom-parser').Element} [root]
+     * @returns {import('simple-dom-parser').Element[]}
+     */
+    getElementsByTagName(tagName, root) {
+        return [...this._convertElementOrDocument(root).querySelectorAll(tagName)];
     }
 
-    getElementsByClassName(className, root=null) {
-        return [...(root || this._document).querySelectorAll(`.${className}`)];
+    /**
+     * @param {string} className
+     * @param {import('simple-dom-parser').Element} [root]
+     * @returns {import('simple-dom-parser').Element[]}
+     */
+    getElementsByClassName(className, root) {
+        return [...this._convertElementOrDocument(root).querySelectorAll(`.${className}`)];
     }
 
+    /**
+     * @param {import('simple-dom-parser').Element} element
+     * @param {string} attribute
+     * @returns {?string}
+     */
     getAttribute(element, attribute) {
-        return element.hasAttribute(attribute) ? element.getAttribute(attribute) : null;
+        const element2 = this._convertElement(element);
+        return element2.hasAttribute(attribute) ? element2.getAttribute(attribute) : null;
     }
 
+    /**
+     * @param {import('simple-dom-parser').Element} element
+     * @returns {string}
+     */
     getTextContent(element) {
-        return element.textContent;
+        const {textContent} = this._convertElement(element);
+        return typeof textContent === 'string' ? textContent : '';
     }
 
+    /**
+     * @returns {boolean}
+     */
     static isSupported() {
         return typeof DOMParser !== 'undefined';
+    }
+
+    /**
+     * @param {import('simple-dom-parser').Element} element
+     * @returns {Element}
+     */
+    _convertElement(element) {
+        return /** @type {Element} */ (element);
+    }
+
+    /**
+     * @param {import('simple-dom-parser').Element|undefined} element
+     * @returns {Element|Document}
+     */
+    _convertElementOrDocument(element) {
+        return typeof element !== 'undefined' ? /** @type {Element} */ (element) : this._document;
     }
 }

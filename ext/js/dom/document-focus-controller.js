@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,14 +22,16 @@
  * keyboard shortcuts (e.g. arrow keys) not controlling page scroll. Instead, this class will manually
  * focus a dummy element inside the main content, which gives keyboard scroll focus to that element.
  */
-class DocumentFocusController {
+export class DocumentFocusController {
     /**
      * Creates a new instance of the class.
      * @param {?string} autofocusElementSelector A selector string which can be used to specify an element which
      *   should be automatically focused on prepare.
      */
-    constructor(autofocusElementSelector=null) {
+    constructor(autofocusElementSelector = null) {
+        /** @type {?HTMLElement} */
         this._autofocusElement = (autofocusElementSelector !== null ? document.querySelector(autofocusElementSelector) : null);
+        /** @type {?HTMLElement} */
         this._contentScrollFocusElement = document.querySelector('#content-scroll-focus');
     }
 
@@ -46,7 +48,7 @@ class DocumentFocusController {
 
     /**
      * Removes focus from a given element.
-     * @param {Element} element The element to remove focus from.
+     * @param {HTMLElement} element The element to remove focus from.
      */
     blurElement(element) {
         if (document.activeElement !== element) { return; }
@@ -56,10 +58,14 @@ class DocumentFocusController {
 
     // Private
 
+    /** */
     _onWindowFocus() {
         this._updateFocusedElement(false);
     }
 
+    /**
+     * @param {boolean} force
+     */
     _updateFocusedElement(force) {
         const target = this._contentScrollFocusElement;
         if (target === null) { return; }
@@ -73,6 +79,7 @@ class DocumentFocusController {
         ) {
             // Get selection
             const selection = window.getSelection();
+            if (selection === null) { return; }
             const selectionRanges1 = this._getSelectionRanges(selection);
 
             // Note: This function will cause any selected text to be deselected on Firefox.
@@ -86,6 +93,10 @@ class DocumentFocusController {
         }
     }
 
+    /**
+     * @param {Selection} selection
+     * @returns {Range[]}
+     */
     _getSelectionRanges(selection) {
         const ranges = [];
         for (let i = 0, ii = selection.rangeCount; i < ii; ++i) {
@@ -94,6 +105,10 @@ class DocumentFocusController {
         return ranges;
     }
 
+    /**
+     * @param {Selection} selection
+     * @param {Range[]} ranges
+     */
     _setSelectionRanges(selection, ranges) {
         selection.removeAllRanges();
         for (const range of ranges) {
@@ -101,6 +116,11 @@ class DocumentFocusController {
         }
     }
 
+    /**
+     * @param {Range[]} ranges1
+     * @param {Range[]} ranges2
+     * @returns {boolean}
+     */
     _areRangesSame(ranges1, ranges2) {
         const ii = ranges1.length;
         if (ii !== ranges2.length) {

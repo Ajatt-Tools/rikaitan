@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,34 +16,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DictionaryController
- * DictionaryImportController
- * DocumentFocusController
- * ExtensionContentController
- * GenericSettingController
- * ModalController
- * RecommendedPermissionsController
- * ScanInputsSimpleController
- * SettingsController
- * SettingsDisplayController
- * StatusFooter
- */
+import {log} from '../core.js';
+import {DocumentFocusController} from '../dom/document-focus-controller.js';
+import {querySelectorNotNull} from '../dom/query-selector.js';
+import {rikaitan} from '../rikaitan.js';
+import {ExtensionContentController} from './common/extension-content-controller.js';
+import {DictionaryController} from './settings/dictionary-controller.js';
+import {DictionaryImportController} from './settings/dictionary-import-controller.js';
+import {GenericSettingController} from './settings/generic-setting-controller.js';
+import {ModalController} from './settings/modal-controller.js';
+import {RecommendedPermissionsController} from './settings/recommended-permissions-controller.js';
+import {ScanInputsSimpleController} from './settings/scan-inputs-simple-controller.js';
+import {SettingsController} from './settings/settings-controller.js';
+import {SettingsDisplayController} from './settings/settings-display-controller.js';
+import {StatusFooter} from './settings/status-footer.js';
 
+/** */
 async function setupEnvironmentInfo() {
     const {manifest_version: manifestVersion} = chrome.runtime.getManifest();
-    const {browser, platform} = await yomichan.api.getEnvironmentInfo();
+    const {browser, platform} = await rikaitan.api.getEnvironmentInfo();
     document.documentElement.dataset.browser = browser;
     document.documentElement.dataset.os = platform.os;
     document.documentElement.dataset.manifestVersion = `${manifestVersion}`;
 }
 
+/**
+ * @param {GenericSettingController} genericSettingController
+ */
 async function setupGenericSettingsController(genericSettingController) {
     await genericSettingController.prepare();
     await genericSettingController.refresh();
 }
 
-(async () => {
+/** Entry point. */
+async function main() {
     try {
         const documentFocusController = new DocumentFocusController();
         documentFocusController.prepare();
@@ -51,10 +57,12 @@ async function setupGenericSettingsController(genericSettingController) {
         const extensionContentController = new ExtensionContentController();
         extensionContentController.prepare();
 
-        const statusFooter = new StatusFooter(document.querySelector('.status-footer-container'));
+        /** @type {HTMLElement} */
+        const statusFooterElement = querySelectorNotNull(document, '.status-footer-container');
+        const statusFooter = new StatusFooter(statusFooterElement);
         statusFooter.prepare();
 
-        await yomichan.prepare();
+        await rikaitan.prepare();
 
         setupEnvironmentInfo();
 
@@ -90,4 +98,6 @@ async function setupGenericSettingsController(genericSettingController) {
     } catch (e) {
         log.error(e);
     }
-})();
+}
+
+await main();

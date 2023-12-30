@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {isObject} from '../core.js';
+
 /**
  * This class has some general utility functions for working with Anki data.
  */
-class AnkiUtil {
+export class AnkiUtil {
+    /** @type {RegExp} @readonly */
+    static _markerPattern = /\{([\w-]+)\}/g;
+
     /**
      * Gets the root deck name of a full deck name. If the deck is a root deck,
      * the same name is returned. Nested decks are separated using '::'.
@@ -69,7 +74,7 @@ class AnkiUtil {
 
     /**
      * Checks whether or not a note object is valid.
-     * @param {*} note A note object to check.
+     * @param {import('anki').Note} note A note object to check.
      * @returns {boolean} `true` if the note is valid, `false` otherwise.
      */
     static isNoteDataValid(note) {
@@ -82,6 +87,3 @@ class AnkiUtil {
         );
     }
 }
-
-// eslint-disable-next-line no-underscore-dangle
-AnkiUtil._markerPattern = /\{([\w-]+)\}/g;

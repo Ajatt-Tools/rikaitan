@@ -1,4 +1,5 @@
 {
+    "$id": "dictionaryKanjiMetaBankV3",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
         "frequency": {
@@ -30,6 +31,7 @@
         "type": "array",
         "description": "Metadata about a single kanji character.",
         "minItems": 3,
+        "maxItems": 3,
         "additionalItems": false,
         "items": [
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,39 +16,57 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * PanelElement
- */
+import {PanelElement} from '../../dom/panel-element.js';
+import {querySelectorNotNull} from '../../dom/query-selector.js';
 
-class StatusFooter extends PanelElement {
+export class StatusFooter extends PanelElement {
+    /**
+     * @param {HTMLElement} node
+     */
     constructor(node) {
         super({
             node,
             closingAnimationDuration: 375 // Milliseconds; includes buffer
         });
-        this._body = node.querySelector('.status-footer');
+        /** @type {HTMLElement} */
+        this._body = querySelectorNotNull(node, '.status-footer');
     }
 
+    /** */
     prepare() {
-        this.on('closeCompleted', this._onCloseCompleted.bind(this), false);
-        this._body.querySelector('.status-footer-header-close').addEventListener('click', this._onCloseClick.bind(this), false);
+        /** @type {HTMLElement} */
+        const closeButton = querySelectorNotNull(this._body, '.status-footer-header-close');
+        this.on('closeCompleted', this._onCloseCompleted.bind(this));
+        closeButton.addEventListener('click', this._onCloseClick.bind(this), false);
     }
 
+    /**
+     * @param {string} selector
+     * @returns {?HTMLElement}
+     */
     getTaskContainer(selector) {
         return this._body.querySelector(selector);
     }
 
+    /**
+     * @param {string} selector
+     * @returns {boolean}
+     */
     isTaskActive(selector) {
         const target = this.getTaskContainer(selector);
-        return (target !== null && target.dataset.active);
+        return (target !== null && !!target.dataset.active);
     }
 
+    /**
+     * @param {string} selector
+     * @param {boolean} active
+     */
     setTaskActive(selector, active) {
         const target = this.getTaskContainer(selector);
         if (target === null) { return; }
 
         const activeElements = new Set();
-        for (const element of this._body.querySelectorAll('.status-footer-item')) {
+        for (const element of /** @type {NodeListOf<HTMLElement>} */ (this._body.querySelectorAll('.status-footer-item'))) {
             if (element.dataset.active) {
                 activeElements.add(element);
             }
@@ -70,13 +88,17 @@ class StatusFooter extends PanelElement {
 
     // Private
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onCloseClick(e) {
         e.preventDefault();
         this.setVisible(false);
     }
 
+    /** */
     _onCloseCompleted() {
-        for (const element of this._body.querySelectorAll('.status-footer-item')) {
+        for (const element of /** @type {NodeListOf<HTMLElement>} */ (this._body.querySelectorAll('.status-footer-item'))) {
             if (!element.dataset.active) {
                 element.hidden = true;
             }

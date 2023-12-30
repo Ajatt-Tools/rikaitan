@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,25 +16,49 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class TaskAccumulator {
+import {log} from '../core.js';
+
+/**
+ * @template [K=unknown]
+ * @template [V=unknown]
+ */
+export class TaskAccumulator {
+    /**
+     * @param {(tasks: [key: ?K, task: import('task-accumulator').Task<V>][]) => Promise<void>} runTasks
+     */
     constructor(runTasks) {
+        /** @type {?Promise<void>} */
         this._deferPromise = null;
+        /** @type {?Promise<void>} */
         this._activePromise = null;
+        /** @type {import('task-accumulator').Task<V>[]} */
         this._tasks = [];
+        /** @type {import('task-accumulator').Task<V>[]} */
         this._tasksActive = [];
+        /** @type {Map<K, import('task-accumulator').Task<V>>} */
         this._uniqueTasks = new Map();
+        /** @type {Map<K, import('task-accumulator').Task<V>>} */
         this._uniqueTasksActive = new Map();
+        /** @type {() => Promise<void>} */
         this._runTasksBind = this._runTasks.bind(this);
+        /** @type {() => void} */
         this._tasksCompleteBind = this._tasksComplete.bind(this);
-        this._runTasks = runTasks;
+        /** @type {(tasks: [key: ?K, task: import('task-accumulator').Task<V>][]) => Promise<void>} */
+        this._runTasksCallback = runTasks;
     }
 
+    /**
+     * @param {?K} key
+     * @param {V} data
+     * @returns {Promise<void>}
+     */
     enqueue(key, data) {
         if (this._deferPromise === null) {
             const promise = this._activePromise !== null ? this._activePromise : Promise.resolve();
             this._deferPromise = promise.then(this._runTasksBind);
         }
 
+        /** @type {import('task-accumulator').Task<V>} */
         const task = {data, stale: false};
         if (key !== null) {
             const activeTaskInfo = this._uniqueTasksActive.get(key);
@@ -50,6 +74,9 @@ class TaskAccumulator {
         return this._deferPromise;
     }
 
+    /**
+     * @returns {Promise<void>}
+     */
     _runTasks() {
         this._deferPromise = null;
 
@@ -62,18 +89,28 @@ class TaskAccumulator {
         return this._activePromise;
     }
 
+    /**
+     * @returns {Promise<void>}
+     */
     async _runTasksAsync() {
         try {
-            const allTasks = [
-                ...this._tasksActive.map((taskInfo) => [null, taskInfo]),
-                ...this._uniqueTasksActive.entries()
-            ];
-            await this._runTasks(allTasks);
+            /** @type {[key: ?K, task: import('task-accumulator').Task<V>][]} */
+            const allTasks = [];
+            for (const taskInfo of this._tasksActive) {
+                allTasks.push([null, taskInfo]);
+            }
+            for (const [key, taskInfo] of this._uniqueTasksActive) {
+                allTasks.push([key, taskInfo]);
+            }
+            await this._runTasksCallback(allTasks);
         } catch (e) {
             log.error(e);
         }
     }
 
+    /**
+     * @returns {void}
+     */
     _tasksComplete() {
         this._tasksActive.length = 0;
         this._uniqueTasksActive.clear();

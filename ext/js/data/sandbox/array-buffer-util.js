@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 /**
  * Class containing generic ArrayBuffer utility functions.
  */
-class ArrayBufferUtil {
+export class ArrayBufferUtil {
     /**
      * Decodes the contents of an ArrayBuffer using UTF8.
      * @param {ArrayBuffer} arrayBuffer The input ArrayBuffer.

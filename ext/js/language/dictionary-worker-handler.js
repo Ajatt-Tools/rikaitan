@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,25 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DictionaryDatabase
- * DictionaryImporter
- * DictionaryWorkerMediaLoader
- */
+import {ExtensionError} from '../core/extension-error.js';
+import {DictionaryDatabase} from './dictionary-database.js';
+import {DictionaryImporter} from './dictionary-importer.js';
+import {DictionaryWorkerMediaLoader} from './dictionary-worker-media-loader.js';
 
-class DictionaryWorkerHandler {
+export class DictionaryWorkerHandler {
     constructor() {
+        /** @type {DictionaryWorkerMediaLoader} */
         this._mediaLoader = new DictionaryWorkerMediaLoader();
     }
 
+    /** */
     prepare() {
         self.addEventListener('message', this._onMessage.bind(this), false);
     }
 
     // Private
 
-    _onMessage(e) {
-        const {action, params} = e.data;
+    /**
+     * @param {MessageEvent<import('dictionary-worker-handler').Message>} event
+     */
+    _onMessage(event) {
+        const {action, params} = event.data;
         switch (action) {
             case 'importDictionary':
                 this._onMessageWithProgress(params, this._importDictionary.bind(this));
@@ -51,7 +55,15 @@ class DictionaryWorkerHandler {
         }
     }
 
+    /**
+     * @template [T=unknown]
+     * @param {T} params
+     * @param {(details: T, onProgress: import('dictionary-worker-handler').OnProgressCallback) => Promise<unknown>} handler
+     */
     async _onMessageWithProgress(params, handler) {
+        /**
+         * @param {...unknown} args
+         */
         const onProgress = (...args) => {
             self.postMessage({
                 action: 'progress',
@@ -63,11 +75,16 @@ class DictionaryWorkerHandler {
             const result = await handler(params, onProgress);
             response = {result};
         } catch (e) {
-            response = {error: serializeError(e)};
+            response = {error: ExtensionError.serialize(e)};
         }
         self.postMessage({action: 'complete', params: response});
     }
 
+    /**
+     * @param {import('dictionary-worker-handler').ImportDictionaryMessageParams} details
+     * @param {import('dictionary-worker-handler').OnProgressCallback} onProgress
+     * @returns {Promise<import('dictionary-worker').MessageCompleteResultSerialized>}
+     */
     async _importDictionary({details, archiveContent}, onProgress) {
         const dictionaryDatabase = await this._getPreparedDictionaryDatabase();
         try {
@@ -75,13 +92,18 @@ class DictionaryWorkerHandler {
             const {result, errors} = await dictionaryImporter.importDictionary(dictionaryDatabase, archiveContent, details);
             return {
                 result,
-                errors: errors.map((error) => serializeError(error))
+                errors: errors.map((error) => ExtensionError.serialize(error))
             };
         } finally {
             dictionaryDatabase.close();
         }
     }
 
+    /**
+     * @param {import('dictionary-worker-handler').DeleteDictionaryMessageParams} details
+     * @param {import('dictionary-database').DeleteDictionaryProgressCallback} onProgress
+     * @returns {Promise<void>}
+     */
     async _deleteDictionary({dictionaryTitle}, onProgress) {
         const dictionaryDatabase = await this._getPreparedDictionaryDatabase();
         try {
@@ -91,6 +113,10 @@ class DictionaryWorkerHandler {
         }
     }
 
+    /**
+     * @param {import('dictionary-worker-handler').GetDictionaryCountsMessageParams} details
+     * @returns {Promise<import('dictionary-database').DictionaryCounts>}
+     */
     async _getDictionaryCounts({dictionaryNames, getTotal}) {
         const dictionaryDatabase = await this._getPreparedDictionaryDatabase();
         try {
@@ -100,6 +126,9 @@ class DictionaryWorkerHandler {
         }
     }
 
+    /**
+     * @returns {Promise<DictionaryDatabase>}
+     */
     async _getPreparedDictionaryDatabase() {
         const dictionaryDatabase = new DictionaryDatabase();
         await dictionaryDatabase.prepare();

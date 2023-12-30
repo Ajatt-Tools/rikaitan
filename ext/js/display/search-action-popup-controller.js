@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class SearchActionPopupController {
+export class SearchActionPopupController {
+    /**
+     * @param {import('./search-persistent-state-controller.js').SearchPersistentStateController} searchPersistentStateController
+     */
     constructor(searchPersistentStateController) {
+        /** @type {import('./search-persistent-state-controller.js').SearchPersistentStateController} */
         this._searchPersistentStateController = searchPersistentStateController;
     }
 
+    /** */
     prepare() {
         const searchParams = new URLSearchParams(location.search);
         if (searchParams.get('action-popup') !== 'true') { return; }

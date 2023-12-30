@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,38 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {EventListenerCollection} from '../core.js';
+
 /**
- * This class is used to connect Yomichan to a native component that is
+ * This class is used to connect Rikaitan to a native component that is
  * used to parse text into individual terms.
  */
-class Mecab {
-    /**
-     * The resulting data from an invocation of `parseText`.
-     * @typedef {object} ParseResult
-     * @property {string} name The dictionary name for the parsed result.
-     * @property {ParseTerm[]} lines The resulting parsed terms.
-     */
-
-    /**
-     * A fragment of the parsed text.
-     * @typedef {object} ParseFragment
-     * @property {string} term The term.
-     * @property {string} reading The reading of the term.
-     * @property {string} source The source text.
-     */
-
+export class Mecab {
     /**
      * Creates a new instance of the class.
      */
     constructor() {
+        /** @type {?chrome.runtime.Port} */
         this._port = null;
+        /** @type {number} */
         this._sequence = 0;
+        /** @type {Map<number, {resolve: (value: unknown) => void, reject: (reason?: unknown) => void, timer: import('core').Timeout}>} */
         this._invocations = new Map();
+        /** @type {EventListenerCollection} */
         this._eventListeners = new EventListenerCollection();
+        /** @type {number} */
         this._timeout = 5000;
+        /** @type {number} */
         this._version = 1;
+        /** @type {?number} */
         this._remoteVersion = null;
+        /** @type {boolean} */
         this._enabled = false;
+        /** @type {?Promise<void>} */
         this._setupPortPromise = null;
     }
 
@@ -97,7 +93,7 @@ class Mecab {
 
     /**
      * Gets the local API version being used.
-     * @returns {number} An integer representing the API version that Yomichan uses.
+     * @returns {number} An integer representing the API version that Rikaitan uses.
      */
     getLocalVersion() {
         return this._version;
@@ -105,11 +101,11 @@ class Mecab {
 
     /**
      * Gets the version of the MeCab component.
-     * @returns {?number} The version of the MeCab component, or `null` if the component was not found.
+     * @returns {Promise<?number>} The version of the MeCab component, or `null` if the component was not found.
      */
     async getVersion() {
         try {
-            await this._setupPort();
+            await this._setupPortWrapper();
         } catch (e) {
             // NOP
         }
@@ -133,17 +129,26 @@ class Mecab {
      * ]
      * ```
      * @param {string} text The string to parse.
-     * @returns {ParseResult[]} A collection of parsing results of the text.
+     * @returns {Promise<import('mecab').ParseResult[]>} A collection of parsing results of the text.
      */
     async parseText(text) {
-        await this._setupPort();
+        await this._setupPortWrapper();
         const rawResults = await this._invoke('parse_text', {text});
-        return this._convertParseTextResults(rawResults);
+        // Note: The format of rawResults is not validated
+        return this._convertParseTextResults(/** @type {import('mecab').ParseResultRaw} */ (rawResults));
     }
 
     // Private
 
-    _onMessage({sequence, data}) {
+    /**
+     * @param {unknown} message
+     */
+    _onMessage(message) {
+        if (typeof message !== 'object' || message === null) { return; }
+
+        const {sequence, data} = /** @type {import('core').SerializableObject} */ (message);
+        if (typeof sequence !== 'number') { return; }
+
         const invocation = this._invocations.get(sequence);
         if (typeof invocation === 'undefined') { return; }
 
@@ -153,6 +158,9 @@ class Mecab {
         this._invocations.delete(sequence);
     }
 
+    /**
+     * @returns {void}
+     */
     _onDisconnect() {
         if (this._port === null) { return; }
         const e = chrome.runtime.lastError;
@@ -164,10 +172,16 @@ class Mecab {
         this._clearPort();
     }
 
+    /**
+     * @param {string} action
+     * @param {import('core').SerializableObject} params
+     * @returns {Promise<unknown>}
+     */
     _invoke(action, params) {
         return new Promise((resolve, reject) => {
             if (this._port === null) {
                 reject(new Error('Port disconnected'));
+                return;
             }
 
             const sequence = this._sequence++;
@@ -177,15 +191,21 @@ class Mecab {
                 reject(new Error(`MeCab invoke timed out after ${this._timeout}ms`));
             }, this._timeout);
 
-            this._invocations.set(sequence, {resolve, reject, timer}, this._timeout);
+            this._invocations.set(sequence, {resolve, reject, timer});
 
             this._port.postMessage({action, params, sequence});
         });
     }
 
+    /**
+     * @param {import('mecab').ParseResultRaw} rawResults
+     * @returns {import('mecab').ParseResult[]}
+     */
     _convertParseTextResults(rawResults) {
+        /** @type {import('mecab').ParseResult[]} */
         const results = [];
         for (const [name, rawLines] of Object.entries(rawResults)) {
+            /** @type {import('mecab').ParseFragment[][]} */
             const lines = [];
             for (const rawLine of rawLines) {
                 const line = [];
@@ -202,31 +222,44 @@ class Mecab {
         return results;
     }
 
-    async _setupPort() {
+    /**
+     * @returns {Promise<void>}
+     */
+    async _setupPortWrapper() {
         if (!this._enabled) {
             throw new Error('MeCab not enabled');
         }
         if (this._setupPortPromise === null) {
-            this._setupPortPromise = this._setupPort2();
+            this._setupPortPromise = this._setupPort();
         }
         try {
             await this._setupPortPromise;
         } catch (e) {
-            throw new Error(e.message);
+            throw new Error(e instanceof Error ? e.message : `${e}`);
         }
     }
 
-    async _setupPort2() {
-        const port = chrome.runtime.connectNative('yomichan_mecab');
+    /**
+     * @returns {Promise<void>}
+     */
+    async _setupPort() {
+        const port = chrome.runtime.connectNative('rikaitan_mecab');
         this._eventListeners.addListener(port.onMessage, this._onMessage.bind(this));
         this._eventListeners.addListener(port.onDisconnect, this._onDisconnect.bind(this));
         this._port = port;
 
         try {
-            const {version} = await this._invoke('get_version', {});
+            const data = await this._invoke('get_version', {});
+            if (typeof data !== 'object' || data === null) {
+                throw new Error('Invalid version');
+            }
+            const {version} = /** @type {import('core').SerializableObject} */ (data);
+            if (typeof version !== 'number') {
+                throw new Error('Invalid version');
+            }
             this._remoteVersion = version;
             if (version !== this._version) {
-                throw new Error(`Unsupported MeCab native messenger version ${version}. Yomichan supports version ${this._version}.`);
+                throw new Error(`Unsupported MeCab native messenger version ${version}. Rikaitan supports version ${this._version}.`);
             }
         } catch (e) {
             if (this._port === port) {
@@ -236,9 +269,14 @@ class Mecab {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     _clearPort() {
-        this._port.disconnect();
-        this._port = null;
+        if (this._port !== null) {
+            this._port.disconnect();
+            this._port = null;
+        }
         this._invocations.clear();
         this._eventListeners.removeAllEventListeners();
         this._sequence = 0;

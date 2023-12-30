@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,20 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class PopupWindowController {
+import {querySelectorNotNull} from '../../dom/query-selector.js';
+import {rikaitan} from '../../rikaitan.js';
+
+export class PopupWindowController {
+    /** */
     prepare() {
-        const testLink = document.querySelector('#test-window-open-link');
+        /** @type {HTMLElement} */
+        const testLink = querySelectorNotNull(document, '#test-window-open-link');
         testLink.addEventListener('click', this._onTestWindowOpenLinkClick.bind(this), false);
     }
 
     // Private
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onTestWindowOpenLinkClick(e) {
         e.preventDefault();
         this._testWindowOpen();
     }
 
+    /** */
     async _testWindowOpen() {
-        await yomichan.api.getOrCreateSearchPopup({focus: true});
+        await rikaitan.api.getOrCreateSearchPopup({focus: true});
     }
 }

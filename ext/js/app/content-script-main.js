@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,17 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Frontend
- * HotkeyHandler
- * PopupFactory
- */
+import {log} from '../core.js';
+import {HotkeyHandler} from '../input/hotkey-handler.js';
+import {rikaitan} from '../rikaitan.js';
+import {Frontend} from './frontend.js';
+import {PopupFactory} from './popup-factory.js';
 
-(async () => {
+/** Entry point. */
+async function main() {
     try {
-        await yomichan.prepare();
+        await rikaitan.prepare();
 
-        const {tabId, frameId} = await yomichan.api.frameInformationGet();
+        const {tabId, frameId} = await rikaitan.api.frameInformationGet();
         if (typeof frameId !== 'number') {
             throw new Error('Failed to get frameId');
         }
@@ -46,13 +47,17 @@
             parentFrameId: null,
             useProxyPopup: false,
             pageType: 'web',
+            canUseWindowPopup: true,
             allowRootFramePopupProxy: true,
+            childrenSupported: true,
             hotkeyHandler
         });
         await frontend.prepare();
 
-        yomichan.ready();
+        rikaitan.ready();
     } catch (e) {
         log.error(e);
     }
-})();
+}
+
+await main();

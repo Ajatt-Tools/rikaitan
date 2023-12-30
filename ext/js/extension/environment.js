@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,29 +16,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class Environment {
+export class Environment {
     constructor() {
+        /** @type {?import('environment').Info} */
         this._cachedEnvironmentInfo = null;
     }
 
+    /**
+     * @returns {Promise<void>}
+     */
     async prepare() {
         this._cachedEnvironmentInfo = await this._loadEnvironmentInfo();
     }
 
+    /**
+     * @returns {import('environment').Info}
+     * @throws {Error}
+     */
     getInfo() {
         if (this._cachedEnvironmentInfo === null) { throw new Error('Not prepared'); }
         return this._cachedEnvironmentInfo;
     }
 
+    /**
+     * @returns {Promise<import('environment').Info>}
+     */
     async _loadEnvironmentInfo() {
-        const browser = await this._getBrowser();
         const os = await this._getOperatingSystem();
+        const browser = await this._getBrowser(os);
+
         return {
             browser,
             platform: {os}
         };
     }
 
+    /**
+     * @returns {Promise<import('environment').OperatingSystem>}
+     */
     async _getOperatingSystem() {
         try {
             const {os} = await this._getPlatformInfo();
@@ -51,6 +66,9 @@ class Environment {
         return 'unknown';
     }
 
+    /**
+     * @returns {Promise<chrome.runtime.PlatformInfo>}
+     */
     _getPlatformInfo() {
         return new Promise((resolve, reject) => {
             chrome.runtime.getPlatformInfo((result) => {
@@ -64,7 +82,11 @@ class Environment {
         });
     }
 
-    async _getBrowser() {
+    /**
+     * @param {import('environment').OperatingSystem} os
+     * @returns {Promise<import('environment').Browser>}
+     */
+    async _getBrowser(os) {
         try {
             if (chrome.runtime.getURL('/').startsWith('ms-browser-extension://')) {
                 return 'edge-legacy';
@@ -76,16 +98,11 @@ class Environment {
             // NOP
         }
         if (typeof browser !== 'undefined') {
-            try {
-                const info = await browser.runtime.getBrowserInfo();
-                if (info.name === 'Fennec') {
-                    return 'firefox-mobile';
-                }
-            } catch (e) {
-                // NOP
-            }
             if (this._isSafari()) {
                 return 'safari';
+            }
+            if (os === 'android') {
+                return 'firefox-mobile';
             }
             return 'firefox';
         } else {
@@ -93,6 +110,9 @@ class Environment {
         }
     }
 
+    /**
+     * @returns {boolean};
+     */
     _isSafari() {
         const {vendor, userAgent} = navigator;
         return (

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,44 +16,66 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class StorageController {
+import {querySelectorNotNull} from '../../dom/query-selector.js';
+import {rikaitan} from '../../rikaitan.js';
+
+export class StorageController {
+    /**
+     * @param {import('./persistent-storage-controller.js').PersistentStorageController} persistentStorageController
+     */
     constructor(persistentStorageController) {
+    /** @type {import('./persistent-storage-controller.js').PersistentStorageController} */
         this._persistentStorageController = persistentStorageController;
+        /** @type {?StorageEstimate} */
         this._mostRecentStorageEstimate = null;
+        /** @type {boolean} */
         this._storageEstimateFailed = false;
+        /** @type {boolean} */
         this._isUpdating = false;
-        this._storageUsageNode = null;
-        this._storageQuotaNode = null;
+        /** @type {?NodeListOf<HTMLElement>} */
+        this._storageUsageNodes = null;
+        /** @type {?NodeListOf<HTMLElement>} */
+        this._storageQuotaNodes = null;
+        /** @type {?NodeListOf<HTMLElement>} */
         this._storageUseFiniteNodes = null;
+        /** @type {?NodeListOf<HTMLElement>} */
         this._storageUseInfiniteNodes = null;
+        /** @type {?NodeListOf<HTMLElement>} */
         this._storageUseValidNodes = null;
+        /** @type {?NodeListOf<HTMLElement>} */
         this._storageUseInvalidNodes = null;
     }
 
+    /** */
     prepare() {
-        this._storageUsageNodes = document.querySelectorAll('.storage-usage');
-        this._storageQuotaNodes = document.querySelectorAll('.storage-quota');
-        this._storageUseFiniteNodes = document.querySelectorAll('.storage-use-finite');
-        this._storageUseInfiniteNodes = document.querySelectorAll('.storage-use-infinite');
-        this._storageUseValidNodes = document.querySelectorAll('.storage-use-valid');
-        this._storageUseInvalidNodes = document.querySelectorAll('.storage-use-invalid');
+        this._storageUsageNodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.storage-usage'));
+        this._storageQuotaNodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.storage-quota'));
+        this._storageUseFiniteNodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.storage-use-finite'));
+        this._storageUseInfiniteNodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.storage-use-infinite'));
+        this._storageUseValidNodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.storage-use-valid'));
+        this._storageUseInvalidNodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.storage-use-invalid'));
+        /** @type {HTMLButtonElement} */
+        const storageRefreshButton = querySelectorNotNull(document, '#storage-refresh');
 
-        document.querySelector('#storage-refresh').addEventListener('click', this._onStorageRefreshButtonClick.bind(this), false);
-        yomichan.on('storageChanged', this._onStorageChanged.bind(this));
+        storageRefreshButton.addEventListener('click', this._onStorageRefreshButtonClick.bind(this), false);
+        rikaitan.on('storageChanged', this._onStorageChanged.bind(this));
 
         this._updateStats();
     }
 
     // Private
 
+    /** */
     _onStorageRefreshButtonClick() {
         this._updateStats();
     }
 
+    /** */
     _onStorageChanged() {
         this._updateStats();
     }
 
+    /** */
     async _updateStats() {
         if (this._isUpdating) { return; }
 
@@ -64,13 +86,18 @@ class StorageController {
             const valid = (estimate !== null);
 
             // Firefox reports usage as 0 when persistent storage is enabled.
-            const finite = valid && (estimate.usage > 0 || !(await this._persistentStorageController.isStoragePeristent()));
+            const finite = valid && ((typeof estimate.usage === 'number' && estimate.usage > 0) || !(await this._persistentStorageController.isStoragePeristent()));
             if (finite) {
-                for (const node of this._storageUsageNodes) {
-                    node.textContent = this._bytesToLabeledString(estimate.usage);
+                let {usage, quota} = estimate;
+                if (typeof usage !== 'number') { usage = 0; }
+                if (typeof quota !== 'number') { quota = 0; }
+                const usageString = this._bytesToLabeledString(usage);
+                const quotaString = this._bytesToLabeledString(quota);
+                for (const node of /** @type {NodeListOf<HTMLElement>} */ (this._storageUsageNodes)) {
+                    node.textContent = usageString;
                 }
-                for (const node of this._storageQuotaNodes) {
-                    node.textContent = this._bytesToLabeledString(estimate.quota);
+                for (const node of /** @type {NodeListOf<HTMLElement>} */ (this._storageQuotaNodes)) {
+                    node.textContent = quotaString;
                 }
             }
 
@@ -78,8 +105,6 @@ class StorageController {
             this._setElementsVisible(this._storageUseInfiniteNodes, valid && !finite);
             this._setElementsVisible(this._storageUseValidNodes, valid);
             this._setElementsVisible(this._storageUseInvalidNodes, !valid);
-
-            return valid;
         } finally {
             this._isUpdating = false;
         }
@@ -87,6 +112,9 @@ class StorageController {
 
     // Private
 
+    /**
+     * @returns {Promise<?StorageEstimate>}
+     */
     async _storageEstimate() {
         if (this._storageEstimateFailed && this._mostRecentStorageEstimate === null) {
             return null;
@@ -101,6 +129,10 @@ class StorageController {
         return null;
     }
 
+    /**
+     * @param {number} size
+     * @returns {string}
+     */
     _bytesToLabeledString(size) {
         const base = 1000;
         const labels = [' bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -114,7 +146,12 @@ class StorageController {
         return `${label}${labels[labelIndex]}`;
     }
 
+    /**
+     * @param {?NodeListOf<HTMLElement>} elements
+     * @param {boolean} visible
+     */
     _setElementsVisible(elements, visible) {
+        if (elements === null) { return; }
         visible = !visible;
         for (const element of elements) {
             element.hidden = visible;

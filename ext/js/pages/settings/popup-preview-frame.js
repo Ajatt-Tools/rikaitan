@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,40 +16,60 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Frontend
- * TextSourceRange
- * wanakana
- */
+import * as wanakana from '../../../lib/wanakana.js';
+import {Frontend} from '../../app/frontend.js';
+import {querySelectorNotNull} from '../../dom/query-selector.js';
+import {TextSourceRange} from '../../dom/text-source-range.js';
+import {rikaitan} from '../../rikaitan.js';
 
-class PopupPreviewFrame {
+export class PopupPreviewFrame {
+    /**
+     * @param {number} tabId
+     * @param {number} frameId
+     * @param {import('../../app/popup-factory.js').PopupFactory} popupFactory
+     * @param {import('../../input/hotkey-handler.js').HotkeyHandler} hotkeyHandler
+     */
     constructor(tabId, frameId, popupFactory, hotkeyHandler) {
+        /** @type {number} */
         this._tabId = tabId;
+        /** @type {number} */
         this._frameId = frameId;
+        /** @type {import('../../app/popup-factory.js').PopupFactory} */
         this._popupFactory = popupFactory;
+        /** @type {import('../../input/hotkey-handler.js').HotkeyHandler} */
         this._hotkeyHandler = hotkeyHandler;
+        /** @type {?Frontend} */
         this._frontend = null;
+        /** @type {?(optionsContext: import('settings').OptionsContext) => Promise<import('settings').ProfileOptions>} */
         this._apiOptionsGetOld = null;
+        /** @type {boolean} */
         this._popupShown = false;
+        /** @type {?import('core').Timeout} */
         this._themeChangeTimeout = null;
+        /** @type {?import('text-source').TextSource} */
         this._textSource = null;
+        /** @type {?import('settings').OptionsContext} */
         this._optionsContext = null;
-        this._exampleText = null;
-        this._exampleTextInput = null;
+        /** @type {HTMLElement} */
+        this._exampleText = querySelectorNotNull(document, '#example-text');
+        /** @type {HTMLInputElement} */
+        this._exampleTextInput = querySelectorNotNull(document, '#example-text-input');
+        /** @type {string} */
         this._targetOrigin = chrome.runtime.getURL('/').replace(/\/$/, '');
 
-        this._windowMessageHandlers = new Map([
+        /* eslint-disable no-multi-spaces */
+        /** @type {Map<string, (params: import('core').SerializableObjectAny) => void>} */
+        this._windowMessageHandlers = new Map(/** @type {[key: string, handler: (params: import('core').SerializableObjectAny) => void][]} */ ([
             ['PopupPreviewFrame.setText',              this._onSetText.bind(this)],
             ['PopupPreviewFrame.setCustomCss',         this._setCustomCss.bind(this)],
             ['PopupPreviewFrame.setCustomOuterCss',    this._setCustomOuterCss.bind(this)],
             ['PopupPreviewFrame.updateOptionsContext', this._updateOptionsContext.bind(this)]
-        ]);
+        ]));
+        /* eslint-enable no-multi-spaces */
     }
 
+    /** */
     async prepare() {
-        this._exampleText = document.querySelector('#example-text');
-        this._exampleTextInput = document.querySelector('#example-text-input');
-
         if (this._exampleTextInput !== null && typeof wanakana !== 'undefined') {
             wanakana.bind(this._exampleTextInput);
         }
@@ -57,14 +77,17 @@ class PopupPreviewFrame {
         window.addEventListener('message', this._onMessage.bind(this), false);
 
         // Setup events
-        document.querySelector('#theme-dark-checkbox').addEventListener('change', this._onThemeDarkCheckboxChanged.bind(this), false);
+        /** @type {HTMLInputElement} */
+        const darkThemeCheckbox = querySelectorNotNull(document, '#theme-dark-checkbox');
+        darkThemeCheckbox.addEventListener('change', this._onThemeDarkCheckboxChanged.bind(this), false);
         this._exampleText.addEventListener('click', this._onExampleTextClick.bind(this), false);
         this._exampleTextInput.addEventListener('blur', this._onExampleTextInputBlur.bind(this), false);
         this._exampleTextInput.addEventListener('input', this._onExampleTextInputInput.bind(this), false);
 
         // Overwrite API functions
-        this._apiOptionsGetOld = yomichan.api.optionsGet.bind(yomichan.api);
-        yomichan.api.optionsGet = this._apiOptionsGet.bind(this);
+        /** @type {?(optionsContext: import('settings').OptionsContext) => Promise<import('settings').ProfileOptions>} */
+        this._apiOptionsGetOld = rikaitan.api.optionsGet.bind(rikaitan.api);
+        rikaitan.api.optionsGet = this._apiOptionsGet.bind(this);
 
         // Overwrite frontend
         this._frontend = new Frontend({
@@ -85,7 +108,10 @@ class PopupPreviewFrame {
         await this._frontend.prepare();
         this._frontend.setDisabledOverride(true);
         this._frontend.canClearSelection = false;
-        this._frontend.popup.on('customOuterCssChanged', this._onCustomOuterCssChanged.bind(this));
+        const {popup} = this._frontend;
+        if (popup !== null) {
+            popup.on('customOuterCssChanged', this._onCustomOuterCssChanged.bind(this));
+        }
 
         // Update search
         this._updateSearch();
@@ -93,8 +119,12 @@ class PopupPreviewFrame {
 
     // Private
 
-    async _apiOptionsGet(...args) {
-        const options = await this._apiOptionsGetOld(...args);
+    /**
+     * @param {import('settings').OptionsContext} optionsContext
+     * @returns {Promise<import('settings').ProfileOptions>}
+     */
+    async _apiOptionsGet(optionsContext) {
+        const options = await /** @type {(optionsContext: import('settings').OptionsContext) => Promise<import('settings').ProfileOptions>} */ (this._apiOptionsGetOld)(optionsContext);
         options.general.enable = true;
         options.general.debugInfo = false;
         options.general.popupWidth = 400;
@@ -109,16 +139,24 @@ class PopupPreviewFrame {
         return options;
     }
 
+    /**
+     * @param {import('popup').CustomOuterCssChangedEvent} details
+     */
     _onCustomOuterCssChanged({node, inShadow}) {
         if (node === null || inShadow) { return; }
 
         const node2 = document.querySelector('#popup-outer-css');
         if (node2 === null) { return; }
+        const {parentNode} = node2;
+        if (parentNode === null) { return; }
 
         // This simulates the stylesheet priorities when injecting using the web extension API.
-        node2.parentNode.insertBefore(node, node2);
+        parentNode.insertBefore(node, node2);
     }
 
+    /**
+     * @param {MessageEvent<{action: string, params: import('core').SerializableObject}>} e
+     */
     _onMessage(e) {
         if (e.origin !== this._targetOrigin) { return; }
 
@@ -129,19 +167,24 @@ class PopupPreviewFrame {
         handler(params);
     }
 
+    /**
+     * @param {Event} e
+     */
     _onThemeDarkCheckboxChanged(e) {
-        document.documentElement.classList.toggle('dark', e.target.checked);
+        const element = /** @type {HTMLInputElement} */ (e.currentTarget);
+        document.documentElement.classList.toggle('dark', element.checked);
         if (this._themeChangeTimeout !== null) {
             clearTimeout(this._themeChangeTimeout);
         }
         this._themeChangeTimeout = setTimeout(() => {
             this._themeChangeTimeout = null;
-            const popup = this._frontend.popup;
+            const popup = /** @type {Frontend} */ (this._frontend).popup;
             if (popup === null) { return; }
             popup.updateTheme();
         }, 300);
     }
 
+    /** */
     _onExampleTextClick() {
         if (this._exampleTextInput === null) { return; }
         const visible = this._exampleTextInput.hidden;
@@ -151,19 +194,31 @@ class PopupPreviewFrame {
         this._exampleTextInput.select();
     }
 
+    /** */
     _onExampleTextInputBlur() {
         if (this._exampleTextInput === null) { return; }
         this._exampleTextInput.hidden = true;
     }
 
+    /**
+     * @param {Event} e
+     */
     _onExampleTextInputInput(e) {
-        this._setText(e.currentTarget.value);
+        const element = /** @type {HTMLInputElement} */ (e.currentTarget);
+        this._setText(element.value, false);
     }
 
+    /**
+     * @param {{text: string}} details
+     */
     _onSetText({text}) {
         this._setText(text, true);
     }
 
+    /**
+     * @param {string} text
+     * @param {boolean} setInput
+     */
     _setText(text, setInput) {
         if (setInput && this._exampleTextInput !== null) {
             this._exampleTextInput.value = text;
@@ -176,6 +231,9 @@ class PopupPreviewFrame {
         this._updateSearch();
     }
 
+    /**
+     * @param {boolean} visible
+     */
     _setInfoVisible(visible) {
         const node = document.querySelector('.placeholder-info');
         if (node === null) { return; }
@@ -183,6 +241,9 @@ class PopupPreviewFrame {
         node.classList.toggle('placeholder-info-visible', visible);
     }
 
+    /**
+     * @param {{css: string}} details
+     */
     _setCustomCss({css}) {
         if (this._frontend === null) { return; }
         const popup = this._frontend.popup;
@@ -190,6 +251,9 @@ class PopupPreviewFrame {
         popup.setCustomCss(css);
     }
 
+    /**
+     * @param {{css: string}} details
+     */
     _setCustomOuterCss({css}) {
         if (this._frontend === null) { return; }
         const popup = this._frontend.popup;
@@ -197,7 +261,11 @@ class PopupPreviewFrame {
         popup.setCustomOuterCss(css, false);
     }
 
-    async _updateOptionsContext({optionsContext}) {
+    /**
+     * @param {{optionsContext: import('settings').OptionsContext}} details
+     */
+    async _updateOptionsContext(details) {
+        const {optionsContext} = details;
         this._optionsContext = optionsContext;
         if (this._frontend === null) { return; }
         this._frontend.setOptionsContextOverride(optionsContext);
@@ -205,6 +273,7 @@ class PopupPreviewFrame {
         await this._updateSearch();
     }
 
+    /** */
     async _updateSearch() {
         if (this._exampleText === null) { return; }
 
@@ -214,16 +283,17 @@ class PopupPreviewFrame {
         const range = document.createRange();
         range.selectNodeContents(textNode);
         const source = TextSourceRange.create(range);
+        const frontend = /** @type {Frontend} */ (this._frontend);
 
         try {
-            await this._frontend.setTextSource(source);
+            await frontend.setTextSource(source);
         } finally {
             source.cleanup();
         }
         this._textSource = source;
-        await this._frontend.showContentCompleted();
+        await frontend.showContentCompleted();
 
-        const popup = this._frontend.popup;
+        const popup = frontend.popup;
         if (popup !== null && popup.isVisibleSync()) {
             this._popupShown = true;
         }

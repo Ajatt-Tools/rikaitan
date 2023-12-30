@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,41 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const path = require('path');
-const {test: base, chromium} = require('@playwright/test');
-const root = path.join(__dirname, '..', '..');
+import path from 'path';
+import {pathToFileURL} from 'url';
+import {expect, root, test} from './playwright-util';
 
-export const test = base.extend({
-    context: async ({ }, use) => {
-        const pathToExtension = path.join(root, 'ext');
-        const context = await chromium.launchPersistentContext('', {
-            // headless: false,
-            args: [
-                '--headless=new',
-                `--disable-extensions-except=${pathToExtension}`,
-                `--load-extension=${pathToExtension}`
-            ]
-        });
-        await use(context);
-        await context.close();
-    },
-    extensionId: async ({context}, use) => {
-        let [background] = context.serviceWorkers();
-        if (!background) {
-            background = await context.waitForEvent('serviceworker');
-        }
-
-        const extensionId = background.url().split('/')[2];
-        await use(extensionId);
-    }
-});
-const expect = test.expect;
-
-test('visual', async ({context, page, extensionId}) => {
+test.beforeEach(async ({context}) => {
     // wait for the on-install welcome.html tab to load, which becomes the foreground tab
     const welcome = await context.waitForEvent('page');
     welcome.close(); // close the welcome tab so our main tab becomes the foreground tab -- otherwise, the screenshot can hang
+});
 
+test('visual', async ({page, extensionId}) => {
     // open settings
     await page.goto(`chrome-extension://${extensionId}/settings.html`);
 
@@ -68,10 +44,16 @@ test('visual', async ({context, page, extensionId}) => {
     // take a screenshot of the settings page with jmdict loaded
     await expect.soft(page).toHaveScreenshot('settings-jmdict-loaded.png', {mask: [storage_locator]});
 
+    /**
+     * @param {number} doc_number
+     * @param {number} test_number
+     * @param {import('@playwright/test').ElementHandle<Node>} el
+     * @param {{x: number, y: number}} offset
+     */
     const screenshot = async (doc_number, test_number, el, offset) => {
         const test_name = 'doc' + doc_number + '-test' + test_number;
 
-        const box = await el.boundingBox();
+        const box = (await el.boundingBox()) || {x: 0, y: 0, width: 0, height: 0};
 
         // find the popup frame if it exists
         let popup_frame = page.frames().find((f) => f.url().includes('popup.html'));
@@ -86,7 +68,9 @@ test('visual', async ({context, page, extensionId}) => {
             popup_frame = await frame_attached; // wait for popup to be attached
         }
         try {
-            await (await popup_frame.frameElement()).waitForElementState('visible', {timeout: 500});  // some tests don't have a popup, so don't fail if it's not there; TODO: check if the popup is expected to be there
+            // Some tests don't have a popup, so don't fail if it's not there
+            // TODO: check if the popup is expected to be there
+            await (await /** @type {import('@playwright/test').Frame} */ (popup_frame).frameElement()).waitForElementState('visible', {timeout: 500});
         } catch (error) {
             console.log(test_name + ' has no popup');
         }
@@ -95,11 +79,11 @@ test('visual', async ({context, page, extensionId}) => {
         await expect.soft(page).toHaveScreenshot(test_name + '.png');
 
         await page.mouse.click(0, 0); // click away so popup disappears
-        await (await popup_frame.frameElement()).waitForElementState('hidden'); // wait for popup to disappear
+        await (await /** @type {import('@playwright/test').Frame} */ (popup_frame).frameElement()).waitForElementState('hidden'); // wait for popup to disappear
     };
 
-    // Load test-document1.html
-    await page.goto('file://' + path.join(root, 'test/data/html/test-document1.html'));
+    // Test document 1
+    await page.goto(pathToFileURL(path.join(root, 'test/data/html/document-util.html')).toString());
     await page.setViewportSize({width: 1000, height: 1800});
     await page.keyboard.down('Shift');
     let i = 1;
@@ -108,8 +92,8 @@ test('visual', async ({context, page, extensionId}) => {
         i++;
     }
 
-    // Load test-document2.html
-    await page.goto('file://' + path.join(root, 'test/data/html/test-document2.html'));
+    // Test document 2
+    await page.goto(pathToFileURL(path.join(root, 'test/data/html/popup-tests.html')).toString());
     await page.setViewportSize({width: 1000, height: 4500});
     await page.keyboard.down('Shift');
     i = 1;

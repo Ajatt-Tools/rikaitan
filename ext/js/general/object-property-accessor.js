@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,13 @@
 /**
  * Class used to get and mutate generic properties of an object by using path strings.
  */
-class ObjectPropertyAccessor {
+export class ObjectPropertyAccessor {
     /**
      * Create a new accessor for a specific object.
-     * @param {object} target The object which the getter and mutation methods are applied to.
+     * @param {unknown} target The object which the getter and mutation methods are applied to.
      */
     constructor(target) {
+        /** @type {unknown} */
         this._target = target;
     }
 
@@ -33,7 +34,7 @@ class ObjectPropertyAccessor {
      * @param {(string|number)[]} pathArray The path to the property on the target object.
      * @param {number} [pathLength] How many parts of the pathArray to use.
      *   This parameter is optional and defaults to the length of pathArray.
-     * @returns {*} The value found at the path.
+     * @returns {unknown} The value found at the path.
      * @throws {Error} An error is thrown if pathArray is not valid for the target object.
      */
     get(pathArray, pathLength) {
@@ -44,7 +45,7 @@ class ObjectPropertyAccessor {
             if (!ObjectPropertyAccessor.hasProperty(target, key)) {
                 throw new Error(`Invalid path: ${ObjectPropertyAccessor.getPathString(pathArray.slice(0, i + 1))}`);
             }
-            target = target[key];
+            target = /** @type {import('core').SerializableObject} */ (target)[key];
         }
         return target;
     }
@@ -52,7 +53,7 @@ class ObjectPropertyAccessor {
     /**
      * Sets the value at the specified path.
      * @param {(string|number)[]} pathArray The path to the property on the target object.
-     * @param {*} value The value to assign to the property.
+     * @param {unknown} value The value to assign to the property.
      * @throws {Error} An error is thrown if pathArray is not valid for the target object.
      */
     set(pathArray, value) {
@@ -65,7 +66,7 @@ class ObjectPropertyAccessor {
             throw new Error(`Invalid path: ${ObjectPropertyAccessor.getPathString(pathArray)}`);
         }
 
-        target[key] = value;
+        /** @type {import('core').SerializableObject} */ (target)[key] = value;
     }
 
     /**
@@ -87,7 +88,7 @@ class ObjectPropertyAccessor {
             throw new Error('Invalid type');
         }
 
-        delete target[key];
+        delete /** @type {import('core').SerializableObject} */ (target)[key];
     }
 
     /**
@@ -110,16 +111,16 @@ class ObjectPropertyAccessor {
         const key2 = pathArray2[ii2];
         if (!ObjectPropertyAccessor.isValidPropertyType(target2, key2)) { throw new Error(`Invalid path 2: ${ObjectPropertyAccessor.getPathString(pathArray2)}`); }
 
-        const value1 = target1[key1];
-        const value2 = target2[key2];
+        const value1 = /** @type {import('core').SerializableObject} */ (target1)[key1];
+        const value2 = /** @type {import('core').SerializableObject} */ (target2)[key2];
 
-        target1[key1] = value2;
+        /** @type {import('core').SerializableObject} */ (target1)[key1] = value2;
         try {
-            target2[key2] = value1;
+            /** @type {import('core').SerializableObject} */ (target2)[key2] = value1;
         } catch (e) {
             // Revert
             try {
-                target1[key1] = value1;
+                /** @type {import('core').SerializableObject} */ (target1)[key1] = value1;
             } catch (e2) {
                 // NOP
             }
@@ -178,7 +179,7 @@ class ObjectPropertyAccessor {
         let value = '';
         let escaped = false;
         for (const c of pathString) {
-            const v = c.codePointAt(0);
+            const v = /** @type {number} */ (c.codePointAt(0));
             switch (state) {
                 case 'empty': // Empty
                 case 'id-start': // Expecting identifier start
@@ -288,7 +289,7 @@ class ObjectPropertyAccessor {
 
     /**
      * Checks whether an object or array has the specified property.
-     * @param {*} object The object to test.
+     * @param {unknown} object The object to test.
      * @param {string|number} property The property to check for existence.
      *   This value should be a string if the object is a non-array object.
      *   For arrays, it should be an integer.
@@ -317,7 +318,7 @@ class ObjectPropertyAccessor {
 
     /**
      * Checks whether a property is valid for the given object
-     * @param {object} object The object to test.
+     * @param {unknown} object The object to test.
      * @param {string|number} property The property to check for existence.
      * @returns {boolean} `true` if the property is correct for the given object type, otherwise `false`.
      *   For arrays, this means that the property should be a positive integer.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {log} from '../core.js';
+
 /**
  * This class controls the registration of accessibility handlers.
  */
-class AccessibilityController {
+export class AccessibilityController {
     /**
      * Creates a new instance.
-     * @param {ScriptManager} scriptManager An instance of the `ScriptManager` class.
+     * @param {import('../background/script-manager.js').ScriptManager} scriptManager An instance of the `ScriptManager` class.
      */
     constructor(scriptManager) {
+        /** @type {import('../background/script-manager.js').ScriptManager} */
         this._scriptManager = scriptManager;
+        /** @type {?import('core').TokenObject} */
         this._updateGoogleDocsAccessibilityToken = null;
+        /** @type {?Promise<void>} */
         this._updateGoogleDocsAccessibilityPromise = null;
+        /** @type {boolean} */
         this._forceGoogleDocsHtmlRenderingAny = false;
     }
 
     /**
      * Updates the accessibility handlers.
-     * @param {object} fullOptions The full options object from the `Backend` instance.
+     * @param {import('settings').Options} fullOptions The full options object from the `Backend` instance.
      *   The value is treated as read-only and is not modified.
      */
     async update(fullOptions) {
@@ -50,8 +56,12 @@ class AccessibilityController {
 
     // Private
 
+    /**
+     * @param {boolean} forceGoogleDocsHtmlRenderingAny
+     */
     async _updateGoogleDocsAccessibility(forceGoogleDocsHtmlRenderingAny) {
         // Reentrant token
+        /** @type {?import('core').TokenObject} */
         const token = {};
         this._updateGoogleDocsAccessibilityToken = token;
 
@@ -69,6 +79,9 @@ class AccessibilityController {
         this._updateGoogleDocsAccessibilityPromise = null;
     }
 
+    /**
+     * @param {boolean} forceGoogleDocsHtmlRenderingAny
+     */
     async _updateGoogleDocsAccessibilityInner(forceGoogleDocsHtmlRenderingAny) {
         if (this._forceGoogleDocsHtmlRenderingAny === forceGoogleDocsHtmlRenderingAny) { return; }
 
@@ -78,6 +91,7 @@ class AccessibilityController {
         try {
             if (forceGoogleDocsHtmlRenderingAny) {
                 if (await this._scriptManager.isContentScriptRegistered(id)) { return; }
+                /** @type {import('script-manager').RegistrationDetails} */
                 const details = {
                     allFrames: true,
                     matchAboutBlank: true,

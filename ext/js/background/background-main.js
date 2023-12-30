@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,13 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Backend
- */
+import {rikaitan} from '../rikaitan.js';
+import {Backend} from './backend.js';
 
-(() => {
-    yomichan.prepare(true);
+/** Entry point. */
+async function main() {
+    rikaitan.prepare(true);
 
     const backend = new Backend();
-    backend.prepare();
-})();
+    await backend.prepare();
+}
+
+main();

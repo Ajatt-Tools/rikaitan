@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2019-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,20 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Display
- * DisplayAnki
- * DisplayAudio
- * DocumentFocusController
- * HotkeyHandler
- * JapaneseUtil
- * SearchActionPopupController
- * SearchDisplayController
- * SearchPersistentStateController
- * wanakana
- */
+import * as wanakana from '../../lib/wanakana.js';
+import {log} from '../core.js';
+import {DocumentFocusController} from '../dom/document-focus-controller.js';
+import {HotkeyHandler} from '../input/hotkey-handler.js';
+import {JapaneseUtil} from '../language/sandbox/japanese-util.js';
+import {rikaitan} from '../rikaitan.js';
+import {DisplayAnki} from './display-anki.js';
+import {DisplayAudio} from './display-audio.js';
+import {Display} from './display.js';
+import {SearchActionPopupController} from './search-action-popup-controller.js';
+import {SearchDisplayController} from './search-display-controller.js';
+import {SearchPersistentStateController} from './search-persistent-state-controller.js';
 
-(async () => {
+/** Entry point. */
+async function main() {
     try {
         const documentFocusController = new DocumentFocusController('#search-textbox');
         documentFocusController.prepare();
@@ -40,9 +41,9 @@
         const searchActionPopupController = new SearchActionPopupController(searchPersistentStateController);
         searchActionPopupController.prepare();
 
-        await yomichan.prepare();
+        await rikaitan.prepare();
 
-        const {tabId, frameId} = await yomichan.api.frameInformationGet();
+        const {tabId, frameId} = await rikaitan.api.frameInformationGet();
 
         const japaneseUtil = new JapaneseUtil(wanakana);
 
@@ -65,8 +66,10 @@
 
         document.documentElement.dataset.loaded = 'true';
 
-        yomichan.ready();
+        rikaitan.ready();
     } catch (e) {
         log.error(e);
     }
-})();
+}
+
+await main();

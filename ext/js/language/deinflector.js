@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class Deinflector {
+export class Deinflector {
+    /* eslint-disable no-multi-spaces */
+    /** @type {Map<string, import('translation-internal').DeinflectionRuleFlags>} @readonly */
+    static _ruleTypes = new Map([
+        ['v1',    /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b00000001)], // Verb ichidan
+        ['v5',    /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b00000010)], // Verb godan
+        ['vs',    /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b00000100)], // Verb suru
+        ['vk',    /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b00001000)], // Verb kuru
+        ['vz',    /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b00010000)], // Verb zuru
+        ['adj-i', /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b00100000)], // Adjective i
+        ['iru',   /** @type {import('translation-internal').DeinflectionRuleFlags} */ (0b01000000)] // Intermediate -iru endings for progressive or perfect tense
+    ]);
+    /* eslint-enable no-multi-spaces */
+
+    /**
+     * @param {import('deinflector').ReasonsRaw} reasons
+     * @example
+     * const deinflectionReasons = parseJson(
+     *   readFileSync(path.join('ext/data/deinflect.json')).toString(),
+     * );
+     * const deinflector = new Deinflector(deinflectionReasons);
+     */
     constructor(reasons) {
+        /** @type {import('deinflector').Reason[]} */
         this.reasons = Deinflector.normalizeReasons(reasons);
     }
 
+    /**
+     * Deinflects a Japanese term to all of its possible dictionary forms.
+     * @param {string} source The source term to deinflect.
+     * @returns {import('translation-internal').Deinflection[]}
+     * @example
+     * const deinflector = new Deinflector(deinflectionReasons);
+     * // [{ term: '食べた', rules: 0, reasons: [] }, { term: '食べる', rules: 1, reasons: ['past'] }, { term: '食ぶ', rules: 2, reasons: ['potential', 'past'] }]
+     * console.log(deinflector.deinflect('食べさせられる'));
+     */
     deinflect(source) {
         const results = [this._createDeinflection(source, 0, [])];
         for (let i = 0; i < results.length; ++i) {
@@ -46,13 +77,25 @@ class Deinflector {
         return results;
     }
 
+    /**
+     * @param {string} term
+     * @param {import('translation-internal').DeinflectionRuleFlags} rules
+     * @param {string[]} reasons
+     * @returns {import('translation-internal').Deinflection}
+     */
     _createDeinflection(term, rules, reasons) {
         return {term, rules, reasons};
     }
 
+    /**
+     * @param {import('deinflector').ReasonsRaw} reasons
+     * @returns {import('deinflector').Reason[]}
+     */
     static normalizeReasons(reasons) {
+        /** @type {import('deinflector').Reason[]} */
         const normalizedReasons = [];
         for (const [reason, reasonInfo] of Object.entries(reasons)) {
+            /** @type {import('deinflector').ReasonVariant[]} */
             const variants = [];
             for (const {kanaIn, kanaOut, rulesIn, rulesOut} of reasonInfo) {
                 variants.push([
@@ -67,6 +110,10 @@ class Deinflector {
         return normalizedReasons;
     }
 
+    /**
+     * @param {string[]} rules
+     * @returns {import('translation-internal').DeinflectionRuleFlags}
+     */
     static rulesToRuleFlags(rules) {
         const ruleTypes = this._ruleTypes;
         let value = 0;
@@ -78,14 +125,3 @@ class Deinflector {
         return value;
     }
 }
-
-// eslint-disable-next-line no-underscore-dangle
-Deinflector._ruleTypes = new Map([
-    ['v1',    0b00000001], // Verb ichidan
-    ['v5',    0b00000010], // Verb godan
-    ['vs',    0b00000100], // Verb suru
-    ['vk',    0b00001000], // Verb kuru
-    ['vz',    0b00010000], // Verb zuru
-    ['adj-i', 0b00100000], // Adjective i
-    ['iru',   0b01000000] // Intermediate -iru endings for progressive or perfect tense
-]);

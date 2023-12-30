@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,32 +16,49 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * PanelElement
- */
+import {EventListenerCollection, generateId} from '../core.js';
+import {PanelElement} from '../dom/panel-element.js';
+import {querySelectorNotNull} from '../dom/query-selector.js';
+import {rikaitan} from '../rikaitan.js';
 
-class DisplayProfileSelection {
+export class DisplayProfileSelection {
+    /**
+     * @param {import('./display.js').Display} display
+     */
     constructor(display) {
+        /** @type {import('./display.js').Display} */
         this._display = display;
-        this._profielList = document.querySelector('#profile-list');
-        this._profileButton = document.querySelector('#profile-button');
+        /** @type {HTMLElement} */
+        this._profielList = querySelectorNotNull(document, '#profile-list');
+        /** @type {HTMLButtonElement} */
+        this._profileButton = querySelectorNotNull(document, '#profile-button');
+        /** @type {HTMLElement} */
+        const profilePanelElement = querySelectorNotNull(document, '#profile-panel');
+        /** @type {PanelElement} */
         this._profilePanel = new PanelElement({
-            node: document.querySelector('#profile-panel'),
+            node: profilePanelElement,
             closingAnimationDuration: 375 // Milliseconds; includes buffer
         });
+        /** @type {boolean} */
         this._profileListNeedsUpdate = false;
+        /** @type {EventListenerCollection} */
         this._eventListeners = new EventListenerCollection();
+        /** @type {string} */
         this._source = generateId(16);
     }
 
+    /** */
     async prepare() {
-        yomichan.on('optionsUpdated', this._onOptionsUpdated.bind(this));
+        rikaitan.on('optionsUpdated', this._onOptionsUpdated.bind(this));
         this._profileButton.addEventListener('click', this._onProfileButtonClick.bind(this), false);
         this._profileListNeedsUpdate = true;
     }
 
     // Private
 
+    /**
+     * @param {{source: string}} details
+     */
     _onOptionsUpdated({source}) {
         if (source === this._source) { return; }
         this._profileListNeedsUpdate = true;
@@ -50,12 +67,18 @@ class DisplayProfileSelection {
         }
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onProfileButtonClick(e) {
         e.preventDefault();
         e.stopPropagation();
         this._setProfilePanelVisible(!this._profilePanel.isVisible());
     }
 
+    /**
+     * @param {boolean} visible
+     */
     _setProfilePanelVisible(visible) {
         this._profilePanel.setVisible(visible);
         this._profileButton.classList.toggle('sidebar-button-highlight', visible);
@@ -65,9 +88,10 @@ class DisplayProfileSelection {
         }
     }
 
+    /** */
     async _updateProfileList() {
         this._profileListNeedsUpdate = false;
-        const options = await yomichan.api.optionsGetFull();
+        const options = await rikaitan.api.optionsGetFull();
 
         this._eventListeners.removeAllEventListeners();
         const displayGenerator = this._display.displayGenerator;
@@ -77,9 +101,11 @@ class DisplayProfileSelection {
         for (let i = 0, ii = profiles.length; i < ii; ++i) {
             const {name} = profiles[i];
             const entry = displayGenerator.createProfileListItem();
-            const radio = entry.querySelector('.profile-entry-is-default-radio');
+            /** @type {HTMLInputElement} */
+            const radio = querySelectorNotNull(entry, '.profile-entry-is-default-radio');
             radio.checked = (i === profileCurrent);
-            const nameNode = entry.querySelector('.profile-list-item-name');
+            /** @type {Element} */
+            const nameNode = querySelectorNotNull(entry, '.profile-list-item-name');
             nameNode.textContent = name;
             fragment.appendChild(entry);
             this._eventListeners.addEventListener(radio, 'change', this._onProfileRadioChange.bind(this, i), false);
@@ -88,19 +114,30 @@ class DisplayProfileSelection {
         this._profielList.appendChild(fragment);
     }
 
+    /**
+     * @param {number} index
+     * @param {Event} e
+     */
     _onProfileRadioChange(index, e) {
-        if (e.currentTarget.checked) {
+        const element = /** @type {HTMLInputElement} */ (e.currentTarget);
+        if (element.checked) {
             this._setProfileCurrent(index);
         }
     }
 
+    /**
+     * @param {number} index
+     */
     async _setProfileCurrent(index) {
-        await yomichan.api.modifySettings([{
+        /** @type {import('settings-modifications').ScopedModificationSet} */
+        const modification = {
             action: 'set',
             path: 'profileCurrent',
             value: index,
-            scope: 'global'
-        }], this._source);
+            scope: 'global',
+            optionsContext: null
+        };
+        await rikaitan.api.modifySettings([modification], this._source);
         this._setProfilePanelVisible(false);
     }
 }

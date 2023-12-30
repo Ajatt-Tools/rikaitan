@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DocumentFocusController
- * ExtensionContentController
- */
+import {DocumentFocusController} from '../dom/document-focus-controller.js';
+import {ExtensionContentController} from './common/extension-content-controller.js';
 
-(() => {
+/** Entry point. */
+function main() {
     const documentFocusController = new DocumentFocusController();
     documentFocusController.prepare();
 
@@ -29,4 +28,6 @@
     extensionContentController.prepare();
 
     document.documentElement.dataset.loaded = 'true';
-})();
+}
+
+main();

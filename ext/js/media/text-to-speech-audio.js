@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class TextToSpeechAudio {
+export class TextToSpeechAudio {
+    /**
+     * @param {string} text
+     * @param {SpeechSynthesisVoice} voice
+     */
     constructor(text, voice) {
+        /** @type {string} */
         this._text = text;
+        /** @type {SpeechSynthesisVoice} */
         this._voice = voice;
+        /** @type {?SpeechSynthesisUtterance} */
         this._utterance = null;
+        /** @type {number} */
         this._volume = 1;
     }
 
+    /** @type {number} */
     get currentTime() {
         return 0;
     }
@@ -32,6 +41,7 @@ class TextToSpeechAudio {
         // NOP
     }
 
+    /** @type {number} */
     get volume() {
         return this._volume;
     }
@@ -43,6 +53,9 @@ class TextToSpeechAudio {
         }
     }
 
+    /**
+     * @returns {Promise<void>}
+     */
     async play() {
         try {
             if (this._utterance === null) {
@@ -59,6 +72,9 @@ class TextToSpeechAudio {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     pause() {
         try {
             speechSynthesis.cancel();

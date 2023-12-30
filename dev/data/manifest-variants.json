@@ -28,7 +28,8 @@
             "default_popup": "action-popup.html"
         },
         "background": {
-            "page": "background.html"
+            "service_worker": "sw.js",
+            "type": "module"
         },
         "content_scripts": [
             {
@@ -41,28 +42,7 @@
                 "match_about_blank": true,
                 "all_frames": true,
                 "js": [
-                    "js/core.js",
-                    "js/yomichan.js",
-                    "js/app/frontend.js",
-                    "js/app/popup.js",
-                    "js/app/popup-factory.js",
-                    "js/app/popup-proxy.js",
-                    "js/app/popup-window.js",
-                    "js/app/theme-controller.js",
-                    "js/comm/api.js",
-                    "js/comm/cross-frame-api.js",
-                    "js/comm/frame-ancestry-handler.js",
-                    "js/comm/frame-client.js",
-                    "js/comm/frame-offset-forwarder.js",
-                    "js/data/sandbox/string-util.js",
-                    "js/dom/dom-text-scanner.js",
-                    "js/dom/document-util.js",
-                    "js/dom/text-source-element.js",
-                    "js/dom/text-source-range.js",
-                    "js/input/hotkey-handler.js",
-                    "js/language/text-scanner.js",
-                    "js/script/dynamic-loader.js",
-                    "js/app/content-script-main.js"
+                    "js/app/content-script-wrapper.js"
                 ]
             }
         ],
@@ -80,9 +60,9 @@
             "storage",
             "clipboardWrite",
             "unlimitedStorage",
-            "webRequest",
             "declarativeNetRequest",
-            "scripting"
+            "scripting",
+            "offscreen"
         ],
         "optional_permissions": [
             "clipboardRead",
@@ -118,7 +98,8 @@
             {
                 "resources": [
                     "popup.html",
-                    "template-renderer.html"
+                    "template-renderer.html",
+                    "js/*"
                 ],
                 "matches": [
                     "<all_urls>"
@@ -141,8 +122,7 @@
             "inherit": "base",
             "fileName": "rikaitan-chrome.zip",
             "excludeFiles": [
-                "background.html",
-                "js/dom/native-simple-dom-parser.js"
+                "background.html"
             ]
         },
         {
@@ -171,6 +151,29 @@
             ]
         },
         {
+            "name": "chrome-playwright",
+            "inherit": "chrome-dev",
+            "fileName": "rikaitan-chrome-playwright.zip",
+            "modifications": [
+                {
+                    "action": "remove",
+                    "path": [
+                        "optional_permissions"
+                    ],
+                    "item": "clipboardRead"
+                },
+                {
+                    "action": "add",
+                    "path": [
+                        "permissions"
+                    ],
+                    "items": [
+                        "clipboardRead"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "firefox",
             "inherit": "base",
             "fileName": "rikaitan-firefox.zip",
@@ -180,6 +183,13 @@
                     "path": [
                         "background",
                         "service_worker"
+                    ]
+                },
+                {
+                    "action": "delete",
+                    "path": [
+                        "background",
+                        "type"
                     ]
                 },
                 {
@@ -228,38 +238,26 @@
                     "value": {
                         "gecko": {
                             "id": "tatsu@autistici.org",
-                            "strict_min_version": "102.0"
+                            "strict_min_version": "115.0"
+                        },
+                        "gecko_android": {
+                            "strict_min_version": "115.0"
                         }
                     }
                 },
                 {
                     "action": "remove",
                     "path": [
-                        "optional_permissions"
-                    ],
-                    "item": "nativeMessaging"
-                },
-                {
-                    "action": "add",
-                    "path": [
                         "permissions"
                     ],
-                    "items": [
-                        "nativeMessaging"
-                    ]
-                },
-                {
-                    "action": "remove",
-                    "path": [
-                        "permissions"
-                    ],
-                    "item": "declarativeNetRequest"
+                    "item": "offscreen"
                 }
             ],
             "excludeFiles": [
                 "sw.js",
-                "js/dom/simple-dom-parser.js",
-                "lib/parse5.js"
+                "offscreen.html",
+                "js/background/offscreen.js",
+                "js/background/offscreen-main.js"
             ]
         },
         {
@@ -306,13 +304,13 @@
             ],
             "excludeFiles": [
                 "sw.js",
-                "js/dom/simple-dom-parser.js",
-                "lib/parse5.js"
+                "offscreen.html",
+                "js/background/offscreen.js",
+                "js/background/offscreen-main.js"
             ]
         },
         {
             "name": "safari",
-            "fileName": null,
             "modifications": [
                 {
                     "action": "remove",
@@ -326,7 +324,7 @@
                     "path": [
                         "permissions"
                     ],
-                    "item": "webRequestBlocking"
+                    "item": "offscreen"
                 },
                 {
                     "action": "delete",
@@ -352,8 +350,9 @@
             ],
             "excludeFiles": [
                 "sw.js",
-                "js/dom/simple-dom-parser.js",
-                "lib/parse5.js"
+                "offscreen.html",
+                "js/background/offscreen.js",
+                "js/background/offscreen-main.js"
             ]
         }
     ]

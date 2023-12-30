@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class OptionToggleHotkeyHandler {
+import {generateId} from '../core.js';
+import {ExtensionError} from '../core/extension-error.js';
+import {rikaitan} from '../rikaitan.js';
+
+export class OptionToggleHotkeyHandler {
+    /**
+     * @param {import('./display.js').Display} display
+     */
     constructor(display) {
+        /** @type {import('./display.js').Display} */
         this._display = display;
+        /** @type {?import('./display-notification.js').DisplayNotification} */
         this._notification = null;
+        /** @type {?import('core').Timeout} */
         this._notificationHideTimer = null;
+        /** @type {number} */
         this._notificationHideTimeout = 5000;
+        /** @type {string} */
+        this._source = `option-toggle-hotkey-handler-${generateId(16)}`;
     }
 
+    /** @type {number} */
     get notificationHideTimeout() {
         return this._notificationHideTimeout;
     }
@@ -32,6 +46,7 @@ class OptionToggleHotkeyHandler {
         this._notificationHideTimeout = value;
     }
 
+    /** */
     prepare() {
         this._display.hotkeyHandler.registerActions([
             ['toggleOption', this._onHotkeyActionToggleOption.bind(this)]
@@ -40,42 +55,51 @@ class OptionToggleHotkeyHandler {
 
     // Private
 
+    /**
+     * @param {unknown} argument
+     */
     _onHotkeyActionToggleOption(argument) {
+        if (typeof argument !== 'string') { return; }
         this._toggleOption(argument);
     }
 
+    /**
+     * @param {string} path
+     */
     async _toggleOption(path) {
         let value;
         try {
             const optionsContext = this._display.getOptionsContext();
 
-            const result = (await yomichan.api.getSettings([{
+            const getSettingsResponse = (await rikaitan.api.getSettings([{
                 scope: 'profile',
                 path,
                 optionsContext
             }]))[0];
-            const {error} = result;
-            if (typeof error !== 'undefined') {
-                throw deserializeError(error);
+            const {error: getSettingsError} = getSettingsResponse;
+            if (typeof getSettingsError !== 'undefined') {
+                throw ExtensionError.deserialize(getSettingsError);
             }
 
-            value = result.result;
+            value = getSettingsResponse.result;
             if (typeof value !== 'boolean') {
                 throw new Error(`Option value of type ${typeof value} cannot be toggled`);
             }
 
             value = !value;
 
-            const result2 = (await yomichan.api.modifySettings([{
+            /** @type {import('settings-modifications').ScopedModificationSet} */
+            const modification = {
                 scope: 'profile',
                 action: 'set',
                 path,
                 value,
                 optionsContext
-            }]))[0];
-            const {error: error2} = result2;
-            if (typeof error2 !== 'undefined') {
-                throw deserializeError(error2);
+            };
+            const modifySettingsResponse = (await rikaitan.api.modifySettings([modification], this._source))[0];
+            const {error: modifySettingsError} = modifySettingsResponse;
+            if (typeof modifySettingsError !== 'undefined') {
+                throw ExtensionError.deserialize(modifySettingsError);
             }
 
             this._showNotification(this._createSuccessMessage(path, value), true);
@@ -84,12 +108,17 @@ class OptionToggleHotkeyHandler {
         }
     }
 
+    /**
+     * @param {string} path
+     * @param {unknown} value
+     * @returns {DocumentFragment}
+     */
     _createSuccessMessage(path, value) {
         const fragment = document.createDocumentFragment();
         const n1 = document.createElement('em');
         n1.textContent = path;
         const n2 = document.createElement('strong');
-        n2.textContent = value;
+        n2.textContent = `${value}`;
         fragment.appendChild(document.createTextNode('Option '));
         fragment.appendChild(n1);
         fragment.appendChild(document.createTextNode(' changed to '));
@@ -97,17 +126,13 @@ class OptionToggleHotkeyHandler {
         return fragment;
     }
 
+    /**
+     * @param {string} path
+     * @param {unknown} error
+     * @returns {DocumentFragment}
+     */
     _createErrorMessage(path, error) {
-        let message;
-        try {
-            ({message} = error);
-        } catch (e) {
-            // NOP
-        }
-        if (typeof message !== 'string') {
-            message = `${error}`;
-        }
-
+        const message = error instanceof Error ? error.message : `${error}`;
         const fragment = document.createDocumentFragment();
         const n1 = document.createElement('em');
         n1.textContent = path;
@@ -121,6 +146,10 @@ class OptionToggleHotkeyHandler {
         return fragment;
     }
 
+    /**
+     * @param {DocumentFragment} message
+     * @param {boolean} autoClose
+     */
     _showNotification(message, autoClose) {
         if (this._notification === null) {
             this._notification = this._display.createNotification(false);
@@ -136,12 +165,16 @@ class OptionToggleHotkeyHandler {
         }
     }
 
+    /**
+     * @param {boolean} animate
+     */
     _hideNotification(animate) {
         if (this._notification === null) { return; }
         this._notification.close(animate);
         this._stopHideNotificationTimer();
     }
 
+    /** */
     _stopHideNotificationTimer() {
         if (this._notificationHideTimer !== null) {
             clearTimeout(this._notificationHideTimer);
@@ -149,11 +182,13 @@ class OptionToggleHotkeyHandler {
         }
     }
 
+    /** */
     _onNotificationHideTimeout() {
         this._notificationHideTimer = null;
         this._hideNotification(true);
     }
 
+    /** */
     _onNotificationClick() {
         this._stopHideNotificationTimer();
     }

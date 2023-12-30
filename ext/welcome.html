@@ -23,8 +23,9 @@
 
     <span tabindex="-1" id="content-scroll-focus"></span>
 
-    <h1>Welcome to Rikaitan!</h1>
+    <h1>Welcome to Rikaitan by Ajatt-Tools!</h1>
 
+    <!-- Content -->
     <h2>Here are some basics to get started</h2>
     <div class="settings-group">
         <div class="settings-item">
@@ -49,10 +50,9 @@
         <div class="settings-item">
             <div class="settings-item-inner"><div class="settings-item-left"><div class="settings-item-label">
                 Rikaitan requires one or more dictionaries to be installed in order to look up terms, kanji, and other information.
-                Several downloadable dictionaries can be found on the <a href="https://github.com/Ajatt-Tools/rikaitan#dictionaries" target="_blank" rel="noopener noreferrer">Rikaitan homepage</a>,
-                allowing you to choose the dictionaries most relevant for you.
+                Several downloadable dictionaries can be found on the <a href="https://github.com/Ajatt-Tools/rikaitan#dictionaries" target="_blank" rel="noopener noreferrer">Rikaitan homepage</a>.
                 Dictionaries can be configured using the button below,
-                or later from the the <a href="/settings.html" rel="noopener">Settings</a> page.
+                or later from the <a href="/settings.html" rel="noopener">Settings</a> page.
             </div></div></div>
             <div class="settings-item-children settings-item-children-group">
                 <div class="settings-item settings-item-button" data-modal-action="show,dictionaries"><div class="settings-item-inner">
@@ -67,7 +67,14 @@
         </div>
         <div class="settings-item">
             <div class="settings-item-inner"><div class="settings-item-left"><div class="settings-item-label">
-                You can also import an exported collection of dictionaries to migrate from a different device or browser from the <a href="/settings.html#!backup">Backup section of the Settings</a> page.
+                You can also import an exported collection of dictionaries
+                to migrate from a different device or browser
+                from the <a href="/settings.html#!backup">Backup section of the Settings</a> page.
+
+                <br><br>
+
+                If you are migrating from Yomichan, you may be interested in importing your data into Rikaitan.
+                Please follow instructions from <a href="https://github.com/Ajatt-Tools/rikaitan#migrating-from-yomichan" target="_blank" rel="noopener noreferrer">Rikaitan's README</a> for that.
             </div></div></div>
         </div>
         <div class="settings-item">
@@ -403,43 +410,7 @@
 
 
 <!-- Scripts -->
-<script src="/js/core.js"></script>
-
-<script src="/js/yomichan.js"></script>
-
-<script src="/js/comm/api.js"></script>
-<script src="/js/comm/cross-frame-api.js"></script>
-<script src="/js/data/anki-util.js"></script>
-<script src="/js/data/database.js"></script>
-<script src="/js/data/json-schema.js"></script>
-<script src="/js/data/permissions-util.js"></script>
-<script src="/js/dom/document-focus-controller.js"></script>
-<script src="/js/dom/document-util.js"></script>
-<script src="/js/dom/dom-data-binder.js"></script>
-<script src="/js/dom/html-template-collection.js"></script>
-<script src="/js/dom/panel-element.js"></script>
-<script src="/js/dom/popup-menu.js"></script>
-<script src="/js/dom/selector-observer.js"></script>
-<script src="/js/extension/environment.js"></script>
-<script src="/js/general/cache-map.js"></script>
-<script src="/js/general/object-property-accessor.js"></script>
-<script src="/js/general/task-accumulator.js"></script>
-<script src="/js/input/hotkey-util.js"></script>
-<script src="/js/language/dictionary-importer-media-loader.js"></script>
-<script src="/js/language/dictionary-worker.js"></script>
-<script src="/js/pages/common/extension-content-controller.js"></script>
-<script src="/js/pages/settings/dictionary-controller.js"></script>
-<script src="/js/pages/settings/dictionary-import-controller.js"></script>
-<script src="/js/pages/settings/generic-setting-controller.js"></script>
-<script src="/js/pages/settings/modal.js"></script>
-<script src="/js/pages/settings/modal-controller.js"></script>
-<script src="/js/pages/settings/recommended-permissions-controller.js"></script>
-<script src="/js/pages/settings/scan-inputs-simple-controller.js"></script>
-<script src="/js/pages/settings/settings-controller.js"></script>
-<script src="/js/pages/settings/settings-display-controller.js"></script>
-<script src="/js/pages/settings/status-footer.js"></script>
-
-<script src="/js/pages/welcome-main.js"></script>
+<script src="/js/pages/welcome-main.js" type="module"></script>
 
 </body>
 </html>

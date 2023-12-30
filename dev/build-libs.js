@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,51 +16,66 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const fs = require('fs');
-const path = require('path');
-const browserify = require('browserify');
+import Ajv from 'ajv';
+import standaloneCode from 'ajv/dist/standalone/index.js';
+import esbuild from 'esbuild';
+import fs from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
+import {parseJson} from './json.js';
 
-async function buildParse5() {
-    const parse5Path = require.resolve('parse5');
-    const cwd = process.cwd();
-    try {
-        const baseDir = path.dirname(parse5Path);
-        process.chdir(baseDir); // This is necessary to ensure relative source map file names are consistent
-        return await new Promise((resolve, reject) => {
-            browserify({
-                entries: [parse5Path],
-                standalone: 'parse5',
-                debug: true,
-                baseDir
-            }).bundle((error, result) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
-    } finally {
-        process.chdir(cwd);
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const extDir = path.join(dirname, '..', 'ext');
+
+/**
+ * @param {string} scriptPath
+ */
+async function buildLib(scriptPath) {
+    await esbuild.build({
+        entryPoints: [scriptPath],
+        bundle: true,
+        minify: false,
+        sourcemap: true,
+        target: 'es2020',
+        format: 'esm',
+        outfile: path.join(extDir, 'lib', path.basename(scriptPath)),
+        external: ['fs'],
+        banner: {
+            js: '// @ts-nocheck'
+        }
+    });
+}
+
+/**
+ * Bundles libraries.
+ */
+export async function buildLibs() {
+    const devLibPath = path.join(dirname, 'lib');
+    const files = await fs.promises.readdir(devLibPath, {
+        withFileTypes: true
+    });
+    for (const f of files) {
+        if (f.isFile()) {
+            await buildLib(path.join(devLibPath, f.name));
+        }
     }
+
+    const schemaDir = path.join(extDir, 'data/schemas/');
+    const schemaFileNames = fs.readdirSync(schemaDir);
+    const schemas = schemaFileNames.map((schemaFileName) => {
+        /** @type {import('ajv').AnySchema} */
+        const result = parseJson(fs.readFileSync(path.join(schemaDir, schemaFileName), {encoding: 'utf8'}));
+        return result;
+    });
+    const ajv = new Ajv({
+        schemas,
+        code: {source: true, esm: true},
+        allowUnionTypes: true
+    });
+    const moduleCode = standaloneCode(ajv);
+
+    // https://github.com/ajv-validator/ajv/issues/2209
+    const patchedModuleCode = "// @ts-nocheck\nimport {ucs2length} from './ucs2length.js';" + moduleCode.replaceAll('require("ajv/dist/runtime/ucs2length").default', 'ucs2length');
+
+    fs.writeFileSync(path.join(extDir, 'lib/validate-schemas.js'), patchedModuleCode);
 }
-
-function getBuildTargets() {
-    const extLibPath = path.join(__dirname, '..', 'ext', 'lib');
-    return [
-        {path: path.join(extLibPath, 'parse5.js'), build: buildParse5}
-    ];
-}
-
-async function main() {
-    for (const {path: path2, build} of getBuildTargets()) {
-        const content = await build();
-        fs.writeFileSync(path2, content);
-    }
-}
-
-if (require.main === module) { main(); }
-
-module.exports = {
-    getBuildTargets
-};

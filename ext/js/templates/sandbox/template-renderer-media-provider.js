@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,15 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Handlebars
- */
+import {Handlebars} from '../../../lib/handlebars.js';
 
-class TemplateRendererMediaProvider {
+export class TemplateRendererMediaProvider {
     constructor() {
+        /** @type {?import('anki-note-builder').Requirement[]} */
         this._requirements = null;
     }
 
+    /** @type {?import('anki-note-builder').Requirement[]} */
     get requirements() {
         return this._requirements;
     }
@@ -33,12 +33,24 @@ class TemplateRendererMediaProvider {
         this._requirements = value;
     }
 
+    /**
+     * @param {import('anki-templates').NoteData} root
+     * @param {unknown[]} args
+     * @param {import('core').SerializableObject} namedArgs
+     * @returns {boolean}
+     */
     hasMedia(root, args, namedArgs) {
         const {media} = root;
         const data = this._getMediaData(media, args, namedArgs);
         return (data !== null);
     }
 
+    /**
+     * @param {import('anki-templates').NoteData} root
+     * @param {unknown[]} args
+     * @param {import('core').SerializableObject} namedArgs
+     * @returns {?string}
+     */
     getMedia(root, args, namedArgs) {
         const {media} = root;
         const data = this._getMediaData(media, args, namedArgs);
@@ -47,25 +59,39 @@ class TemplateRendererMediaProvider {
             if (typeof result === 'string') { return result; }
         }
         const defaultValue = namedArgs.default;
-        return typeof defaultValue !== 'undefined' ? defaultValue : '';
+        return defaultValue === null || typeof defaultValue === 'string' ? defaultValue : '';
     }
 
     // Private
 
+    /**
+     * @param {import('anki-note-builder').Requirement} value
+     */
     _addRequirement(value) {
         if (this._requirements === null) { return; }
         this._requirements.push(value);
     }
 
+    /**
+     * @param {import('anki-templates').MediaObject} data
+     * @param {import('core').SerializableObject} namedArgs
+     * @returns {string}
+     */
     _getFormattedValue(data, namedArgs) {
         let {value} = data;
-        const {escape=true} = namedArgs;
+        const {escape = true} = namedArgs;
         if (escape) {
             value = Handlebars.Utils.escapeExpression(value);
         }
         return value;
     }
 
+    /**
+     * @param {import('anki-templates').Media} media
+     * @param {unknown[]} args
+     * @param {import('core').SerializableObject} namedArgs
+     * @returns {?(import('anki-templates').MediaObject)}
+     */
     _getMediaData(media, args, namedArgs) {
         const type = args[0];
         switch (type) {
@@ -80,6 +106,11 @@ class TemplateRendererMediaProvider {
         }
     }
 
+    /**
+     * @param {import('anki-templates').Media} media
+     * @param {import('anki-templates').MediaSimpleType} type
+     * @returns {?import('anki-templates').MediaObject}
+     */
     _getSimpleMediaData(media, type) {
         const result = media[type];
         if (typeof result === 'object' && result !== null) { return result; }
@@ -87,12 +118,19 @@ class TemplateRendererMediaProvider {
         return null;
     }
 
+    /**
+     * @param {import('anki-templates').Media} media
+     * @param {unknown} path
+     * @param {import('core').SerializableObject} namedArgs
+     * @returns {?import('anki-templates').MediaObject}
+     */
     _getDictionaryMedia(media, path, namedArgs) {
+        if (typeof path !== 'string') { return null; }
         const {dictionaryMedia} = media;
         const {dictionary} = namedArgs;
+        if (typeof dictionary !== 'string') { return null; }
         if (
             typeof dictionaryMedia !== 'undefined' &&
-            typeof dictionary === 'string' &&
             Object.prototype.hasOwnProperty.call(dictionaryMedia, dictionary)
         ) {
             const dictionaryMedia2 = dictionaryMedia[dictionary];
@@ -111,8 +149,15 @@ class TemplateRendererMediaProvider {
         return null;
     }
 
+    /**
+     * @param {import('anki-templates').Media} media
+     * @param {unknown} text
+     * @param {import('core').SerializableObject} namedArgs
+     * @returns {?import('anki-templates').MediaObject}
+     */
     _getTextFurigana(media, text, namedArgs) {
-        const {readingMode=null} = namedArgs;
+        if (typeof text !== 'string') { return null; }
+        const readingMode = this._normalizeReadingMode(namedArgs.readingMode);
         const {textFurigana} = media;
         if (Array.isArray(textFurigana)) {
             for (const entry of textFurigana) {
@@ -126,5 +171,19 @@ class TemplateRendererMediaProvider {
             readingMode
         });
         return null;
+    }
+
+    /**
+     * @param {unknown} value
+     * @returns {?import('anki-templates').TextFuriganaReadingMode}
+     */
+    _normalizeReadingMode(value) {
+        switch (value) {
+            case 'hiragana':
+            case 'katakana':
+                return value;
+            default:
+                return null;
+        }
     }
 }

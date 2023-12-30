@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class TemplatePatcher {
+export class TemplatePatcher {
     constructor() {
+        /** @type {RegExp} */
         this._diffPattern1 = /\n?\{\{<<<<<<<\}\}\n/g;
+        /** @type {RegExp} */
         this._diffPattern2 = /\n\{\{=======\}\}\n/g;
+        /** @type {RegExp} */
         this._diffPattern3 = /\n\{\{>>>>>>>\}\}\n*/g;
+        /** @type {RegExp} */
         this._lookupMarkerPattern = /[ \t]*\{\{~?>\s*\(\s*lookup\s*\.\s*"marker"\s*\)\s*~?\}\}/g;
     }
 
+    /**
+     * @param {string} content
+     * @returns {import('template-patcher').Patch}
+     */
     parsePatch(content) {
         const diffPattern1 = this._diffPattern1;
         const diffPattern2 = this._diffPattern2;
@@ -61,6 +69,11 @@ class TemplatePatcher {
         return {addition: content, modifications};
     }
 
+    /**
+     * @param {string} template
+     * @param {import('template-patcher').Patch} patch
+     * @returns {string}
+     */
     applyPatch(template, patch) {
         for (const {current, replacement} of patch.modifications) {
             let fromIndex = 0;
@@ -77,6 +90,11 @@ class TemplatePatcher {
 
     // Private
 
+    /**
+     * @param {string} template
+     * @param {string} addition
+     * @returns {string}
+     */
     _addFieldTemplatesBeforeEnd(template, addition) {
         if (addition.length === 0) { return template; }
         const newline = '\n';

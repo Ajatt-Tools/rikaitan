@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class DisplayHistory extends EventDispatcher {
-    constructor({clearable=true, useBrowserHistory=false}) {
+import {EventDispatcher, generateId, isObject} from '../core.js';
+
+/**
+ * @augments EventDispatcher<import('display-history').EventType>
+ */
+export class DisplayHistory extends EventDispatcher {
+    /**
+     * @param {{clearable?: boolean, useBrowserHistory?: boolean}} details
+     */
+    constructor({clearable = true, useBrowserHistory = false}) {
         super();
+        /** @type {boolean} */
         this._clearable = clearable;
+        /** @type {boolean} */
         this._useBrowserHistory = useBrowserHistory;
+        /** @type {Map<string, import('display-history').Entry>} */
         this._historyMap = new Map();
 
         const historyState = history.state;
         const {id, state} = isObject(historyState) ? historyState : {id: null, state: null};
+        /** @type {import('display-history').Entry} */
         this._current = this._createHistoryEntry(id, location.href, state, null, null);
     }
 
+    /** @type {?import('display-history').EntryState} */
     get state() {
         return this._current.state;
     }
 
+    /** @type {?import('display-history').EntryContent} */
     get content() {
         return this._current.content;
     }
 
+    /** @type {boolean} */
     get useBrowserHistory() {
         return this._useBrowserHistory;
     }
@@ -44,31 +59,54 @@ class DisplayHistory extends EventDispatcher {
         this._useBrowserHistory = value;
     }
 
+    /** @type {boolean} */
+    get clearable() { return this._clearable; }
+    set clearable(value) { this._clearable = value; }
+
+    /** */
     prepare() {
         window.addEventListener('popstate', this._onPopState.bind(this), false);
     }
 
+    /**
+     * @returns {boolean}
+     */
     hasNext() {
         return this._current.next !== null;
     }
 
+    /**
+     * @returns {boolean}
+     */
     hasPrevious() {
         return this._current.previous !== null;
     }
 
+    /** */
     clear() {
         if (!this._clearable) { return; }
         this._clear();
     }
 
+    /**
+     * @returns {boolean}
+     */
     back() {
         return this._go(false);
     }
 
+    /**
+     * @returns {boolean}
+     */
     forward() {
         return this._go(true);
     }
 
+    /**
+     * @param {?import('display-history').EntryState} state
+     * @param {?import('display-history').EntryContent} content
+     * @param {string} [url]
+     */
     pushState(state, content, url) {
         if (typeof url === 'undefined') { url = location.href; }
 
@@ -78,6 +116,11 @@ class DisplayHistory extends EventDispatcher {
         this._updateHistoryFromCurrent(!this._useBrowserHistory);
     }
 
+    /**
+     * @param {?import('display-history').EntryState} state
+     * @param {?import('display-history').EntryContent} content
+     * @param {string} [url]
+     */
     replaceState(state, content, url) {
         if (typeof url === 'undefined') { url = location.href; }
 
@@ -87,11 +130,16 @@ class DisplayHistory extends EventDispatcher {
         this._updateHistoryFromCurrent(true);
     }
 
+    /** */
     _onPopState() {
         this._updateStateFromHistory();
         this._triggerStateChanged(false);
     }
 
+    /**
+     * @param {boolean} forward
+     * @returns {boolean}
+     */
     _go(forward) {
         if (this._useBrowserHistory) {
             if (forward) {
@@ -109,10 +157,16 @@ class DisplayHistory extends EventDispatcher {
         return true;
     }
 
+    /**
+     * @param {boolean} synthetic
+     */
     _triggerStateChanged(synthetic) {
-        this.trigger('stateChanged', {synthetic});
+        this.trigger('stateChanged', /** @type {import('display-history').StateChangedEvent} */ ({synthetic}));
     }
 
+    /**
+     * @param {boolean} replace
+     */
     _updateHistoryFromCurrent(replace) {
         const {id, state, url} = this._current;
         if (replace) {
@@ -123,6 +177,7 @@ class DisplayHistory extends EventDispatcher {
         this._triggerStateChanged(true);
     }
 
+    /** */
     _updateStateFromHistory() {
         let state = history.state;
         let id = null;
@@ -149,24 +204,36 @@ class DisplayHistory extends EventDispatcher {
         this._clear();
     }
 
+    /**
+     * @param {unknown} id
+     * @param {string} url
+     * @param {?import('display-history').EntryState} state
+     * @param {?import('display-history').EntryContent} content
+     * @param {?import('display-history').Entry} previous
+     * @returns {import('display-history').Entry}
+     */
     _createHistoryEntry(id, url, state, content, previous) {
-        if (typeof id !== 'string') { id = this._generateId(); }
+        /** @type {import('display-history').Entry} */
         const entry = {
-            id,
+            id: typeof id === 'string' ? id : this._generateId(),
             url,
             next: null,
             previous,
             state,
             content
         };
-        this._historyMap.set(id, entry);
+        this._historyMap.set(entry.id, entry);
         return entry;
     }
 
+    /**
+     * @returns {string}
+     */
     _generateId() {
         return generateId(16);
     }
 
+    /** */
     _clear() {
         this._historyMap.clear();
         this._historyMap.set(this._current.id, this._current);

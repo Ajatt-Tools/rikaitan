@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,48 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class PanelElement extends EventDispatcher {
+import {EventDispatcher} from '../core.js';
+
+/**
+ * @augments EventDispatcher<import('panel-element').EventType>
+ */
+export class PanelElement extends EventDispatcher {
+    /**
+     * @param {import('panel-element').ConstructorDetails} details
+     */
     constructor({node, closingAnimationDuration}) {
         super();
+        /** @type {HTMLElement} */
         this._node = node;
+        /** @type {number} */
         this._closingAnimationDuration = closingAnimationDuration;
+        /** @type {string} */
         this._hiddenAnimatingClass = 'hidden-animating';
+        /** @type {?MutationObserver} */
         this._mutationObserver = null;
+        /** @type {boolean} */
         this._visible = false;
+        /** @type {?import('core').Timeout} */
         this._closeTimer = null;
     }
 
+    /** @type {HTMLElement} */
     get node() {
         return this._node;
     }
 
+    /**
+     * @returns {boolean}
+     */
     isVisible() {
         return !this._node.hidden;
     }
 
-    setVisible(value, animate=true) {
+    /**
+     * @param {boolean} value
+     * @param {boolean} [animate]
+     */
+    setVisible(value, animate = true) {
         value = !!value;
         if (this.isVisible() === value) { return; }
 
@@ -61,6 +83,11 @@ class PanelElement extends EventDispatcher {
         }
     }
 
+    /**
+     * @param {import('panel-element').EventType} eventName
+     * @param {(details: import('core').SafeAny) => void} callback
+     * @returns {void}
+     */
     on(eventName, callback) {
         if (eventName === 'visibilityChanged') {
             if (this._mutationObserver === null) {
@@ -76,6 +103,11 @@ class PanelElement extends EventDispatcher {
         return super.on(eventName, callback);
     }
 
+    /**
+     * @param {import('panel-element').EventType} eventName
+     * @param {(details: import('core').SafeAny) => void} callback
+     * @returns {boolean}
+     */
     off(eventName, callback) {
         const result = super.off(eventName, callback);
         if (eventName === 'visibilityChanged' && !this.hasListeners(eventName)) {
@@ -89,6 +121,7 @@ class PanelElement extends EventDispatcher {
 
     // Private
 
+    /** */
     _onMutation() {
         const visible = this.isVisible();
         if (this._visible === visible) { return; }
@@ -96,6 +129,9 @@ class PanelElement extends EventDispatcher {
         this.trigger('visibilityChanged', {visible});
     }
 
+    /**
+     * @param {boolean} reopening
+     */
     _completeClose(reopening) {
         this._closeTimer = null;
         this._node.classList.remove(this._hiddenAnimatingClass);

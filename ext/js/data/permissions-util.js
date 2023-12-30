@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,18 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * AnkiUtil
- */
+import {AnkiUtil} from './anki-util.js';
 
-class PermissionsUtil {
+export class PermissionsUtil {
     constructor() {
+        /** @type {Set<string>} */
         this._ankiFieldMarkersRequiringClipboardPermission = new Set([
             'clipboard-image',
             'clipboard-text'
         ]);
     }
 
+    /**
+     * @param {chrome.permissions.Permissions} permissions
+     * @returns {Promise<boolean>}
+     */
     hasPermissions(permissions) {
         return new Promise((resolve, reject) => chrome.permissions.contains(permissions, (result) => {
             const e = chrome.runtime.lastError;
@@ -39,6 +42,11 @@ class PermissionsUtil {
         }));
     }
 
+    /**
+     * @param {chrome.permissions.Permissions} permissions
+     * @param {boolean} shouldHave
+     * @returns {Promise<boolean>}
+     */
     setPermissionsGranted(permissions, shouldHave) {
         return (
             shouldHave ?
@@ -61,6 +69,9 @@ class PermissionsUtil {
         );
     }
 
+    /**
+     * @returns {Promise<chrome.permissions.Permissions>}
+     */
     getAllPermissions() {
         return new Promise((resolve, reject) => chrome.permissions.getAll((result) => {
             const e = chrome.runtime.lastError;
@@ -72,6 +83,10 @@ class PermissionsUtil {
         }));
     }
 
+    /**
+     * @param {string} fieldValue
+     * @returns {string[]}
+     */
     getRequiredPermissionsForAnkiFieldValue(fieldValue) {
         const markers = AnkiUtil.getFieldMarkers(fieldValue);
         const markerPermissions = this._ankiFieldMarkersRequiringClipboardPermission;
@@ -83,6 +98,11 @@ class PermissionsUtil {
         return [];
     }
 
+    /**
+     * @param {chrome.permissions.Permissions} permissions
+     * @param {import('settings').ProfileOptions} options
+     * @returns {boolean}
+     */
     hasRequiredPermissionsForOptions(permissions, options) {
         const permissionsSet = new Set(permissions.permissions);
 

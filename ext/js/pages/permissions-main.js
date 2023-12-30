@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2020-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,39 +16,62 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * DocumentFocusController
- * ExtensionContentController
- * ModalController
- * PermissionsOriginController
- * PermissionsToggleController
- * PersistentStorageController
- * SettingsController
- * SettingsDisplayController
- */
+import {log, promiseTimeout} from '../core.js';
+import {DocumentFocusController} from '../dom/document-focus-controller.js';
+import {querySelectorNotNull} from '../dom/query-selector.js';
+import {rikaitan} from '../rikaitan.js';
+import {ExtensionContentController} from './common/extension-content-controller.js';
+import {ModalController} from './settings/modal-controller.js';
+import {PermissionsOriginController} from './settings/permissions-origin-controller.js';
+import {PermissionsToggleController} from './settings/permissions-toggle-controller.js';
+import {PersistentStorageController} from './settings/persistent-storage-controller.js';
+import {SettingsController} from './settings/settings-controller.js';
+import {SettingsDisplayController} from './settings/settings-display-controller.js';
 
+/**
+ * @returns {Promise<void>}
+ */
 async function setupEnvironmentInfo() {
     const {manifest_version: manifestVersion} = chrome.runtime.getManifest();
-    const {browser, platform} = await yomichan.api.getEnvironmentInfo();
+    const {browser, platform} = await rikaitan.api.getEnvironmentInfo();
     document.documentElement.dataset.browser = browser;
     document.documentElement.dataset.os = platform.os;
     document.documentElement.dataset.manifestVersion = `${manifestVersion}`;
 }
 
+/**
+ * @returns {Promise<boolean>}
+ */
 async function isAllowedIncognitoAccess() {
     return await new Promise((resolve) => chrome.extension.isAllowedIncognitoAccess(resolve));
 }
 
+/**
+ * @returns {Promise<boolean>}
+ */
 async function isAllowedFileSchemeAccess() {
     return await new Promise((resolve) => chrome.extension.isAllowedFileSchemeAccess(resolve));
 }
 
+/**
+ * @returns {void}
+ */
 function setupPermissionsToggles() {
     const manifest = chrome.runtime.getManifest();
-    let optionalPermissions = manifest.optional_permissions;
-    if (!Array.isArray(optionalPermissions)) { optionalPermissions = []; }
-    optionalPermissions = new Set(optionalPermissions);
+    const optionalPermissions = manifest.optional_permissions;
+    /** @type {Set<string>} */
+    const optionalPermissionsSet = new Set(optionalPermissions);
+    if (Array.isArray(optionalPermissions)) {
+        for (const permission of optionalPermissions) {
+            optionalPermissionsSet.add(permission);
+        }
+    }
 
+    /**
+     * @param {Set<string>} set
+     * @param {string[]} values
+     * @returns {boolean}
+     */
     const hasAllPermisions = (set, values) => {
         for (const value of values) {
             if (!set.has(value)) { return false; }
@@ -56,14 +79,15 @@ function setupPermissionsToggles() {
         return true;
     };
 
-    for (const toggle of document.querySelectorAll('.permissions-toggle')) {
-        let permissions = toggle.dataset.requiredPermissions;
-        permissions = (typeof permissions === 'string' && permissions.length > 0 ? permissions.split(' ') : []);
-        toggle.disabled = !hasAllPermisions(optionalPermissions, permissions);
+    for (const toggle of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('.permissions-toggle'))) {
+        const permissions = toggle.dataset.requiredPermissions;
+        const permissionsArray = (typeof permissions === 'string' && permissions.length > 0 ? permissions.split(' ') : []);
+        toggle.disabled = !hasAllPermisions(optionalPermissionsSet, permissionsArray);
     }
 }
 
-(async () => {
+/** Entry point. */
+async function main() {
     try {
         const documentFocusController = new DocumentFocusController();
         documentFocusController.prepare();
@@ -73,14 +97,16 @@ function setupPermissionsToggles() {
 
         setupPermissionsToggles();
 
-        await yomichan.prepare();
+        await rikaitan.prepare();
 
         setupEnvironmentInfo();
 
-        const permissionsCheckboxes = [
-            document.querySelector('#permission-checkbox-allow-in-private-windows'),
-            document.querySelector('#permission-checkbox-allow-file-url-access')
-        ];
+        /** @type {HTMLInputElement} */
+        const permissionCheckbox1 = querySelectorNotNull(document, '#permission-checkbox-allow-in-private-windows');
+        /** @type {HTMLInputElement} */
+        const permissionCheckbox2 = querySelectorNotNull(document, '#permission-checkbox-allow-file-url-access');
+        /** @type {HTMLInputElement[]} */
+        const permissionsCheckboxes = [permissionCheckbox1, permissionCheckbox2];
 
         const permissions = await Promise.all([
             isAllowedIncognitoAccess(),
@@ -115,4 +141,6 @@ function setupPermissionsToggles() {
     } catch (e) {
         log.error(e);
     }
-})();
+}
+
+await main();

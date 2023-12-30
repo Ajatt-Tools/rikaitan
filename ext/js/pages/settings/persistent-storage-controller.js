@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,17 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class PersistentStorageController {
+import {isObject} from '../../core.js';
+import {querySelectorNotNull} from '../../dom/query-selector.js';
+import {rikaitan} from '../../rikaitan.js';
+
+export class PersistentStorageController {
     constructor() {
-        this._persistentStorageCheckbox = false;
+        /** @type {HTMLInputElement} */
+        this._persistentStorageCheckbox = querySelectorNotNull(document, '#storage-persistent-checkbox');
     }
 
+    /** */
     async prepare() {
-        this._persistentStorageCheckbox = document.querySelector('#storage-persistent-checkbox');
         this._persistentStorageCheckbox.addEventListener('change', this._onPersistentStorageCheckboxChange.bind(this), false);
 
         if (!this._isPersistentStorageSupported()) { return; }
 
+        /** @type {?HTMLElement} */
         const info = document.querySelector('#storage-persistent-info');
         if (info !== null) { info.hidden = false; }
 
@@ -34,6 +40,9 @@ class PersistentStorageController {
         this._updateCheckbox(isStoragePeristent);
     }
 
+    /**
+     * @returns {Promise<boolean>}
+     */
     async isStoragePeristent() {
         try {
             return await navigator.storage.persisted();
@@ -45,8 +54,11 @@ class PersistentStorageController {
 
     // Private
 
+    /**
+     * @param {Event} e
+     */
     _onPersistentStorageCheckboxChange(e) {
-        const node = e.currentTarget;
+        const node = /** @type {HTMLInputElement} */ (e.currentTarget);
         if (node.checked) {
             node.checked = false;
             this._attemptPersistStorage();
@@ -55,6 +67,7 @@ class PersistentStorageController {
         }
     }
 
+    /** */
     async _attemptPersistStorage() {
         let isStoragePeristent = false;
         try {
@@ -65,18 +78,25 @@ class PersistentStorageController {
 
         this._updateCheckbox(isStoragePeristent);
 
+        /** @type {?HTMLElement} */
         const node = document.querySelector('#storage-persistent-fail-warning');
         if (node !== null) { node.hidden = isStoragePeristent; }
 
-        yomichan.trigger('storageChanged');
+        rikaitan.trigger('storageChanged');
     }
 
+    /**
+     * @returns {boolean}
+     */
     _isPersistentStorageSupported() {
         return isObject(navigator.storage) && typeof navigator.storage.persist === 'function';
     }
 
+    /**
+     * @param {boolean} isStoragePeristent
+     */
     _updateCheckbox(isStoragePeristent) {
-        this._persistentStorageCheckbox.checked = isStoragePeristent;
-        this._persistentStorageCheckbox.readOnly = isStoragePeristent;
+        /** @type {HTMLInputElement} */ (this._persistentStorageCheckbox).checked = isStoragePeristent;
+        /** @type {HTMLInputElement} */ (this._persistentStorageCheckbox).readOnly = isStoragePeristent;
     }
 }

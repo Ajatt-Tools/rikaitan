@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Rikaitan Authors
+ * Copyright (C) 2023  Ajatt-Tools and contributors
  * Copyright (C) 2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* global
- * Environment
- */
+import {Environment} from '../../extension/environment.js';
 
-class ExtensionContentController {
+export class ExtensionContentController {
+    /** */
     prepare() {
         this._prepareSpecialUrls();
         this._prepareExtensionIdExamples();
@@ -29,6 +28,7 @@ class ExtensionContentController {
 
     // Private
 
+    /** */
     async _prepareEnvironmentInfo() {
         const {dataset} = document.documentElement;
         const {manifest_version: manifestVersion} = chrome.runtime.getManifest();
@@ -42,6 +42,7 @@ class ExtensionContentController {
         dataset.os = platform.os;
     }
 
+    /** */
     _prepareExtensionIdExamples() {
         const nodes = document.querySelectorAll('.extension-id-example');
         let url = '';
@@ -55,8 +56,9 @@ class ExtensionContentController {
         }
     }
 
+    /** */
     _prepareSpecialUrls() {
-        const nodes = document.querySelectorAll('[data-special-url]');
+        const nodes = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('[data-special-url]'));
         if (nodes.length === 0) { return; }
 
         let extensionId = '';
@@ -79,16 +81,27 @@ class ExtensionContentController {
         }
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onSpecialUrlLinkClick(e) {
         switch (e.button) {
             case 0:
             case 1:
-                e.preventDefault();
-                this._createTab(e.currentTarget.dataset.specialUrl, true);
+                {
+                    const element = /** @type {HTMLElement} */ (e.currentTarget);
+                    const {specialUrl} = element.dataset;
+                    if (typeof specialUrl !== 'string') { return; }
+                    e.preventDefault();
+                    this._createTab(specialUrl, true);
+                }
                 break;
         }
     }
 
+    /**
+     * @param {MouseEvent} e
+     */
     _onSpecialUrlLinkMouseDown(e) {
         switch (e.button) {
             case 0:
@@ -98,10 +111,17 @@ class ExtensionContentController {
         }
     }
 
+    /**
+     * @param {string} url
+     * @param {boolean} useOpener
+     * @returns {Promise<chrome.tabs.Tab>}
+     */
     async _createTab(url, useOpener) {
+        /** @type {number|undefined} */
         let openerTabId;
         if (useOpener) {
             try {
+                /** @type {chrome.tabs.Tab|undefined} */
                 const tab = await new Promise((resolve, reject) => {
                     chrome.tabs.getCurrent((result) => {
                         const e = chrome.runtime.lastError;
@@ -112,7 +132,9 @@ class ExtensionContentController {
                         }
                     });
                 });
-                openerTabId = tab.id;
+                if (typeof tab !== 'undefined') {
+                    openerTabId = tab.id;
+                }
             } catch (e) {
                 // NOP
             }
