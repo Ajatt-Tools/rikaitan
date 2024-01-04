@@ -413,6 +413,7 @@ function createProfileOptionsUpdatedTestData1() {
             convertHiraganaToKatakana: 'false',
             convertKatakanaToHiragana: 'variant',
             collapseEmphaticSequences: 'false',
+            searchResolution: 'letter',
             textReplacements: {
                 searchOriginal: true,
                 groups: []
@@ -601,7 +602,7 @@ function createOptionsUpdatedTestData1() {
             }
         ],
         profileCurrent: 0,
-        version: 21,
+        version: 22,
         global: {
             database: {
                 prefixWildcardsSupported: false
@@ -1138,7 +1139,6 @@ async function testFieldTemplatesUpdate() {
         {{~/each~}}
         {{~#if (op ">" pitchCount 1)~}}</ol>{{~/if~}}
     {{~else~}}
-
     {{~/if~}}
 {{/inline}}
 
@@ -1188,7 +1188,6 @@ async function testFieldTemplatesUpdate() {
         {{~/each~}}
         {{~#if (op ">" pitchCount 1)~}}</ol>{{~/if~}}
     {{~else~}}
-
     {{~/if~}}
 {{/inline}}
 

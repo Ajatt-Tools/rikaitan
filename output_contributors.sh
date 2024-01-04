@@ -3,25 +3,31 @@
 set -euo pipefail
 
 readonly tab=$'\t'
-readonly filename=CONTRIBUTORS
-readonly old_data=$(cat -- "$filename" 2>/dev/null | sed '1d')
-readonly new_data=$(git log --pretty="%an${tab}<%ae>%n%cn${tab}<%ce>")
+readonly filename=CONTRIBUTORS.tsv
 
 sort_output() {
-	sort -u -t "$tab" -k2
+	sort --stable --unique --field-separator="$tab" --key=2
 }
 
 strip() {
 	sed \
+		-e '/\[bot\]/Id' \
+		-e '/github *actions/Id' \
 		-e '/^ *$/d' \
 		-e 's/@/ at /g' \
 		-e 's/\./ dot /g'
 }
 
-{
-	echo "Author${tab}Email"
+main() {
+	local -r old_data=$(cat -- "$filename" 2>/dev/null | sed '1d')
+	local -r new_data=$(git log --pretty="%an${tab}<%ae>%n%cn${tab}<%ce>")
 	{
-		echo "$old_data"
-		echo "$new_data"
-	} | strip | sort_output
-} > "$filename"
+		echo "Author${tab}Email"
+		{
+			echo "$old_data"
+			echo "$new_data"
+		} | strip | sort_output
+	} > "$filename"
+}
+
+main

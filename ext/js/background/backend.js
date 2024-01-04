@@ -22,16 +22,17 @@ import {AnkiConnect} from '../comm/anki-connect.js';
 import {ClipboardMonitor} from '../comm/clipboard-monitor.js';
 import {ClipboardReader} from '../comm/clipboard-reader.js';
 import {Mecab} from '../comm/mecab.js';
-import {clone, deferPromise, invokeMessageHandler, isObject, log, promiseTimeout} from '../core.js';
+import {clone, deferPromise, isObject, log, promiseTimeout} from '../core.js';
+import {createApiMap, invokeApiMapHandler} from '../core/api-map.js';
 import {ExtensionError} from '../core/extension-error.js';
 import {readResponseJson} from '../core/json.js';
 import {AnkiUtil} from '../data/anki-util.js';
 import {OptionsUtil} from '../data/options-util.js';
 import {PermissionsUtil} from '../data/permissions-util.js';
 import {ArrayBufferUtil} from '../data/sandbox/array-buffer-util.js';
+import {DictionaryDatabase} from '../dictionary/dictionary-database.js';
 import {Environment} from '../extension/environment.js';
 import {ObjectPropertyAccessor} from '../general/object-property-accessor.js';
-import {DictionaryDatabase} from '../language/dictionary-database.js';
 import {JapaneseUtil} from '../language/sandbox/japanese-util.js';
 import {Translator} from '../language/translator.js';
 import {AudioDownloader} from '../media/audio-downloader.js';
@@ -39,7 +40,7 @@ import {MediaUtil} from '../media/media-util.js';
 import {ClipboardReaderProxy, DictionaryDatabaseProxy, OffscreenProxy, TranslatorProxy} from './offscreen-proxy.js';
 import {ProfileConditionsUtil} from './profile-conditions-util.js';
 import {RequestBuilder} from './request-builder.js';
-import {ScriptManager} from './script-manager.js';
+import {injectStylesheet} from './script-manager.js';
 
 /**
  * This class controls the core logic of the extension, including API calls
@@ -109,10 +110,8 @@ export class Backend {
         });
         /** @type {OptionsUtil} */
         this._optionsUtil = new OptionsUtil();
-        /** @type {ScriptManager} */
-        this._scriptManager = new ScriptManager();
         /** @type {AccessibilityController} */
-        this._accessibilityController = new AccessibilityController(this._scriptManager);
+        this._accessibilityController = new AccessibilityController();
 
         /** @type {?number} */
         this._searchPopupTabId = null;
@@ -146,8 +145,8 @@ export class Backend {
         this._permissionsUtil = new PermissionsUtil();
 
         /* eslint-disable no-multi-spaces */
-        /** @type {import('core').MessageHandlerMap} */
-        this._messageHandlers = new Map(/** @type {import('core').MessageHandlerMapInit} */ ([
+        /** @type {import('api').ApiMap} */
+        this._apiMap = createApiMap([
             ['requestBackendReadySignal',    this._onApiRequestBackendReadySignal.bind(this)],
             ['optionsGet',                   this._onApiOptionsGet.bind(this)],
             ['optionsGetFull',               this._onApiOptionsGetFull.bind(this)],
@@ -188,9 +187,8 @@ export class Backend {
             ['textHasJapaneseCharacters',    this._onApiTextHasJapaneseCharacters.bind(this)],
             ['getTermFrequencies',           this._onApiGetTermFrequencies.bind(this)],
             ['findAnkiNotes',                this._onApiFindAnkiNotes.bind(this)],
-            ['loadExtensionScripts',         this._onApiLoadExtensionScripts.bind(this)],
             ['openCrossFramePort',           this._onApiOpenCrossFramePort.bind(this)]
-        ]));
+        ]);
         /* eslint-enable no-multi-spaces */
 
         /** @type {Map<string, (params?: import('core').SerializableObject) => void>} */
@@ -301,8 +299,8 @@ export class Backend {
 
             this._clipboardMonitor.on('change', this._onClipboardTextChange.bind(this));
 
-            this._sendMessageAllTabsIgnoreResponse('Rikaitan.backendReady', {});
-            this._sendMessageIgnoreResponse({action: 'Rikaitan.backendReady', params: {}});
+            this._sendMessageAllTabsIgnoreResponse({action: 'applicationBackendReady'});
+            this._sendMessageIgnoreResponse({action: 'applicationBackendReady'});
         } catch (e) {
             log.error(e);
             throw e;
@@ -317,7 +315,7 @@ export class Backend {
     // Event handlers
 
     /**
-     * @param {{text: string}} params
+     * @param {import('clipboard-monitor').EventArgument<'change'>} details
      */
     async _onClipboardTextChange({text}) {
         const {clipboard: {maximumSearchLength}} = this._getProfileOptions({current: true}, false);
@@ -341,8 +339,9 @@ export class Backend {
      * @param {{level: import('log').LogLevel}} params
      */
     _onLog({level}) {
-        const levelValue = this._getErrorLevelValue(level);
-        if (levelValue <= this._getErrorLevelValue(this._logErrorLevel)) { return; }
+        const levelValue = log.getLogErrorLevelValue(level);
+        const currentLogErrorLevel = this._logErrorLevel !== null ? log.getLogErrorLevelValue(this._logErrorLevel) : 0;
+        if (levelValue <= currentLogErrorLevel) { return; }
 
         this._logErrorLevel = level;
         this._updateBadge();
@@ -369,7 +368,7 @@ export class Backend {
         });
     }
 
-    /** @type {import('extension').ChromeRuntimeOnMessageCallback} */
+    /** @type {import('extension').ChromeRuntimeOnMessageCallback<import('api').ApiMessageAny>} */
     _onMessageWrapper(message, sender, sendResponse) {
         if (this._isPrepared) {
             return this._onMessage(message, sender, sendResponse);
@@ -392,22 +391,20 @@ export class Backend {
     }
 
     /**
-     * @param {{action: string, params?: import('core').SerializableObject}} message
+     * @param {import('api').ApiMessageAny} message
      * @param {chrome.runtime.MessageSender} sender
      * @param {(response?: unknown) => void} callback
      * @returns {boolean}
      */
     _onMessage({action, params}, sender, callback) {
-        const messageHandler = this._messageHandlers.get(action);
-        if (typeof messageHandler === 'undefined') { return false; }
-        return invokeMessageHandler(messageHandler, params, callback, sender);
+        return invokeApiMapHandler(this._apiMap, action, params, [sender], callback);
     }
 
     /**
      * @param {chrome.tabs.ZoomChangeInfo} event
      */
     _onZoomChange({tabId, oldZoomFactor, newZoomFactor}) {
-        this._sendMessageTabIgnoreResponse(tabId, {action: 'Rikaitan.zoomChanged', params: {oldZoomFactor, newZoomFactor}}, {});
+        this._sendMessageTabIgnoreResponse(tabId, {action: 'applicationZoomChanged', params: {oldZoomFactor, newZoomFactor}}, {});
     }
 
     /**
@@ -427,10 +424,11 @@ export class Backend {
 
     // Message handlers
 
-    /** @type {import('api').Handler<import('api').RequestBackendReadySignalDetails, import('api').RequestBackendReadySignalResult, true>} */
+    /** @type {import('api').ApiHandler<'requestBackendReadySignal'>} */
     _onApiRequestBackendReadySignal(_params, sender) {
         // tab ID isn't set in background (e.g. browser_action)
-        const data = {action: 'Rikaitan.backendReady', params: {}};
+        /** @type {import('application').ApiMessage<'applicationBackendReady'>} */
+        const data = {action: 'applicationBackendReady'};
         if (typeof sender.tab === 'undefined') {
             this._sendMessageIgnoreResponse(data);
             return false;
@@ -443,17 +441,17 @@ export class Backend {
         }
     }
 
-    /** @type {import('api').Handler<import('api').OptionsGetDetails, import('api').OptionsGetResult>} */
+    /** @type {import('api').ApiHandler<'optionsGet'>} */
     _onApiOptionsGet({optionsContext}) {
         return this._getProfileOptions(optionsContext, false);
     }
 
-    /** @type {import('api').Handler<import('api').OptionsGetFullDetails, import('api').OptionsGetFullResult>} */
+    /** @type {import('api').ApiHandler<'optionsGetFull'>} */
     _onApiOptionsGetFull() {
         return this._getOptionsFull(false);
     }
 
-    /** @type {import('api').Handler<import('api').KanjiFindDetails, import('api').KanjiFindResult>} */
+    /** @type {import('api').ApiHandler<'kanjiFind'>} */
     async _onApiKanjiFind({text, optionsContext}) {
         const options = this._getProfileOptions(optionsContext, false);
         const {general: {maxResults}} = options;
@@ -463,7 +461,7 @@ export class Backend {
         return dictionaryEntries;
     }
 
-    /** @type {import('api').Handler<import('api').TermsFindDetails, import('api').TermsFindResult>} */
+    /** @type {import('api').ApiHandler<'termsFind'>} */
     async _onApiTermsFind({text, details, optionsContext}) {
         const options = this._getProfileOptions(optionsContext, false);
         const {general: {resultOutputMode: mode, maxResults}} = options;
@@ -473,7 +471,7 @@ export class Backend {
         return {dictionaryEntries, originalTextLength};
     }
 
-    /** @type {import('api').Handler<import('api').ParseTextDetails, import('api').ParseTextResult>} */
+    /** @type {import('api').ApiHandler<'parseText'>} */
     async _onApiParseText({text, optionsContext, scanLength, useInternalParser, useMecabParser}) {
         const [internalResults, mecabResults] = await Promise.all([
             (useInternalParser ? this._textParseScanning(text, scanLength, optionsContext) : null),
@@ -506,22 +504,22 @@ export class Backend {
         return results;
     }
 
-    /** @type {import('api').Handler<import('api').GetAnkiConnectVersionDetails, import('api').GetAnkiConnectVersionResult>} */
+    /** @type {import('api').ApiHandler<'getAnkiConnectVersion'>} */
     async _onApiGetAnkiConnectVersion() {
         return await this._anki.getVersion();
     }
 
-    /** @type {import('api').Handler<import('api').IsAnkiConnectedDetails, import('api').IsAnkiConnectedResult>} */
+    /** @type {import('api').ApiHandler<'isAnkiConnected'>} */
     async _onApiIsAnkiConnected() {
         return await this._anki.isConnected();
     }
 
-    /** @type {import('api').Handler<import('api').AddAnkiNoteDetails, import('api').AddAnkiNoteResult>} */
+    /** @type {import('api').ApiHandler<'addAnkiNote'>} */
     async _onApiAddAnkiNote({note}) {
         return await this._anki.addNote(note);
     }
 
-    /** @type {import('api').Handler<import('api').GetAnkiNoteInfoDetails, import('api').GetAnkiNoteInfoResult>} */
+    /** @type {import('api').ApiHandler<'getAnkiNoteInfo'>} */
     async _onApiGetAnkiNoteInfo({notes, fetchAdditionalInfo}) {
         /** @type {import('anki').NoteInfoWrapper[]} */
         const results = [];
@@ -558,7 +556,7 @@ export class Backend {
         return results;
     }
 
-    /** @type {import('api').Handler<import('api').InjectAnkiNoteMediaDetails, import('api').InjectAnkiNoteMediaResult>} */
+    /** @type {import('api').ApiHandler<'injectAnkiNoteMedia'>} */
     async _onApiInjectAnkiNoteMedia({timestamp, definitionDetails, audioDetails, screenshotDetails, clipboardDetails, dictionaryMediaDetails}) {
         return await this._injectAnkNoteMedia(
             this._anki,
@@ -571,7 +569,7 @@ export class Backend {
         );
     }
 
-    /** @type {import('api').Handler<import('api').NoteViewDetails, import('api').NoteViewResult>} */
+    /** @type {import('api').ApiHandler<'noteView'>} */
     async _onApiNoteView({noteId, mode, allowFallback}) {
         if (mode === 'edit') {
             try {
@@ -590,7 +588,7 @@ export class Backend {
         return 'browse';
     }
 
-    /** @type {import('api').Handler<import('api').SuspendAnkiCardsForNoteDetails, import('api').SuspendAnkiCardsForNoteResult>} */
+    /** @type {import('api').ApiHandler<'suspendAnkiCardsForNote'>} */
     async _onApiSuspendAnkiCardsForNote({noteId}) {
         const cardIds = await this._anki.findCardsForNote(noteId);
         const count = cardIds.length;
@@ -601,45 +599,45 @@ export class Backend {
         return count;
     }
 
-    /** @type {import('api').Handler<import('api').CommandExecDetails, import('api').CommandExecResult>} */
+    /** @type {import('api').ApiHandler<'commandExec'>} */
     _onApiCommandExec({command, params}) {
         return this._runCommand(command, params);
     }
 
-    /** @type {import('api').Handler<import('api').GetTermAudioInfoListDetails, import('api').GetTermAudioInfoListResult>} */
+    /** @type {import('api').ApiHandler<'getTermAudioInfoList'>} */
     async _onApiGetTermAudioInfoList({source, term, reading}) {
         return await this._audioDownloader.getTermAudioInfoList(source, term, reading);
     }
 
-    /** @type {import('api').Handler<import('api').SendMessageToFrameDetails, import('api').SendMessageToFrameResult, true>} */
-    _onApiSendMessageToFrame({frameId: targetFrameId, action, params}, sender) {
+    /** @type {import('api').ApiHandler<'sendMessageToFrame'>} */
+    _onApiSendMessageToFrame({frameId: targetFrameId, message}, sender) {
         if (!sender) { return false; }
         const {tab} = sender;
         if (!tab) { return false; }
         const {id} = tab;
         if (typeof id !== 'number') { return false; }
-        const frameId = sender.frameId;
-        /** @type {import('extension').ChromeRuntimeMessageWithFrameId} */
-        const message = {action, params, frameId};
-        this._sendMessageTabIgnoreResponse(id, message, {frameId: targetFrameId});
+        const {frameId} = sender;
+        /** @type {import('application').ApiMessageAny} */
+        const message2 = {...message, frameId};
+        this._sendMessageTabIgnoreResponse(id, message2, {frameId: targetFrameId});
         return true;
     }
 
-    /** @type {import('api').Handler<import('api').BroadcastTabDetails, import('api').BroadcastTabResult, true>} */
-    _onApiBroadcastTab({action, params}, sender) {
+    /** @type {import('api').ApiHandler<'broadcastTab'>} */
+    _onApiBroadcastTab({message}, sender) {
         if (!sender) { return false; }
         const {tab} = sender;
         if (!tab) { return false; }
         const {id} = tab;
         if (typeof id !== 'number') { return false; }
-        const frameId = sender.frameId;
-        /** @type {import('extension').ChromeRuntimeMessageWithFrameId} */
-        const message = {action, params, frameId};
-        this._sendMessageTabIgnoreResponse(id, message, {});
+        const {frameId} = sender;
+        /** @type {import('application').ApiMessageAny} */
+        const message2 = {...message, frameId};
+        this._sendMessageTabIgnoreResponse(id, message2, {});
         return true;
     }
 
-    /** @type {import('api').Handler<import('api').FrameInformationGetDetails, import('api').FrameInformationGetResult, true>} */
+    /** @type {import('api').ApiHandler<'frameInformationGet'>} */
     _onApiFrameInformationGet(_params, sender) {
         const tab = sender.tab;
         const tabId = tab ? tab.id : void 0;
@@ -647,14 +645,14 @@ export class Backend {
         return Promise.resolve({tabId, frameId});
     }
 
-    /** @type {import('api').Handler<import('api').InjectStylesheetDetails, import('api').InjectStylesheetResult, true>} */
+    /** @type {import('api').ApiHandler<'injectStylesheet'>} */
     async _onApiInjectStylesheet({type, value}, sender) {
         const {frameId, tab} = sender;
         if (typeof tab !== 'object' || tab === null || typeof tab.id !== 'number') { throw new Error('Invalid tab'); }
-        return await this._scriptManager.injectStylesheet(type, value, tab.id, frameId, false);
+        return await injectStylesheet(type, value, tab.id, frameId, false);
     }
 
-    /** @type {import('api').Handler<import('api').GetStylesheetContentDetails, import('api').GetStylesheetContentResult>} */
+    /** @type {import('api').ApiHandler<'getStylesheetContent'>} */
     async _onApiGetStylesheetContent({url}) {
         if (!url.startsWith('/') || url.startsWith('//') || !url.endsWith('.css')) {
             throw new Error('Invalid URL');
@@ -662,22 +660,22 @@ export class Backend {
         return await this._fetchText(url);
     }
 
-    /** @type {import('api').Handler<import('api').GetEnvironmentInfoDetails, import('api').GetEnvironmentInfoResult>} */
+    /** @type {import('api').ApiHandler<'getEnvironmentInfo'>} */
     _onApiGetEnvironmentInfo() {
         return this._environment.getInfo();
     }
 
-    /** @type {import('api').Handler<import('api').ClipboardGetDetails, import('api').ClipboardGetResult>} */
+    /** @type {import('api').ApiHandler<'clipboardGet'>} */
     async _onApiClipboardGet() {
         return this._clipboardReader.getText(false);
     }
 
-    /** @type {import('api').Handler<import('api').GetDisplayTemplatesHtmlDetails, import('api').GetDisplayTemplatesHtmlResult>} */
+    /** @type {import('api').ApiHandler<'getDisplayTemplatesHtml'>} */
     async _onApiGetDisplayTemplatesHtml() {
         return await this._fetchText('/display-templates.html');
     }
 
-    /** @type {import('api').Handler<import('api').GetZoomDetails, import('api').GetZoomResult, true>} */
+    /** @type {import('api').ApiHandler<'getZoom'>} */
     _onApiGetZoom(_params, sender) {
         return new Promise((resolve, reject) => {
             if (!sender || !sender.tab) {
@@ -707,45 +705,45 @@ export class Backend {
         });
     }
 
-    /** @type {import('api').Handler<import('api').GetDefaultAnkiFieldTemplatesDetails, import('api').GetDefaultAnkiFieldTemplatesResult>} */
+    /** @type {import('api').ApiHandler<'getDefaultAnkiFieldTemplates'>} */
     _onApiGetDefaultAnkiFieldTemplates() {
         return /** @type {string} */ (this._defaultAnkiFieldTemplates);
     }
 
-    /** @type {import('api').Handler<import('api').GetDictionaryInfoDetails, import('api').GetDictionaryInfoResult>} */
+    /** @type {import('api').ApiHandler<'getDictionaryInfo'>} */
     async _onApiGetDictionaryInfo() {
         return await this._dictionaryDatabase.getDictionaryInfo();
     }
 
-    /** @type {import('api').Handler<import('api').PurgeDatabaseDetails, import('api').PurgeDatabaseResult>} */
+    /** @type {import('api').ApiHandler<'purgeDatabase'>} */
     async _onApiPurgeDatabase() {
         await this._dictionaryDatabase.purge();
         this._triggerDatabaseUpdated('dictionary', 'purge');
     }
 
-    /** @type {import('api').Handler<import('api').GetMediaDetails, import('api').GetMediaResult>} */
+    /** @type {import('api').ApiHandler<'getMedia'>} */
     async _onApiGetMedia({targets}) {
         return await this._getNormalizedDictionaryDatabaseMedia(targets);
     }
 
-    /** @type {import('api').Handler<import('api').LogDetails, import('api').LogResult>} */
+    /** @type {import('api').ApiHandler<'log'>} */
     _onApiLog({error, level, context}) {
         log.log(ExtensionError.deserialize(error), level, context);
     }
 
-    /** @type {import('api').Handler<import('api').LogIndicatorClearDetails, import('api').LogIndicatorClearResult>} */
+    /** @type {import('api').ApiHandler<'logIndicatorClear'>} */
     _onApiLogIndicatorClear() {
         if (this._logErrorLevel === null) { return; }
         this._logErrorLevel = null;
         this._updateBadge();
     }
 
-    /** @type {import('api').Handler<import('api').ModifySettingsDetails, import('api').ModifySettingsResult>} */
+    /** @type {import('api').ApiHandler<'modifySettings'>} */
     _onApiModifySettings({targets, source}) {
         return this._modifySettings(targets, source);
     }
 
-    /** @type {import('api').Handler<import('api').GetSettingsDetails, import('api').GetSettingsResult>} */
+    /** @type {import('api').ApiHandler<'getSettings'>} */
     _onApiGetSettings({targets}) {
         const results = [];
         for (const target of targets) {
@@ -759,14 +757,14 @@ export class Backend {
         return results;
     }
 
-    /** @type {import('api').Handler<import('api').SetAllSettingsDetails, import('api').SetAllSettingsResult>} */
+    /** @type {import('api').ApiHandler<'setAllSettings'>} */
     async _onApiSetAllSettings({value, source}) {
         this._optionsUtil.validate(value);
         this._options = clone(value);
         await this._saveOptions(source);
     }
 
-    /** @type {import('api').Handler<import('api').GetOrCreateSearchPopupDetails, import('api').GetOrCreateSearchPopupResult>} */
+    /** @type {import('api').ApiHandlerNoExtraArgs<'getOrCreateSearchPopup'>} */
     async _onApiGetOrCreateSearchPopup({focus = false, text}) {
         const {tab, created} = await this._getOrCreateSearchPopupWrapper();
         if (focus === true || (focus === 'ifCreated' && created)) {
@@ -782,19 +780,19 @@ export class Backend {
         return {tabId: typeof id === 'number' ? id : null, windowId: tab.windowId};
     }
 
-    /** @type {import('api').Handler<import('api').IsTabSearchPopupDetails, import('api').IsTabSearchPopupResult>} */
+    /** @type {import('api').ApiHandler<'isTabSearchPopup'>} */
     async _onApiIsTabSearchPopup({tabId}) {
         const baseUrl = chrome.runtime.getURL('/search.html');
         const tab = typeof tabId === 'number' ? await this._checkTabUrl(tabId, (url) => url !== null && url.startsWith(baseUrl)) : null;
         return (tab !== null);
     }
 
-    /** @type {import('api').Handler<import('api').TriggerDatabaseUpdatedDetails, import('api').TriggerDatabaseUpdatedResult>} */
+    /** @type {import('api').ApiHandler<'triggerDatabaseUpdated'>} */
     _onApiTriggerDatabaseUpdated({type, cause}) {
         this._triggerDatabaseUpdated(type, cause);
     }
 
-    /** @type {import('api').Handler<import('api').TestMecabDetails, import('api').TestMecabResult>} */
+    /** @type {import('api').ApiHandler<'testMecab'>} */
     async _onApiTestMecab() {
         if (!this._mecab.isEnabled()) {
             throw new Error('MeCab not enabled');
@@ -831,33 +829,22 @@ export class Backend {
         return true;
     }
 
-    /** @type {import('api').Handler<import('api').TextHasJapaneseCharactersDetails, import('api').TextHasJapaneseCharactersResult>} */
+    /** @type {import('api').ApiHandler<'textHasJapaneseCharacters'>} */
     _onApiTextHasJapaneseCharacters({text}) {
         return this._japaneseUtil.isStringPartiallyJapanese(text);
     }
 
-    /** @type {import('api').Handler<import('api').GetTermFrequenciesDetails, import('api').GetTermFrequenciesResult>} */
+    /** @type {import('api').ApiHandler<'getTermFrequencies'>} */
     async _onApiGetTermFrequencies({termReadingList, dictionaries}) {
         return await this._translator.getTermFrequencies(termReadingList, dictionaries);
     }
 
-    /** @type {import('api').Handler<import('api').FindAnkiNotesDetails, import('api').FindAnkiNotesResult>} */
+    /** @type {import('api').ApiHandler<'findAnkiNotes'>} */
     async _onApiFindAnkiNotes({query}) {
         return await this._anki.findNotes(query);
     }
 
-    /** @type {import('api').Handler<import('api').LoadExtensionScriptsDetails, import('api').LoadExtensionScriptsResult, true>} */
-    async _onApiLoadExtensionScripts({files}, sender) {
-        if (!sender || !sender.tab) { throw new Error('Invalid sender'); }
-        const tabId = sender.tab.id;
-        if (typeof tabId !== 'number') { throw new Error('Sender has invalid tab ID'); }
-        const {frameId} = sender;
-        for (const file of files) {
-            await this._scriptManager.injectScript(file, tabId, frameId, false);
-        }
-    }
-
-    /** @type {import('api').Handler<import('api').OpenCrossFramePortDetails, import('api').OpenCrossFramePortResult, true>} */
+    /** @type {import('api').ApiHandler<'openCrossFramePort'>} */
     _onApiOpenCrossFramePort({targetTabId, targetFrameId}, sender) {
         const sourceTabId = (sender && sender.tab ? sender.tab.id : null);
         if (typeof sourceTabId !== 'number') {
@@ -1108,7 +1095,7 @@ export class Backend {
 
         await this._sendMessageTabPromise(
             id,
-            {action: 'SearchDisplayController.setMode', params: {mode: 'popup'}},
+            {action: 'searchDisplayControllerSetMode', params: {mode: 'popup'}},
             {frameId: 0}
         );
 
@@ -1128,7 +1115,7 @@ export class Backend {
             try {
                 const mode = await this._sendMessageTabPromise(
                     id,
-                    {action: 'SearchDisplayController.getMode', params: {}},
+                    {action: 'searchDisplayControllerGetMode'},
                     {frameId: 0}
                 );
                 return mode === 'popup';
@@ -1208,7 +1195,7 @@ export class Backend {
     async _updateSearchQuery(tabId, text, animate) {
         await this._sendMessageTabPromise(
             tabId,
-            {action: 'SearchDisplayController.updateSearchQuery', params: {text, animate}},
+            {action: 'searchDisplayControllerUpdateSearchQuery', params: {text, animate}},
             {frameId: 0}
         );
     }
@@ -1239,7 +1226,7 @@ export class Backend {
 
         this._accessibilityController.update(this._getOptionsFull(false));
 
-        this._sendMessageAllTabsIgnoreResponse('Rikaitan.optionsUpdated', {source});
+        this._sendMessageAllTabsIgnoreResponse({action: 'applicationOptionsUpdated', params: {source}});
     }
 
     /**
@@ -1453,20 +1440,6 @@ export class Backend {
     }
 
     /**
-     * @param {?import('log').LogLevel} errorLevel
-     * @returns {number}
-     */
-    _getErrorLevelValue(errorLevel) {
-        switch (errorLevel) {
-            case 'info': return 0;
-            case 'debug': return 0;
-            case 'warn': return 1;
-            case 'error': return 2;
-            default: return 0;
-        }
-    }
-
-    /**
      * @param {import('settings-modifications').OptionsScope} target
      * @returns {import('settings').Options|import('settings').ProfileOptions}
      * @throws {Error}
@@ -1661,7 +1634,7 @@ export class Backend {
         try {
             const response = await this._sendMessageTabPromise(
                 tabId,
-                {action: 'Rikaitan.getUrl', params: {}},
+                {action: 'applicationGetUrl'},
                 {frameId: 0}
             );
             const url = typeof response === 'object' && response !== null ? /** @type {import('core').SerializableObject} */ (response).url : void 0;
@@ -1691,6 +1664,7 @@ export class Backend {
     }
 
     /**
+     * This function works around the need to have the "tabs" permission to access tab.url.
      * @param {number} timeout
      * @param {boolean} multiple
      * @param {import('backend').FindTabsPredicate} predicate
@@ -1698,7 +1672,6 @@ export class Backend {
      * @returns {Promise<import('backend').TabInfo[]|(?import('backend').TabInfo)>}
      */
     async _findTabs(timeout, multiple, predicate, predicateIsAsync) {
-        // This function works around the need to have the "tabs" permission to access tab.url.
         const tabs = await this._getAllTabs();
 
         let done = false;
@@ -1832,14 +1805,14 @@ export class Backend {
         return new Promise((resolve, reject) => {
             /** @type {?import('core').Timeout} */
             let timer = null;
-            /** @type {?import('extension').ChromeRuntimeOnMessageCallback} */
+            /** @type {?import('extension').ChromeRuntimeOnMessageCallback<import('application').ApiMessageAny>} */
             let onMessage = (message, sender) => {
                 if (
                     !sender.tab ||
                     sender.tab.id !== tabId ||
                     sender.frameId !== frameId ||
                     !(typeof message === 'object' && message !== null) ||
-                    /** @type {import('core').SerializableObject} */ (message).action !== 'rikaitanReady'
+                    message.action !== 'applicationReady'
                 ) {
                     return;
                 }
@@ -1860,7 +1833,7 @@ export class Backend {
 
             chrome.runtime.onMessage.addListener(onMessage);
 
-            this._sendMessageTabPromise(tabId, {action: 'Rikaitan.isReady'}, {frameId})
+            this._sendMessageTabPromise(tabId, {action: 'applicationIsReady'}, {frameId})
                 .then(
                     (value) => {
                         if (!value) { return; }
@@ -1919,7 +1892,8 @@ export class Backend {
     }
 
     /**
-     * @param {{action: string, params: import('core').SerializableObject}} message
+     * @template {import('application').ApiNames} TName
+     * @param {import('application').ApiMessage<TName>} message
      */
     _sendMessageIgnoreResponse(message) {
         const callback = () => this._checkLastError(chrome.runtime.lastError);
@@ -1928,7 +1902,7 @@ export class Backend {
 
     /**
      * @param {number} tabId
-     * @param {{action: string, params?: import('core').SerializableObject, frameId?: number}} message
+     * @param {import('application').ApiMessageAny} message
      * @param {chrome.tabs.MessageSendOptions} options
      */
     _sendMessageTabIgnoreResponse(tabId, message, options) {
@@ -1937,25 +1911,25 @@ export class Backend {
     }
 
     /**
-     * @param {string} action
-     * @param {import('core').SerializableObject} params
+     * @param {import('application').ApiMessageAny} message
      */
-    _sendMessageAllTabsIgnoreResponse(action, params) {
+    _sendMessageAllTabsIgnoreResponse(message) {
         const callback = () => this._checkLastError(chrome.runtime.lastError);
         chrome.tabs.query({}, (tabs) => {
             for (const tab of tabs) {
                 const {id} = tab;
                 if (typeof id !== 'number') { continue; }
-                chrome.tabs.sendMessage(id, {action, params}, callback);
+                chrome.tabs.sendMessage(id, message, callback);
             }
         });
     }
 
     /**
+     * @template {import('application').ApiNames} TName
      * @param {number} tabId
-     * @param {{action: string, params?: import('core').SerializableObject}} message
+     * @param {import('application').ApiMessage<TName>} message
      * @param {chrome.tabs.MessageSendOptions} options
-     * @returns {Promise<unknown>}
+     * @returns {Promise<import('application').ApiReturn<TName>>}
      */
     _sendMessageTabPromise(tabId, message, options) {
         return new Promise((resolve, reject) => {
@@ -1964,7 +1938,7 @@ export class Backend {
              */
             const callback = (response) => {
                 try {
-                    resolve(this._getMessageResponseResult(response));
+                    resolve(/** @type {import('application').ApiReturn<TName>} */ (this._getMessageResponseResult(response)));
                 } catch (error) {
                     reject(error);
                 }
@@ -1987,11 +1961,11 @@ export class Backend {
         if (typeof response !== 'object' || response === null) {
             throw new Error('Tab did not respond');
         }
-        const responseError = /** @type {import('core').SerializedError|undefined} */ (/** @type {import('core').SerializableObject} */ (response).error);
+        const responseError = /** @type {import('core').Response<unknown>} */ (response).error;
         if (typeof responseError === 'object' && responseError !== null) {
             throw ExtensionError.deserialize(responseError);
         }
-        return /** @type {import('core').SerializableObject} */ (response).result;
+        return /** @type {import('core').Response<unknown>} */ (response).result;
     }
 
     /**
@@ -2026,7 +2000,7 @@ export class Backend {
         let token = null;
         try {
             if (typeof tabId === 'number' && typeof frameId === 'number') {
-                const action = 'Frontend.setAllVisibleOverride';
+                const action = 'frontendSetAllVisibleOverride';
                 const params = {value: false, priority: 0, awaitFrame: true};
                 token = await this._sendMessageTabPromise(tabId, {action, params}, {frameId});
             }
@@ -2043,7 +2017,7 @@ export class Backend {
             });
         } finally {
             if (token !== null) {
-                const action = 'Frontend.clearAllVisibleOverride';
+                const action = 'frontendClearAllVisibleOverride';
                 const params = {token};
                 try {
                     await this._sendMessageTabPromise(tabId, {action, params}, {frameId});
@@ -2062,7 +2036,7 @@ export class Backend {
      * @param {?import('api').InjectAnkiNoteMediaScreenshotDetails} screenshotDetails
      * @param {?import('api').InjectAnkiNoteMediaClipboardDetails} clipboardDetails
      * @param {import('api').InjectAnkiNoteMediaDictionaryMediaDetails[]} dictionaryMediaDetails
-     * @returns {Promise<import('api').InjectAnkiNoteMediaResult>}
+     * @returns {Promise<import('api').ApiReturn<'injectAnkiNoteMedia'>>}
      */
     async _injectAnkNoteMedia(ankiConnect, timestamp, definitionDetails, audioDetails, screenshotDetails, clipboardDetails, dictionaryMediaDetails) {
         let screenshotFileName = null;
@@ -2408,7 +2382,7 @@ export class Backend {
      */
     _triggerDatabaseUpdated(type, cause) {
         this._translator.clearDatabaseCaches();
-        this._sendMessageAllTabsIgnoreResponse('Rikaitan.databaseUpdated', {type, cause});
+        this._sendMessageAllTabsIgnoreResponse({action: 'applicationDatabaseUpdated', params: {type, cause}});
     }
 
     /**
@@ -2443,7 +2417,8 @@ export class Backend {
                 convertHiraganaToKatakana,
                 convertKatakanaToHiragana,
                 collapseEmphaticSequences,
-                textReplacements: textReplacementsOptions
+                textReplacements: textReplacementsOptions,
+                searchResolution
             }
         } = options;
         const textReplacements = this._getTranslatorTextReplacements(textReplacementsOptions);
@@ -2470,6 +2445,7 @@ export class Backend {
             convertHiraganaToKatakana,
             convertKatakanaToHiragana,
             collapseEmphaticSequences,
+            searchResolution,
             textReplacements,
             enabledDictionaryMap,
             excludeDictionaryDefinitions

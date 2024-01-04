@@ -290,7 +290,7 @@ export class BackupController {
                 modal.setVisible(false);
             };
             /**
-             * @param {import('panel-element').VisibilityChangedEvent} details
+             * @param {import('panel-element').EventArgument<'visibilityChanged'>} details
              */
             const onModalVisibilityChanged = ({visible}) => {
                 if (visible) { return; }
@@ -644,7 +644,7 @@ export class BackupController {
         await rikaitan.api.purgeDatabase();
         await Dexie.import(file, {progressCallback: this._databaseImportProgressCallback});
         rikaitan.api.triggerDatabaseUpdated('dictionary', 'import');
-        rikaitan.trigger('storageChanged');
+        rikaitan.triggerStorageChanged();
     }
 
     /** */

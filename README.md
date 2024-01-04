@@ -45,6 +45,8 @@ Rikaitan provides advanced features not available in other browser-based diction
 
 ## Table of Contents<!-- omit from toc -->
 
+- [Project Introduction](#project-introduction)
+- [Tool Introduction](#tool-introduction)
 - [Installation](#installation)
 - [Migrating from Yomichan](#migrating-from-yomichan)
   - [Exporting Data](#exporting-data)
@@ -336,6 +338,11 @@ In order for Rikaitan to use it, both MeCab and a native messaging component mus
 A setup guide can be found [here](https://github.com/siikamiika/yomichan-mecab-installer/blob/master/README.md).
 
 ## Frequently Asked Questions
+
+**I can't scan text in Firefox!**
+
+In Firefox's Manifest V3, host permissions are treated as opt-in. For Rikaitan to work properly, the recommended permissions
+must be explicitly set. In the Rikaitan welcome page, go to the `Recommended Permissions (Important)` section and check `Enable recommended permissions`.
 
 **I'm having problems importing dictionaries in Firefox, what do I do?**
 

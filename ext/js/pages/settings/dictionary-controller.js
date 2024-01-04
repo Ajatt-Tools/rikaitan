@@ -17,8 +17,8 @@
  */
 
 import {EventListenerCollection, log} from '../../core.js';
+import {DictionaryWorker} from '../../dictionary/dictionary-worker.js';
 import {querySelectorNotNull} from '../../dom/query-selector.js';
-import {DictionaryWorker} from '../../language/dictionary-worker.js';
 import {rikaitan} from '../../rikaitan.js';
 
 class DictionaryEntry {
@@ -473,7 +473,7 @@ export class DictionaryController {
             value: dictionaries
         }]);
 
-        /** @type {import('settings-controller').DictionarySettingsReorderedEvent} */
+        /** @type {import('settings-controller').EventArgument<'dictionarySettingsReordered'>} */
         const event = {source: this};
         this._settingsController.trigger('dictionarySettingsReordered', event);
 
@@ -577,7 +577,7 @@ export class DictionaryController {
     // Private
 
     /**
-     * @param {import('settings-controller').OptionsChangedEvent} details
+     * @param {import('settings-controller').EventArgument<'optionsChanged'>} details
      */
     _onOptionsChanged({options}) {
         this._updateDictionariesEnabledWarnings(options);
@@ -930,7 +930,7 @@ export class DictionaryController {
 
     /** */
     _triggerStorageChanged() {
-        rikaitan.trigger('storageChanged');
+        rikaitan.triggerStorageChanged();
     }
 
     /** */

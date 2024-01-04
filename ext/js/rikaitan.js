@@ -18,11 +18,14 @@
 
 import {API} from './comm/api.js';
 import {CrossFrameAPI} from './comm/cross-frame-api.js';
-import {EventDispatcher, deferPromise, invokeMessageHandler, log} from './core.js';
+import {EventDispatcher, deferPromise, log} from './core.js';
+import {createApiMap, invokeApiMapHandler} from './core/api-map.js';
 import {ExtensionError} from './core/extension-error.js';
 
-// Set up chrome alias if it's not available (Edge Legacy)
-if ((() => {
+/**
+ * @returns {boolean}
+ */
+function checkChromeNotAvailable() {
     let hasChrome = false;
     let hasBrowser = false;
     try {
@@ -36,14 +39,18 @@ if ((() => {
         // NOP
     }
     return (hasBrowser && !hasChrome);
-})()) {
+}
+
+// Set up chrome alias if it's not available (Edge Legacy)
+if (checkChromeNotAvailable()) {
     // @ts-expect-error - objects should have roughly the same interface
+    // eslint-disable-next-line no-global-assign
     chrome = browser;
 }
 
 /**
  * The Rikaitan class is a core component through which various APIs are handled and invoked.
- * @augments EventDispatcher<import('extension').ExtensionEventType>
+ * @augments EventDispatcher<import('application').Events>
  */
 export class Rikaitan extends EventDispatcher {
     /**
@@ -89,15 +96,15 @@ export class Rikaitan extends EventDispatcher {
         this._isBackendReadyPromiseResolve = resolve;
 
         /* eslint-disable no-multi-spaces */
-        /** @type {import('core').MessageHandlerMap} */
-        this._messageHandlers = new Map(/** @type {import('core').MessageHandlerMapInit} */ ([
-            ['Rikaitan.isReady',         this._onMessageIsReady.bind(this)],
-            ['Rikaitan.backendReady',    this._onMessageBackendReady.bind(this)],
-            ['Rikaitan.getUrl',          this._onMessageGetUrl.bind(this)],
-            ['Rikaitan.optionsUpdated',  this._onMessageOptionsUpdated.bind(this)],
-            ['Rikaitan.databaseUpdated', this._onMessageDatabaseUpdated.bind(this)],
-            ['Rikaitan.zoomChanged',     this._onMessageZoomChanged.bind(this)]
-        ]));
+        /** @type {import('application').ApiMap} */
+        this._apiMap = createApiMap([
+            ['applicationIsReady',         this._onMessageIsReady.bind(this)],
+            ['applicationBackendReady',    this._onMessageBackendReady.bind(this)],
+            ['applicationGetUrl',          this._onMessageGetUrl.bind(this)],
+            ['applicationOptionsUpdated',  this._onMessageOptionsUpdated.bind(this)],
+            ['applicationDatabaseUpdated', this._onMessageDatabaseUpdated.bind(this)],
+            ['applicationZoomChanged',     this._onMessageZoomChanged.bind(this)]
+        ]);
         /* eslint-enable no-multi-spaces */
     }
 
@@ -165,7 +172,7 @@ export class Rikaitan extends EventDispatcher {
      */
     ready() {
         this._isReady = true;
-        this.sendMessage({action: 'rikaitanReady'});
+        this.sendMessage({action: 'applicationReady'});
     }
 
     /**
@@ -177,6 +184,7 @@ export class Rikaitan extends EventDispatcher {
         return this._extensionUrlBase !== null && url.startsWith(this._extensionUrlBase);
     }
 
+    // TODO : this function needs type safety
     /**
      * Runs `chrome.runtime.sendMessage()` with additional exception handling events.
      * @param {import('extension').ChromeRuntimeSendMessageArgs} args The arguments to be passed to `chrome.runtime.sendMessage()`.
@@ -200,10 +208,20 @@ export class Rikaitan extends EventDispatcher {
         if (this._isTriggeringExtensionUnloaded) { return; }
         try {
             this._isTriggeringExtensionUnloaded = true;
-            this.trigger('extensionUnloaded');
+            this.trigger('extensionUnloaded', {});
         } finally {
             this._isTriggeringExtensionUnloaded = false;
         }
+    }
+
+    /** */
+    triggerStorageChanged() {
+        this.trigger('storageChanged', {});
+    }
+
+    /** */
+    triggerClosePopups() {
+        this.trigger('closePopups', {});
     }
 
     // Private
@@ -215,55 +233,41 @@ export class Rikaitan extends EventDispatcher {
         return location.href;
     }
 
-    /** @type {import('extension').ChromeRuntimeOnMessageCallback} */
-    _onMessage({action, params}, sender, callback) {
-        const messageHandler = this._messageHandlers.get(action);
-        if (typeof messageHandler === 'undefined') { return false; }
-        return invokeMessageHandler(messageHandler, params, callback, sender);
+    /** @type {import('extension').ChromeRuntimeOnMessageCallback<import('application').ApiMessageAny>} */
+    _onMessage({action, params}, _sender, callback) {
+        return invokeApiMapHandler(this._apiMap, action, params, [], callback);
     }
 
-    /**
-     * @returns {boolean}
-     */
+    /** @type {import('application').ApiHandler<'applicationIsReady'>} */
     _onMessageIsReady() {
         return this._isReady;
     }
 
-    /**
-     * @returns {void}
-     */
+    /** @type {import('application').ApiHandler<'applicationBackendReady'>} */
     _onMessageBackendReady() {
         if (this._isBackendReadyPromiseResolve === null) { return; }
         this._isBackendReadyPromiseResolve();
         this._isBackendReadyPromiseResolve = null;
     }
 
-    /**
-     * @returns {{url: string}}
-     */
+    /** @type {import('application').ApiHandler<'applicationGetUrl'>} */
     _onMessageGetUrl() {
         return {url: this._getUrl()};
     }
 
-    /**
-     * @param {{source: string}} params
-     */
+    /** @type {import('application').ApiHandler<'applicationOptionsUpdated'>} */
     _onMessageOptionsUpdated({source}) {
         if (source !== 'background') {
             this.trigger('optionsUpdated', {source});
         }
     }
 
-    /**
-     * @param {{type: string, cause: string}} params
-     */
+    /** @type {import('application').ApiHandler<'applicationDatabaseUpdated'>} */
     _onMessageDatabaseUpdated({type, cause}) {
         this.trigger('databaseUpdated', {type, cause});
     }
 
-    /**
-     * @param {{oldZoomFactor: number, newZoomFactor: number}} params
-     */
+    /** @type {import('application').ApiHandler<'applicationZoomChanged'>} */
     _onMessageZoomChanged({oldZoomFactor, newZoomFactor}) {
         this.trigger('zoomChanged', {oldZoomFactor, newZoomFactor});
     }

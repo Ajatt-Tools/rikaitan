@@ -1,0 +1,37 @@
+name: Update contributors
+
+on:
+  push:
+    branches:
+    - main
+    - testing
+  pull_request:
+    branches:
+    - main
+    - testing
+  workflow_dispatch:
+
+jobs:
+  update_list_job:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    name: Update contributors
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - run: git checkout HEAD
+
+    - run: bash -e output_contributors.sh
+      name: Run Shell Script
+      id: shell_script_run
+
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      name: Commit changes
+      with:
+        commit_message: Update contributors
+        commit_user_name: GitHub Actions
+        commit_user_email: github-actions@github.com
+        commit_author: GitHub Actions <github-actions@github.com>

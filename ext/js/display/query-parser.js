@@ -22,7 +22,7 @@ import {TextScanner} from '../language/text-scanner.js';
 import {rikaitan} from '../rikaitan.js';
 
 /**
- * @augments EventDispatcher<import('display').QueryParserEventType>
+ * @augments EventDispatcher<import('query-parser').Events>
  */
 export class QueryParser extends EventDispatcher {
     /**
@@ -48,7 +48,7 @@ export class QueryParser extends EventDispatcher {
         this._useInternalParser = true;
         /** @type {boolean} */
         this._useMecabParser = false;
-        /** @type {import('api').ParseTextResult} */
+        /** @type {import('api').ParseTextResultItem[]} */
         this._parseResults = [];
         /** @type {HTMLElement} */
         this._queryParser = querySelectorNotNull(document, '#query-parser-content');
@@ -160,8 +160,7 @@ export class QueryParser extends EventDispatcher {
         } = e;
         if (type === null || dictionaryEntries === null || sentence === null || optionsContext === null) { return; }
 
-        /** @type {import('display').QueryParserSearchedEvent} */
-        const event2 = {
+        this.trigger('searched', {
             textScanner,
             type,
             dictionaryEntries,
@@ -170,8 +169,7 @@ export class QueryParser extends EventDispatcher {
             textSource,
             optionsContext,
             sentenceOffset: this._getSentenceOffset(e.textSource)
-        };
-        this.trigger('searched', event2);
+        });
     }
 
     /**
@@ -252,7 +250,7 @@ export class QueryParser extends EventDispatcher {
 
     /**
      * @param {HTMLSelectElement} select
-     * @param {import('api').ParseTextResult} parseResults
+     * @param {import('api').ParseTextResultItem[]} parseResults
      * @param {?string} selectedParser
      */
     _updateParserModeSelect(select, parseResults, selectedParser) {

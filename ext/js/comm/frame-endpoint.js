@@ -41,7 +41,7 @@ export class FrameEndpoint {
         }
         /** @type {import('frame-client').FrameEndpointReadyDetails} */
         const details = {secret: this._secret};
-        rikaitan.api.broadcastTab('frameEndpointReady', details);
+        rikaitan.api.broadcastTab({action: 'frameEndpointReady', params: details});
     }
 
     /**
@@ -83,6 +83,6 @@ export class FrameEndpoint {
         this._eventListeners.removeAllEventListeners();
         /** @type {import('frame-client').FrameEndpointConnectedDetails} */
         const details = {secret, token};
-        rikaitan.api.sendMessageToFrame(hostFrameId, 'frameEndpointConnected', details);
+        rikaitan.api.sendMessageToFrame(hostFrameId, {action: 'frameEndpointConnected', params: details});
     }
 }
