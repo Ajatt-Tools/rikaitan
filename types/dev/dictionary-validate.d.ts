@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,3 +29,8 @@ export type Schemas = {
     termBankV3: Schema;
     termMetaBankV3: Schema;
 };
+
+/**
+ * An array of tuples of a regular expression for file types inside a dictionary and its corresponding schema.
+ */
+export type SchemasDetails = [fileNameFormat: RegExp, schema: unknown][];

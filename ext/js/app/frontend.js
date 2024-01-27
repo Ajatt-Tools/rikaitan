@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -864,7 +864,6 @@ export class Frontend {
             case 'web': return preventMiddleMouseOptions.onWebPages;
             case 'popup': return preventMiddleMouseOptions.onPopupPages;
             case 'search': return preventMiddleMouseOptions.onSearchPages;
-            default: return false;
         }
     }
 

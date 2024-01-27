@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@ export type TermDictionaryEntry = {
     source: string | null;
     rawSource: string | null;
     sourceTerm?: string | null;
-    reasons: string[];
+    inflectionRuleChainCandidates: Dictionary.InflectionRuleChainCandidate[];
     score: number;
     isPrimary?: boolean;
     readonly sequence: number;

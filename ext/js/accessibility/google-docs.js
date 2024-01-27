@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
- * Copyright (C) 2021-2022  Yomichan Authors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

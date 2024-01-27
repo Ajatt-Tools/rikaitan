@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,7 @@
  */
 
 import {EventListenerCollection} from '../../core.js';
+import {toError} from '../../core/to-error.js';
 
 export class RecommendedPermissionsController {
     /**
@@ -92,7 +93,7 @@ export class RecommendedPermissionsController {
         } catch (e) {
             if (this._errorContainer !== null) {
                 this._errorContainer.hidden = false;
-                this._errorContainer.textContent = e instanceof Error ? e.message : `${e}`;
+                this._errorContainer.textContent = toError(e).message;
             }
         }
         if (!added) { return false; }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  * Copyright (C) 2017-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@ import {FrameEndpoint} from '../comm/frame-endpoint.js';
 import {DynamicProperty, EventDispatcher, EventListenerCollection, clone, deepEqual, log, promiseTimeout} from '../core.js';
 import {extendApiMap, invokeApiMapHandler} from '../core/api-map.js';
 import {ExtensionError} from '../core/extension-error.js';
+import {toError} from '../core/to-error.js';
 import {PopupMenu} from '../dom/popup-menu.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
 import {ScrollElement} from '../dom/scroll-element.js';
@@ -480,7 +481,7 @@ export class Display extends EventDispatcher {
             case 'overwrite':
                 this._history.replaceState(state, content, url);
                 break;
-            default: // 'new'
+            case 'new':
                 this._updateHistoryState();
                 this._history.pushState(state, content, url);
                 break;
@@ -787,7 +788,7 @@ export class Display extends EventDispatcher {
                     break;
             }
         } catch (e) {
-            this.onError(e instanceof Error ? e : new Error(`${e}`));
+            this.onError(toError(e));
         }
     }
 
@@ -922,7 +923,7 @@ export class Display extends EventDispatcher {
             };
             this.setContent(details);
         } catch (error) {
-            this.onError(error instanceof Error ? error : new Error(`${error}`));
+            this.onError(toError(error));
         }
     }
 

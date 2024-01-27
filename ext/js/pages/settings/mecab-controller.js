@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  * Copyright (C) 2021-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {toError} from '../../core/to-error.js';
 import {querySelectorNotNull} from '../../dom/query-selector.js';
 import {rikaitan} from '../../rikaitan.js';
 
@@ -57,7 +58,7 @@ export class MecabController {
             await rikaitan.api.testMecab();
             this._setStatus('Connection was successful', false);
         } catch (e) {
-            this._setStatus(e instanceof Error ? e.message : `${e}`, true);
+            this._setStatus(toError(e).message, true);
         } finally {
             this._testActive = false;
             /** @type {HTMLButtonElement} */ (this._testButton).disabled = false;

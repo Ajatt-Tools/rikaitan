@@ -1651,8 +1651,10 @@
             <div class="settings-item-children" data-show-for-os="mac">
                 <p class="warning-text">
                     <strong>Notice for macOS users:</strong>
-                    If Rikaitan has issues connecting to AnkiConnect, it may be necessary to adjust adjust some system settings.
-                    See <a href="https://git.foosoft.net/anki-connect/about/#notes-for-macos-users" target="_blank" rel="noopener noreferrer">this link</a> for details.
+                    <a href="https://www.gnu.org/proprietary/malware-apple.html" target="_blank" rel="noopener noreferrer">macOS is malware</a>.
+                    Please upgrade to GNU/Linux as soon as possible.
+                    Here's the list of recommended GNU distributions:
+                    <a href="https://tatsumoto.neocities.org/blog/our-immersion-learning-toolset#gnu-linux" target="_blank" rel="noopener noreferrer">Our Immersion Learning Toolset</a>.
                 </p>
             </div>
         </div>
@@ -2670,6 +2672,42 @@
                 <p><a tabindex="0" class="more-toggle" data-parent-distance="3">Hide&hellip;</a></p>
             </div>
         </div>
+        <div class="settings-item dictionary-parts-of-speech-filter-setting" hidden>
+            <div class="settings-item-inner">
+                <div class="settings-item-left">
+                    <div class="settings-item-label">
+                        Part of speech filtering
+                        <a tabindex="0" class="more-toggle more-only" data-parent-distance="4">(?)</a>
+                    </div>
+                </div>
+                <div class="settings-item-right">
+                    <label class="toggle"><input type="checkbox" class="dictionary-parts-of-speech-filter-toggle"><span class="toggle-body"><span class="toggle-track"></span><span class="toggle-knob"></span></span></label>
+                </div>
+            </div>
+            <div class="settings-item-children more" hidden>
+                When deinflecting words, only dictionary entries whose POS matches that expected by the deinflector will be shown.
+                <p><a tabindex="0" class="more-toggle" data-parent-distance="3">Hide&hellip;</a></p>
+            </div>
+        </div>
+        <hr>
+        <div class="settings-item dictionary-use-deinflections-setting" hidden>
+            <div class="settings-item-inner">
+                <div class="settings-item-left">
+                    <div class="settings-item-label">
+                        Use deinflections
+                        <a tabindex="0" class="more-toggle more-only" data-parent-distance="4">(?)</a>
+                    </div>
+                </div>
+                <div class="settings-item-right">
+                    <label class="toggle"><input type="checkbox" class="dictionary-use-deinflections-toggle"><span class="toggle-body"><span class="toggle-track"></span><span class="toggle-knob"></span></span></label>
+                </div>
+            </div>
+            <div class="settings-item-children more" hidden>
+                Deinflections from this dictionary will be used.
+                <p><a tabindex="0" class="more-toggle" data-parent-distance="3">Hide&hellip;</a></p>
+            </div>
+        </div>
+        <hr>
         <div class="settings-item"><div class="settings-item-children">
             <div class="dictionary-details-table"></div>
             <div class="dictionary-counts"></div>

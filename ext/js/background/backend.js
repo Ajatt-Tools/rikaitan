@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023  Ajatt-Tools and contributors
+ * Copyright (C) 2023-2024  Ajatt-Tools and contributors
  * Copyright (C) 2016-2022  Yomichan Authors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -2427,7 +2427,9 @@ export class Backend {
             enabledDictionaryMap.set(mainDictionary, {
                 index: enabledDictionaryMap.size,
                 priority: 0,
-                allowSecondarySearches: false
+                allowSecondarySearches: false,
+                partsOfSpeechFilter: true,
+                useDeinflections: true
             });
             excludeDictionaryDefinitions = new Set();
             excludeDictionaryDefinitions.add(mainDictionary);
@@ -2473,10 +2475,13 @@ export class Backend {
         const enabledDictionaryMap = new Map();
         for (const dictionary of options.dictionaries) {
             if (!dictionary.enabled) { continue; }
-            enabledDictionaryMap.set(dictionary.name, {
+            const {name, priority, allowSecondarySearches, partsOfSpeechFilter, useDeinflections} = dictionary;
+            enabledDictionaryMap.set(name, {
                 index: enabledDictionaryMap.size,
-                priority: dictionary.priority,
-                allowSecondarySearches: dictionary.allowSecondarySearches
+                priority,
+                allowSecondarySearches,
+                partsOfSpeechFilter,
+                useDeinflections
             });
         }
         return enabledDictionaryMap;
@@ -2629,14 +2634,14 @@ export class Backend {
     }
 
     /**
+     * Only request this permission for Firefox versions >= 77.
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=1630413
      * @returns {Promise<void>}
      */
     async _requestPersistentStorage() {
         try {
             if (await navigator.storage.persisted()) { return; }
 
-            // Only request this permission for Firefox versions >= 77.
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=1630413
             const {vendor, version} = await browser.runtime.getBrowserInfo();
             if (vendor !== 'Mozilla') { return; }
 
