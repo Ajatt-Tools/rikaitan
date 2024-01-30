@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {EventDispatcher, log} from '../core.js';
+import {EventDispatcher} from '../core/event-dispatcher.js';
+import {log} from '../core/logger.js';
 import {rikaitan} from '../rikaitan.js';
 
 /**
@@ -319,7 +320,7 @@ export class PopupProxy extends EventDispatcher {
         try {
             return await this._invoke(action, params);
         } catch (e) {
-            if (!rikaitan.isExtensionUnloaded) { throw e; }
+            if (!rikaitan.webExtension.unloaded) { throw e; }
             return defaultReturnValue;
         }
     }

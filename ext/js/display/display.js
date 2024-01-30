@@ -18,10 +18,14 @@
 
 import {ThemeController} from '../app/theme-controller.js';
 import {FrameEndpoint} from '../comm/frame-endpoint.js';
-import {DynamicProperty, EventDispatcher, EventListenerCollection, clone, deepEqual, log, promiseTimeout} from '../core.js';
 import {extendApiMap, invokeApiMapHandler} from '../core/api-map.js';
+import {DynamicProperty} from '../core/dynamic-property.js';
+import {EventDispatcher} from '../core/event-dispatcher.js';
+import {EventListenerCollection} from '../core/event-listener-collection.js';
 import {ExtensionError} from '../core/extension-error.js';
+import {log} from '../core/logger.js';
 import {toError} from '../core/to-error.js';
+import {clone, deepEqual, promiseTimeout} from '../core/utilities.js';
 import {PopupMenu} from '../dom/popup-menu.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
 import {ScrollElement} from '../dom/scroll-element.js';
@@ -386,7 +390,7 @@ export class Display extends EventDispatcher {
      * @param {Error} error
      */
     onError(error) {
-        if (rikaitan.isExtensionUnloaded) { return; }
+        if (rikaitan.webExtension.unloaded) { return; }
         log.error(error);
     }
 
@@ -723,8 +727,7 @@ export class Display extends EventDispatcher {
 
     /** @type {import('display').WindowApiHandler<'displayExtensionUnloaded'>} */
     _onMessageExtensionUnloaded() {
-        if (rikaitan.isExtensionUnloaded) { return; }
-        rikaitan.triggerExtensionUnloaded();
+        rikaitan.webExtension.triggerUnloaded();
     }
 
     // Private
@@ -1890,7 +1893,7 @@ export class Display extends EventDispatcher {
      * @param {import('text-scanner').SearchedEventDetails} details
      */
     _onContentTextScannerSearched({type, dictionaryEntries, sentence, textSource, optionsContext, error}) {
-        if (error !== null && !rikaitan.isExtensionUnloaded) {
+        if (error !== null && !rikaitan.webExtension.unloaded) {
             log.error(error);
         }
 

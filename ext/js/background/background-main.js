@@ -23,7 +23,7 @@ import {Backend} from './backend.js';
 async function main() {
     rikaitan.prepare(true);
 
-    const backend = new Backend();
+    const backend = new Backend(rikaitan.webExtension);
     await backend.prepare();
 }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {EventDispatcher} from '../core.js';
+import {EventDispatcher} from '../core/event-dispatcher.js';
 import {rikaitan} from '../rikaitan.js';
 
 /**
@@ -274,7 +274,7 @@ export class PopupWindow extends EventDispatcher {
      * @returns {Promise<import('display').DirectApiReturn<TName>|undefined>}
      */
     async _invoke(open, action, params) {
-        if (rikaitan.isExtensionUnloaded) {
+        if (rikaitan.webExtension.unloaded) {
             return void 0;
         }
 
@@ -290,7 +290,7 @@ export class PopupWindow extends EventDispatcher {
                     message
                 ));
             } catch (e) {
-                if (rikaitan.isExtensionUnloaded) {
+                if (rikaitan.webExtension.unloaded) {
                     open = false;
                 }
             }
