@@ -38,8 +38,10 @@ Rikaitan provides advanced features not available in other browser-based diction
 - On-demand audio playback for select dictionary definitions.
 - Kanji stroke order diagrams are just a click away for most characters.
 - Custom search page for easily executing custom search queries.
-- Support for multiple dictionary formats including [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
-- Automatic note creation for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
+- Support for multiple dictionary formats including
+  [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
+- Automatic note creation for the [Anki](https://apps.ankiweb.net/) flashcard program
+  via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
 - Clean, modern code makes it easy for developers to [contribute](https://github.com/Ajatt-Tools/rikaitan/blob/main/CONTRIBUTING.md) new features.
 
 [![Term definitions](img/ss-terms-thumb.png)](img/ss-terms.png)
