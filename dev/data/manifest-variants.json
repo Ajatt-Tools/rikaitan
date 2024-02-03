@@ -4,7 +4,9 @@
         "name": "Rikaitan",
         "version": "$RIKAITAN_VERSION",
         "description": "Japanese dictionary with Anki integration",
-        "author": "Ajatt-Tools and contributors",
+        "author": {
+            "email": "tatsu@autistici.org"
+        },
         "icons": {
             "16": "images/icon16.png",
             "19": "images/icon19.png",
@@ -179,6 +181,13 @@
             "fileName": "rikaitan-firefox.zip",
             "modifications": [
                 {
+                    "action": "set",
+                    "path": [
+                        "author"
+                    ],
+                    "value": "Ajatt-Tools"
+                },
+                {
                     "action": "delete",
                     "path": [
                         "background",
@@ -312,6 +321,13 @@
         {
             "name": "safari",
             "modifications": [
+                {
+                    "action": "set",
+                    "path": [
+                        "author"
+                    ],
+                    "value": "Ajatt-Tools"
+                },
                 {
                     "action": "remove",
                     "path": [
