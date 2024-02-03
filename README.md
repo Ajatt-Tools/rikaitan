@@ -12,6 +12,9 @@ Our primary objective is to maintain the project,
 ensuring it remains functional on the most recent browser versions
 and that any bugs are fixed.
 
+Rikaitan pulls changes from [Yomitan](https://github.com/themoeway/yomitan),
+another community driven fork of Yomichan.
+
 As requested by the original creator, the project has been given a new name:
 Rikaitan, in the style of the previous name.
 
