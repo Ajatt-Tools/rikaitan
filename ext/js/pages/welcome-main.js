@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Application} from '../application.js';
 import {log} from '../core/logger.js';
 import {DocumentFocusController} from '../dom/document-focus-controller.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
-import {rikaitan} from '../rikaitan.js';
 import {ExtensionContentController} from './common/extension-content-controller.js';
 import {DictionaryController} from './settings/dictionary-controller.js';
 import {DictionaryImportController} from './settings/dictionary-import-controller.js';
@@ -31,10 +31,12 @@ import {SettingsController} from './settings/settings-controller.js';
 import {SettingsDisplayController} from './settings/settings-display-controller.js';
 import {StatusFooter} from './settings/status-footer.js';
 
-/** */
-async function setupEnvironmentInfo() {
+/**
+ * @param {import('../comm/api.js').API} api
+ */
+async function setupEnvironmentInfo(api) {
     const {manifest_version: manifestVersion} = chrome.runtime.getManifest();
-    const {browser, platform} = await rikaitan.api.getEnvironmentInfo();
+    const {browser, platform} = await api.getEnvironmentInfo();
     document.documentElement.dataset.browser = browser;
     document.documentElement.dataset.os = platform.os;
     document.documentElement.dataset.manifestVersion = `${manifestVersion}`;
@@ -62,16 +64,17 @@ async function main() {
         const statusFooter = new StatusFooter(statusFooterElement);
         statusFooter.prepare();
 
-        await rikaitan.prepare();
+        const application = new Application();
+        await application.prepare();
 
-        setupEnvironmentInfo();
+        setupEnvironmentInfo(application.api);
 
         const preparePromises = [];
 
         const modalController = new ModalController();
         modalController.prepare();
 
-        const settingsController = new SettingsController();
+        const settingsController = new SettingsController(application);
         await settingsController.prepare();
 
         const dictionaryController = new DictionaryController(settingsController, modalController, statusFooter);

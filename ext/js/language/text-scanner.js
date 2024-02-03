@@ -22,7 +22,6 @@ import {log} from '../core/logger.js';
 import {clone} from '../core/utilities.js';
 import {DocumentUtil} from '../dom/document-util.js';
 import {TextSourceElement} from '../dom/text-source-element.js';
-import {rikaitan} from '../rikaitan.js';
 
 /**
  * @augments EventDispatcher<import('text-scanner').Events>
@@ -32,6 +31,7 @@ export class TextScanner extends EventDispatcher {
      * @param {import('text-scanner').ConstructorDetails} details
      */
     constructor({
+        api,
         node,
         getSearchContext,
         ignoreElements = null,
@@ -39,9 +39,12 @@ export class TextScanner extends EventDispatcher {
         searchTerms = false,
         searchKanji = false,
         searchOnClick = false,
-        searchOnClickOnly = false
+        searchOnClickOnly = false,
+        textSourceGenerator
     }) {
         super();
+        /** @type {import('../comm/api.js').API} */
+        this._api = api;
         /** @type {HTMLElement|Window} */
         this._node = node;
         /** @type {import('text-scanner').GetSearchContextCallback} */
@@ -58,6 +61,8 @@ export class TextScanner extends EventDispatcher {
         this._searchOnClick = searchOnClick;
         /** @type {boolean} */
         this._searchOnClickOnly = searchOnClickOnly;
+        /** @type {import('../dom/text-source-generator').TextSourceGenerator} */
+        this._textSourceGenerator = textSourceGenerator;
 
         /** @type {boolean} */
         this._isPrepared = false;
@@ -1201,7 +1206,7 @@ export class TextScanner extends EventDispatcher {
         /** @type {import('api').FindTermsDetails} */
         const details = {};
         if (this._matchTypePrefix) { details.matchType = 'prefix'; }
-        const {dictionaryEntries, originalTextLength} = await rikaitan.api.termsFind(searchText, details, optionsContext);
+        const {dictionaryEntries, originalTextLength} = await this._api.termsFind(searchText, details, optionsContext);
         if (dictionaryEntries.length === 0) { return null; }
 
         textSource.setEndOffset(originalTextLength, false, layoutAwareScan);
@@ -1233,7 +1238,7 @@ export class TextScanner extends EventDispatcher {
         const searchText = this.getTextSourceContent(textSource, 1, layoutAwareScan);
         if (searchText.length === 0) { return null; }
 
-        const dictionaryEntries = await rikaitan.api.kanjiFind(searchText, optionsContext);
+        const dictionaryEntries = await this._api.kanjiFind(searchText, optionsContext);
         if (dictionaryEntries.length === 0) { return null; }
 
         textSource.setEndOffset(1, false, layoutAwareScan);
@@ -1274,7 +1279,7 @@ export class TextScanner extends EventDispatcher {
                 return;
             }
 
-            const textSource = DocumentUtil.getRangeFromPoint(x, y, {
+            const textSource = this._textSourceGenerator.getRangeFromPoint(x, y, {
                 deepContentScan: this._deepContentScan,
                 normalizeCssZoom: this._normalizeCssZoom
             });
@@ -1561,7 +1566,7 @@ export class TextScanner extends EventDispatcher {
      */
     async _hasJapanese(text) {
         try {
-            return await rikaitan.api.textHasJapaneseCharacters(text);
+            return await this._api.textHasJapaneseCharacters(text);
         } catch (e) {
             return false;
         }

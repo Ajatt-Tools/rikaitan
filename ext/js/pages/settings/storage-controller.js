@@ -17,7 +17,6 @@
  */
 
 import {querySelectorNotNull} from '../../dom/query-selector.js';
-import {rikaitan} from '../../rikaitan.js';
 
 export class StorageController {
     /**
@@ -61,7 +60,7 @@ export class StorageController {
         const storageRefreshButton = querySelectorNotNull(document, '#storage-refresh');
 
         storageRefreshButton.addEventListener('click', this._onStorageRefreshButtonClick.bind(this), false);
-        rikaitan.on('storageChanged', this._onStorageChanged.bind(this));
+        this._persistentStorageController.application.on('storageChanged', this._onStorageChanged.bind(this));
 
         this._updateStats();
     }

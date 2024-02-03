@@ -17,9 +17,16 @@
  */
 
 import {querySelectorNotNull} from '../../dom/query-selector.js';
-import {rikaitan} from '../../rikaitan.js';
 
 export class PopupWindowController {
+    /**
+     * @param {import('../../comm/api.js').API} api
+     */
+    constructor(api) {
+        /** @type {import('../../comm/api.js').API} */
+        this._api = api;
+    }
+
     /** */
     prepare() {
         /** @type {HTMLElement} */
@@ -39,6 +46,6 @@ export class PopupWindowController {
 
     /** */
     async _testWindowOpen() {
-        await rikaitan.api.getOrCreateSearchPopup({focus: true});
+        await this._api.getOrCreateSearchPopup({focus: true});
     }
 }

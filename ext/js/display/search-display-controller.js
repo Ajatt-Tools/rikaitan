@@ -21,7 +21,6 @@ import {ClipboardMonitor} from '../comm/clipboard-monitor.js';
 import {createApiMap, invokeApiMapHandler} from '../core/api-map.js';
 import {EventListenerCollection} from '../core/event-listener-collection.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
-import {rikaitan} from '../rikaitan.js';
 
 export class SearchDisplayController {
     /**
@@ -71,7 +70,7 @@ export class SearchDisplayController {
         /** @type {ClipboardMonitor} */
         this._clipboardMonitor = new ClipboardMonitor({
             clipboardReader: {
-                getText: rikaitan.api.clipboardGet.bind(rikaitan.api)
+                getText: this._display.application.api.clipboardGet.bind(this._display.application.api)
             }
         });
         /** @type {import('application').ApiMap} */
@@ -89,7 +88,7 @@ export class SearchDisplayController {
         this._searchPersistentStateController.on('modeChange', this._onModeChange.bind(this));
 
         chrome.runtime.onMessage.addListener(this._onMessage.bind(this));
-        rikaitan.on('optionsUpdated', this._onOptionsUpdated.bind(this));
+        this._display.application.on('optionsUpdated', this._onOptionsUpdated.bind(this));
 
         this._display.on('optionsUpdated', this._onDisplayOptionsUpdated.bind(this));
         this._display.on('contentUpdateStart', this._onContentUpdateStart.bind(this));
@@ -297,7 +296,7 @@ export class SearchDisplayController {
             scope: 'profile',
             optionsContext: this._display.getOptionsContext()
         };
-        rikaitan.api.modifySettings([modification], 'search');
+        this._display.application.api.modifySettings([modification], 'search');
     }
 
     /**
@@ -430,7 +429,7 @@ export class SearchDisplayController {
             scope: 'profile',
             optionsContext: this._display.getOptionsContext()
         };
-        await rikaitan.api.modifySettings([modification], 'search');
+        await this._display.application.api.modifySettings([modification], 'search');
     }
 
     /** */

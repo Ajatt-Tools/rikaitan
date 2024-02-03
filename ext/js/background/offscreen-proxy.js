@@ -18,7 +18,7 @@
 
 import {ExtensionError} from '../core/extension-error.js';
 import {isObject} from '../core/utilities.js';
-import {ArrayBufferUtil} from '../data/sandbox/array-buffer-util.js';
+import {base64ToArrayBuffer} from '../data/sandbox/array-buffer-util.js';
 
 export class OffscreenProxy {
     /**
@@ -144,7 +144,7 @@ export class DictionaryDatabaseProxy {
      */
     async getMedia(targets) {
         const serializedMedia = /** @type {import('dictionary-database').Media<string>[]} */ (await this._offscreen.sendMessagePromise({action: 'databaseGetMediaOffscreen', params: {targets}}));
-        const media = serializedMedia.map((m) => ({...m, content: ArrayBufferUtil.base64ToArrayBuffer(m.content)}));
+        const media = serializedMedia.map((m) => ({...m, content: base64ToArrayBuffer(m.content)}));
         return media;
     }
 }
@@ -159,10 +159,10 @@ export class TranslatorProxy {
     }
 
     /**
-     * @param {import('deinflector').ReasonsRaw} deinflectionReasons
+     * @param {import('language-transformer').LanguageTransformDescriptor} descriptor
      */
-    async prepare(deinflectionReasons) {
-        await this._offscreen.sendMessagePromise({action: 'translatorPrepareOffscreen', params: {deinflectionReasons}});
+    async prepare(descriptor) {
+        await this._offscreen.sendMessagePromise({action: 'translatorPrepareOffscreen', params: {descriptor}});
     }
 
     /**

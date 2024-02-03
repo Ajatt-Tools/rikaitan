@@ -21,7 +21,6 @@ import {log} from '../core/logger.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
 import {convertHiraganaToKatakana, convertKatakanaToHiragana, isStringEntirelyKana} from '../language/japanese.js';
 import {TextScanner} from '../language/text-scanner.js';
-import {rikaitan} from '../rikaitan.js';
 
 /**
  * @augments EventDispatcher<import('query-parser').Events>
@@ -30,8 +29,10 @@ export class QueryParser extends EventDispatcher {
     /**
      * @param {import('display').QueryParserConstructorDetails} details
      */
-    constructor({getSearchContext}) {
+    constructor({api, getSearchContext, textSourceGenerator}) {
         super();
+        /** @type {import('../comm/api.js').API} */
+        this._api = api;
         /** @type {import('display').GetSearchContextCallback} */
         this._getSearchContext = getSearchContext;
         /** @type {string} */
@@ -58,11 +59,13 @@ export class QueryParser extends EventDispatcher {
         this._queryParserModeSelect = querySelectorNotNull(document, '#query-parser-mode-select');
         /** @type {TextScanner} */
         this._textScanner = new TextScanner({
+            api,
             node: this._queryParser,
             getSearchContext,
             searchTerms: true,
             searchKanji: false,
-            searchOnClick: true
+            searchOnClick: true,
+            textSourceGenerator
         });
         /** @type {?(import('../language/japanese-wanakana.js'))} */
         this._japaneseWanakanaModule = null;
@@ -127,7 +130,7 @@ export class QueryParser extends EventDispatcher {
         /** @type {?import('core').TokenObject} */
         const token = {};
         this._setTextToken = token;
-        this._parseResults = await rikaitan.api.parseText(text, this._getOptionsContext(), this._scanLength, this._useInternalParser, this._useMecabParser);
+        this._parseResults = await this._api.parseText(text, this._getOptionsContext(), this._scanLength, this._useInternalParser, this._useMecabParser);
         if (this._setTextToken !== token) { return; }
 
         this._refreshSelectedParser();
@@ -213,7 +216,7 @@ export class QueryParser extends EventDispatcher {
             scope: 'profile',
             optionsContext
         };
-        rikaitan.api.modifySettings([modification], 'search');
+        this._api.modifySettings([modification], 'search');
     }
 
     /**

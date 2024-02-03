@@ -20,7 +20,6 @@ import {EventListenerCollection} from '../core/event-listener-collection.js';
 import {generateId} from '../core/utilities.js';
 import {PanelElement} from '../dom/panel-element.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
-import {rikaitan} from '../rikaitan.js';
 
 export class DisplayProfileSelection {
     /**
@@ -50,7 +49,7 @@ export class DisplayProfileSelection {
 
     /** */
     async prepare() {
-        rikaitan.on('optionsUpdated', this._onOptionsUpdated.bind(this));
+        this._display.application.on('optionsUpdated', this._onOptionsUpdated.bind(this));
         this._profileButton.addEventListener('click', this._onProfileButtonClick.bind(this), false);
         this._profileListNeedsUpdate = true;
     }
@@ -92,7 +91,7 @@ export class DisplayProfileSelection {
     /** */
     async _updateProfileList() {
         this._profileListNeedsUpdate = false;
-        const options = await rikaitan.api.optionsGetFull();
+        const options = await this._display.application.api.optionsGetFull();
 
         this._eventListeners.removeAllEventListeners();
         const displayGenerator = this._display.displayGenerator;
@@ -138,7 +137,7 @@ export class DisplayProfileSelection {
             scope: 'global',
             optionsContext: null
         };
-        await rikaitan.api.modifySettings([modification], this._source);
+        await this._display.application.api.modifySettings([modification], this._source);
         this._setProfilePanelVisible(false);
     }
 }
