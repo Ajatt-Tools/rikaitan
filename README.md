@@ -75,6 +75,9 @@ We recommend [LibreWolf](https://librewolf.net/) as your everyday web browser.
 
 [![image](img/chrome-web-store.png)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 
+**Note**: [chromium-web-store](https://github.com/NeverDecaf/chromium-web-store)
+can be used to allow installing extensions directly from Chrome Web Store.
+
 ## Basic Usage
 
 1.  Click the <img src="ext/images/rikaitan-icon.svg" width="16" height="16" alt="rikaitan icon"> _Rikaitan_ button in the browser bar to open the quick-actions popup.
