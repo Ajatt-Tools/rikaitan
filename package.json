@@ -50,7 +50,7 @@
     "devDependencies": {
         "@codspeed/vitest-plugin": "^3.1.0",
         "@playwright/test": "^1.41.2",
-        "@stylistic/eslint-plugin": "^1.6.0",
+        "@stylistic/eslint-plugin": "^1.6.1",
         "@stylistic/stylelint-plugin": "^2.0.0",
         "@types/assert": "^1.5.10",
         "@types/browserify": "^12.0.40",
@@ -94,8 +94,8 @@
     },
     "dependencies": {
         "@zip.js/zip.js": "^2.7.34",
-        "dexie": "^3.2.4",
-        "dexie-export-import": "^4.1.0",
+        "dexie": "^3.2.5",
+        "dexie-export-import": "^4.1.1",
         "parse5": "^7.1.2",
         "wanakana": "^5.3.1",
         "rikaitan-handlebars": "git+https://github.com/Ajatt-Tools/rikaitan-handlebars.git#12aff5e3550954d7d3a98a5917ff7d579f3cce25"
