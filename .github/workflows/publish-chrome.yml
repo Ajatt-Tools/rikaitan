@@ -54,7 +54,7 @@ jobs:
       - name: Upload to Google Web Store
         id: webStoreUpload
         continue-on-error: true
-        uses: cardinalby/webext-buildtools-chrome-webstore-upload-action@d3ce3b6f6a07d1267b0f5a24416a153159255372
+        uses: cardinalby/webext-buildtools-chrome-webstore-upload-action@3d829e042b559c35f7fb71676cbaf6031892a313 # v1.0.11
         with:
           zipFilePath: rikaitan-chrome.zip
           extensionId: ${{ secrets.G_STABLE_EXTENSION_ID }}
