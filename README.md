@@ -28,7 +28,7 @@ by helping you to decipher texts
 which would be otherwise too difficult tackle.
 This extension is similar to
 [10ten Japanese Reader](https://addons.mozilla.org/en-US/firefox/addon/10ten-ja-reader/) for Firefox and
-[Rikaikun](https://chrome.google.com/webstore/detail/rikaikun/jipdnfibhldikgcjhfnomkfpcebammhp?hl=en) for Chrome, but it
+[Rikaikun](https://chromewebstore.google.com/detail/rikaikun/jipdnfibhldikgcjhfnomkfpcebammhp) for Chrome, but it
 stands apart in its goal of being an all-encompassing learning tool
 as opposed to a mere browser-based dictionary.
 
@@ -134,6 +134,6 @@ and licenses of the exact versions packaged.
 | @zip.js/zip.js      | 2.7.32            | BSD-3-Clause | git+https://github.com/gildas-lormeau/zip.js.git |
 | dexie               | 3.2.4             | Apache-2.0   | git+https://github.com/dfahlander/Dexie.js.git   |
 | dexie-export-import | 4.0.7             | Apache-2.0   | git+https://github.com/dexie/Dexie.js.git        |
-| rikaitan-handlebars  | 1.0.0             | MIT          | n/a                                              |
+| rikaitan-handlebars | 1.0.0             | MIT          | n/a                                              |
 | parse5              | 7.1.2             | MIT          | git://github.com/inikulin/parse5.git             |
 | wanakana            | 5.3.1             | MIT          | git+ssh://git@github.com/WaniKani/WanaKana.git   |
