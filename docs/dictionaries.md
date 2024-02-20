@@ -6,14 +6,31 @@ in order to enable Rikaitan definition lookups.
 Our collection of user-created dictionary files can be donloaded from
 the Tatsumoto website.
 
-* [Our recommended dictionaries](https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#rikaitan)
-* [Other dictionaries](https://github.com/Ajatt-Tools/rikaitan/tree/dictionaries)
-
 Be aware that non-English dictionaries contain fewer entries than their English counterparts.
 Even if your primary language is not English,
 you may consider also importing the English version for better coverage.
 
-### Importing Dictionaries
+### Recommended Dictionaries
+
+* [Our recommended dictionaries](https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#rikaitan)
+* [Other dictionaries](https://github.com/Ajatt-Tools/rikaitan/tree/dictionaries)
+
+#### EPWING Dictionaries
+
+Rikaitan supports dictionaries in the esoteric but popular
+[EPWING](https://ja.wikipedia.org/wiki/EPWING) format. They were often utilized
+in portable electronic dictionaries similar to the ones pictured below. These
+dictionaries are often sought after by language learners for their correctness
+and excellent coverage of the Japanese language.
+
+Unfortunately, as most of the dictionaries released in this format are
+proprietary, you will need to procure these dictionaries yourself and import
+them using [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import).
+Check the project page for additional details.
+
+![Pocket EPWING dictionaries](../img/epwing-devices.jpg)
+
+### Bulk Importing Dictionaries
 
 Rikaitan also supports exporting and importing your entire collection of dictionaries.
 
@@ -33,19 +50,9 @@ Rikaitan also supports exporting and importing your entire collection of diction
 
 ### Importing and Exporting Personal Configuration
 
-Note that you can also similarly export and import your Rikaitan settings from the `Backup` section of the Settings page.
+Note that you can also similarly export and import your Rikaitan settings from
+the `Backup` section of the Settings page.
 
-You should be able to replicate your exact Rikaitan setup across devices by exporting your settings and dictionary collection from the source device then importing those from the destination.
-
-## Custom Dictionaries
-
-Rikaitan supports the use of custom dictionaries, including the esoteric but popular
-[EPWING](https://ja.wikipedia.org/wiki/EPWING) format. They were often utilized in portable electronic dictionaries
-similar to the ones pictured below. These dictionaries are often sought after by language learners for their correctness
-and excellent coverage of the Japanese language.
-
-Unfortunately, as most of the dictionaries released in this format are proprietary, they are unable to be bundled with
-Rikaitan. Instead, you will need to procure these dictionaries yourself and import them using [Rikaitan
-Import](https://github.com/Ajatt-Tools/rikaitan-import). Check the project page for additional details.
-
-![Pocket EPWING dictionaries](../img/epwing-devices.jpg)
+You should be able to replicate your exact Rikaitan setup across devices by
+exporting your settings and dictionary collection from the source device then
+importing those from the destination.
