@@ -127,7 +127,7 @@ Rikaitan uses several third-party libraries to function.
 Below are links to homepages, snapshots,
 and licenses of the exact versions packaged.
 
-<!-- The following table is generated using the command `npm run license-report-markdown`. -->
+<!-- The following table is generated using the command `npm run license-report:markdown`. -->
 
 | Name                | Installed version | License type | Link                                             |
 | :------------------ | :---------------- | :----------- | :----------------------------------------------- |
