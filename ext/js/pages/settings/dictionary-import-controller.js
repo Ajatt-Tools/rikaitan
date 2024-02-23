@@ -31,7 +31,7 @@ export class DictionaryImportController {
      */
     constructor(settingsController, modalController, statusFooter) {
         /** @type {string} */
-        this._getUrl = 'https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#yomichan';
+        this._getUrl = 'https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#rikaitan';
         /** @type {import('./settings-controller.js').SettingsController} */
         this._settingsController = settingsController;
         /** @type {import('./modal-controller.js').ModalController} */
