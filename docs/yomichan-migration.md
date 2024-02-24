@@ -6,9 +6,6 @@ If you are an existing user of Yomichan, you can export your dictionary collecti
 
 You can export your settings from Yomichan's Settings page. Go to the `Backup` section and click on `Export Settings`.
 
-Yomichan doesn't have first-class support to export the dictionary collection. Please follow the instructions provided in the following link to export your data:
-https://github.com/Ajatt-Tools/yomichan-data-exporter#steps-to-export-the-data
-
 You can then import the exported files into Rikaitan from the `Backup` section of the `Settings` page. Please see [the section on importing dictionaries](#importing-dictionaries) further below for more explicit steps.
 
 <details>
