@@ -18,7 +18,8 @@
 
 import {fetchJson, fetchText} from '../core/fetch-utilities.js';
 import {parseJson} from '../core/json.js';
-import {escapeRegExp, isObject} from '../core/utilities.js';
+import {isObjectNotArray} from '../core/object-utilities.js';
+import {escapeRegExp} from '../core/utilities.js';
 import {TemplatePatcher} from '../templates/template-patcher.js';
 import {JsonSchema} from './json-schema.js';
 
@@ -70,7 +71,7 @@ export class OptionsUtil {
         // Remove invalid profiles
         const profiles = /** @type {unknown[]} */ (options.profiles);
         for (let i = profiles.length - 1; i >= 0; --i) {
-            if (!isObject(profiles[i])) {
+            if (!isObjectNotArray(profiles[i])) {
                 profiles.splice(i, 1);
             }
         }
