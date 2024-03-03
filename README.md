@@ -25,7 +25,7 @@ or join us on the [DJT Matrix](https://tatsumoto.neocities.org/blog/join-our-com
 
 Rikaitan turns your web browser into a tool for building Japanese language literacy
 by helping you to decipher texts
-which would be otherwise too difficult tackle.
+which would be otherwise too difficult to tackle.
 This extension is similar to
 [10ten Japanese Reader](https://addons.mozilla.org/en-US/firefox/addon/10ten-ja-reader/) for Firefox and
 [Rikaikun](https://chromewebstore.google.com/detail/rikaikun/jipdnfibhldikgcjhfnomkfpcebammhp) for Chrome, but it
