@@ -147,7 +147,7 @@
                                     },
                                     "showAdvanced": {
                                         "type": "boolean",
-                                        "default": false
+                                        "default": true
                                     },
                                     "popupDisplayMode": {
                                         "type": "string",
@@ -460,7 +460,7 @@
                                                     "pen": false
                                                 },
                                                 "options": {
-                                                    "showAdvanced": false,
+                                                    "showAdvanced": true,
                                                     "searchTerms": true,
                                                     "searchKanji": true,
                                                     "scanOnTouchTap": true,
@@ -485,7 +485,7 @@
                                                     "pen": true
                                                 },
                                                 "options": {
-                                                    "showAdvanced": false,
+                                                    "showAdvanced": true,
                                                     "searchTerms": true,
                                                     "searchKanji": true,
                                                     "scanOnTouchTap": true,
@@ -562,7 +562,7 @@
                                                     "properties": {
                                                         "showAdvanced": {
                                                             "type": "boolean",
-                                                            "default": false
+                                                            "default": true
                                                         },
                                                         "searchTerms": {
                                                             "type": "boolean",
