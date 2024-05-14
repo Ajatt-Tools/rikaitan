@@ -137,3 +137,4 @@ and licenses of the exact versions packaged.
 | rikaitan-handlebars | 1.0.0             | MIT          | n/a                                              |
 | parse5              | 7.1.2             | MIT          | git://github.com/inikulin/parse5.git             |
 | wanakana            | 5.3.1             | MIT          | git+ssh://git@github.com/WaniKani/WanaKana.git   |
+| hangul.js           | 0.2.6             | MIT          | git+https://github.com/e-/Hangul.js.git          |
