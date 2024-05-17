@@ -17,9 +17,12 @@ Rikaitan, in the style of the previous name.
 
 ## Contributing
 
-Given this is a distributed effort, we wholeheartedly welcome any new
-contributors. Please feel free to look through the issue tracker,
-or join us on the [DJT Matrix](https://tatsumoto.neocities.org/blog/join-our-community).
+Since this is a distributed effort, we **highly welcome new contributors**!
+Feel free to browse the [issue tracker](https://github.com/Ajatt-Tools/rikaitan/issues),
+and read our [contributing guidelines](./CONTRIBUTING.md).
+If you want to add or improve support for a language,
+read the documentation on [language features](./docs/development/language-features.md).
+You can also find us on [DJT](https://tatsumoto.neocities.org/blog/join-our-community).
 
 ## What's Rikaitan?<!-- omit from toc -->
 
