@@ -70,6 +70,10 @@ export class AnkiController {
         this._validateFieldsToken = null;
         /** @type {?HTMLInputElement} */
         this._ankiEnableCheckbox = document.querySelector('[data-setting="anki.enable"]');
+        /** @type {string} */
+        this._getModelUrl = 'https://tatsumoto.neocities.org/blog/setting-up-anki#import-an-example-mining-deck';
+        /** @type {HTMLButtonElement | null} */
+        this._getModelButton = document.querySelector('#get-model');
     }
 
     /** @type {import('./settings-controller.js').SettingsController} */
@@ -117,6 +121,18 @@ export class AnkiController {
         for (const node of nodes) {
             node.addEventListener('settingChanged', onAnkiSettingChanged);
         }
+
+        if (this._getModelButton) {
+            this._getModelButton.addEventListener('click', this._onGetModelButtonClick.bind(this), false);
+        }
+    }
+
+    /**
+     * @param {MouseEvent} e
+     */
+    _onGetModelButtonClick(e) {
+        e.preventDefault();
+        window.open(this._getModelUrl, '_blank');
     }
 
     /**
