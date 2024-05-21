@@ -1,21 +1,35 @@
-# Rikaitan <!-- omit from toc -->
+# Rikaitan
 
 [![Firefox release](https://img.shields.io/badge/Firefox-Release-orange.svg)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
 [![Chromium release](https://img.shields.io/badge/Chromium-Release-blue.svg)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
 
-## Project Introduction
+## What's Rikaitan?<!-- omit from toc -->
 
-:wave: This project is a community-driven fork of Yomichan.
+Rikaitan turns your web browser into a tool for building Japanese language literacy
+by helping you **read** texts that would otherwise be too difficult to tackle.
+
+Rikaitan provides powerful features not available in other browser-based dictionaries:
+
+- 💬 Interactive popup definition window for displaying search results.
+- ✍️ Kanji stroke order diagrams are just a click away.
+- 📝 [Automatic flashcard creation](./docs/anki-integration.md#anki-integration) for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
+- 🔍 Custom search page for easily executing custom search queries.
+- 📖 Support for multiple dictionary formats including [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
+- ✨ Clean, modern code makes it easy for developers to [contribute](#contributing) new features and languages.
+
+[![Term definitions](img/ss-terms-thumb.png)](img/ss-terms.png)
+[![Kanji information](img/ss-kanji-thumb.png)](img/ss-kanji.png)
+[![Dictionary options](img/ss-dictionaries-thumb.png)](img/ss-dictionaries.png)
+[![Anki options](img/ss-anki-thumb.png)](img/ss-anki.png)
+
+## Project Background
+
+**Rikaitan is the successor to Yomichan** ([migration guide](./docs/yomichan-migration.md#migrating-from-yomichan)).
 The original developer quit and deleted Yomichan from extension stores.
 Our primary objective is to maintain the project,
 ensuring it remains functional on the most recent browser versions
 and that any bugs are fixed.
-
-As requested by the original creator, the project has been given a new name:
-Rikaitan, in the style of the previous name.
-
-## Contributing
 
 Since this is a distributed effort, we **highly welcome new contributors**!
 Feel free to browse the [issue tracker](https://github.com/Ajatt-Tools/rikaitan/issues),
@@ -24,42 +38,14 @@ If you want to add or improve support for a language,
 read the documentation on [language features](./docs/development/language-features.md).
 You can also find us on [DJT](https://tatsumoto.neocities.org/blog/join-our-community).
 
-## What's Rikaitan?<!-- omit from toc -->
-
-Rikaitan turns your web browser into a tool for building Japanese language literacy
-by helping you to decipher texts
-which would be otherwise too difficult to tackle.
-This extension is similar to
-[10ten Japanese Reader](https://addons.mozilla.org/en-US/firefox/addon/10ten-ja-reader/) for Firefox and
-[Rikaikun](https://chromewebstore.google.com/detail/rikaikun/jipdnfibhldikgcjhfnomkfpcebammhp) for Chrome, but it
-stands apart in its goal of being an all-encompassing learning tool
-as opposed to a mere browser-based dictionary.
-
-Rikaitan provides advanced features not available in other browser-based dictionaries:
-
-- Interactive popup definition window for displaying search results.
-- On-demand audio playback for select dictionary definitions.
-- Kanji stroke order diagrams are just a click away for most characters.
-- Custom search page for easily executing custom search queries.
-- Support for multiple dictionary formats including
-  [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
-- Automatic note creation for the [Anki](https://apps.ankiweb.net/) flashcard program
-  via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
-- Clean, modern code makes it easy for developers to [contribute](https://github.com/Ajatt-Tools/rikaitan/blob/main/CONTRIBUTING.md) new features.
-
-[![Term definitions](img/ss-terms-thumb.png)](img/ss-terms.png)
-[![Kanji information](img/ss-kanji-thumb.png)](img/ss-kanji.png)
-[![Dictionary options](img/ss-dictionaries-thumb.png)](img/ss-dictionaries.png)
-[![Anki options](img/ss-anki-thumb.png)](img/ss-anki.png)
-
-## Helpful information<!-- omit from toc -->
+## Helpful information
 
 - [Migrating from Yomichan (legacy)](./docs/yomichan-migration.md#migrating-from-yomichan)
-- [Importing standardised and custom dictionaries](./docs/dictionaries.md#dictionaries)
-- [Anki integration and flashcards creation](./docs/anki-integration.md#anki-integration)
-- [Advanced options, including MeCab](./docs/advanced-options.md#advanced-options)
 - [Frequently asked questions](./docs/faq.md#frequently-asked-questions)
+- [Recommended and custom dictionary import guide](./docs/dictionaries.md#dictionaries)
+- [Anki integration and flashcard creation guide](./docs/anki-integration.md#anki-integration)
 - [Keyboard shortcuts](./docs/keyboard-shortcuts.md)
+- [Advanced options, including MeCab](./docs/advanced-options.md#advanced-options)
 
 ## Installation
 
@@ -92,7 +78,7 @@ can be used to allow installing extensions directly from Chrome Web Store.
     - The <img src="ext/images/question-mark-circle.svg" width="16" height="16" alt="question mark symbol"> _question mark_ button will open the Information page.
     - The <img src="ext/images/profile.svg" width="16" height="16" alt="profile icon"> _profile_ button will appear when multiple profiles exist, allowing the current profile to be quickly changed.
 
-2.  Import the dictionaries you wish to use for term and kanji searches, head over to the [the dictionary docs](./docs/dictionaries.md) to get set up! If you do not have any dictionaries installed or enabled, Rikaitan will warn you that it is not ready for use by displaying an orange exclamation mark over its icon. This exclamation mark will disappear once you have installed and enabled at least one dictionary.
+2.  Import the dictionaries you wish to use for term and kanji searches; head over to the [dictionary docs](./docs/dictionaries.md) to get set up! If you do not have any dictionaries installed or enabled, Rikaitan will warn you that it is not ready for use by displaying an orange exclamation mark over its icon. This exclamation mark will disappear once you have installed and enabled at least one dictionary.
 
     <img src="resources/images/settings-dictionaries-popup.png" width="300" alt="custom dictionaries list">
 
@@ -102,13 +88,39 @@ can be used to allow installing extensions directly from Chrome Web Store.
 
 4.  Click on the <img src="ext/images/play-audio.svg" width="16" height="16" alt="loudspeaker icon"> _speaker_ button to hear the term pronounced by a native speaker. If an audio sample is not available, you will hear a short click instead. For more options, see [Audio Configuration](./docs/audio.md).
 
-5.  Click on individual kanji in the term definition results to view additional information about those characters, including stroke order diagrams, readings, meanings, as well as other useful data.
+5.  Click on individual kanji in the term definition results to view additional information about those characters, including stroke order diagrams, readings, meanings, and other useful data.
 
     <img src="resources/images/search-popup-kanji.png" width="300" alt="popup with kanji details">
 
 To further enhance your Rikaitan experience,
 it's worth [integrating with Anki](./docs/anki-integration.md),
 a spaced-repetition flashcard program to help solidify the words you encounter.
+
+## Contributing
+
+Since this is a distributed effort, we **highly welcome new contributors**! Feel free to browse the [issue tracker](https://github.com/Ajatt-Tools/rikaitan/issues), and read our [contributing guidelines](./CONTRIBUTING.md).
+
+Here are some ways anyone can help:
+
+- Try using the Rikaitan dev build. Not only do you get cutting edge features, but you can help uncover bugs and give feedback to developers early on.
+- Document any UI/UX friction in Github Issues. We're looking to make Rikaitan more accessible to non-technical users.
+- All the issues in `area/bug` older than 2 months need help reproducing. If anything interests you, please try to reproduce it and report your results. We can't easily tell if these issues are one-off, have since been resolved, or are no longer relevant.
+
+> The current active maintainers of Rikaitan spend a lot of their time debugging and triaging issues. When someone files a bug report, we need to assess the frequency and severity of the bug. It is extremely helpful if we get multiple reports of people who experience a bug or people who can contribute additional detail to an existing bug report.
+
+If you're looking to code, please let us know what you plan on working on before submitting a Pull Request. This gives the core maintainers an opportunity to provide feedback early on before you dive too deep. You can do this by opening a Github Issue with the proposal.
+
+Some contributions we always appreciate:
+
+- Well-written tests covering different functionalities. This includes [playwright tests](https://github.com/Ajatt-Tools/rikaitan/tree/master/test/playwright), [benchmark tests](https://github.com/Ajatt-Tools/rikaitan/tree/master/benches), and unit tests.
+- Increasing our type coverage.
+- More and better documentation!
+
+Information on how to setup and build the codebase can be found [here](./CONTRIBUTING.md#setup).
+
+If you want to add or improve support for a language, read the documentation on [language features](./docs/development/language-features.md).
+
+Feel free to join us on [DJT 🍔](https://tatsumoto.neocities.org/blog/join-our-community).
 
 ## Licenses
 
