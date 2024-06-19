@@ -37,7 +37,6 @@ class DisplayController {
 
     /** */
     async prepare() {
-        this._themeController.siteTheme = 'light';
         this._themeController.prepare();
 
         const manifest = chrome.runtime.getManifest();
@@ -213,6 +212,7 @@ class DisplayController {
         void this._updatePermissionsWarnings(options);
 
         this._themeController.theme = options.general.popupTheme;
+        this._themeController.siteOverride = true;
         this._themeController.updateTheme();
     }
 
