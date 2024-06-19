@@ -332,4 +332,6 @@ await Application.main(true, async (application) => {
 
     const displayController = new DisplayController(application.api);
     await displayController.prepare();
+
+    document.body.hidden = false;
 });
