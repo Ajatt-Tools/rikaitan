@@ -41,9 +41,10 @@ You can also find us on [DJT](https://tatsumoto.neocities.org/blog/join-our-comm
 ## Helpful information
 
 - ✨ [Migrating from Yomichan (legacy)](./docs/yomichan-migration.md)
-- Installation and Setup
+- Dictionaries
   - 📚 [Recommended Dictionaries](./docs/dictionaries.md#recommended-dictionaries)
   - 🗂️ [Importing and exporting dictionaries](./docs/dictionaries.md#importing-a-dictionary-collection)
+  - 🛠️ [Making Rikaitan Dictionaries](./docs/making-rikaitan-dictionaries.md)
 - Anki Integration
   - 📇 [Anki integration and flashcard creation guide](./docs/anki-integration.md)
   - 🔧 [Anki handlebar templates](./docs/templates.md)
