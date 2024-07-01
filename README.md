@@ -12,6 +12,7 @@ by helping you **read** texts that would otherwise be too difficult to tackle.
 Rikaitan provides powerful features not available in other browser-based dictionaries:
 
 - 💬 Interactive popup definition window for displaying search results.
+- 🔊 Built-in native pronunciation audio with the ability to add your own [custom audio sources](./docs/audio.md).
 - ✍️ Kanji stroke order diagrams are just a click away.
 - 📝 [Automatic flashcard creation](./docs/anki-integration.md#anki-integration) for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
 - 🔍 Custom search page for easily executing custom search queries.
