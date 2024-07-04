@@ -577,7 +577,6 @@ button.sidebar-button.sidebar-button-highlight {
 
 /* Search page */
 .search-header-wrapper {
-    background-color: var(--background-color);
     width: 100%;
     display: flex;
     justify-content: center;
