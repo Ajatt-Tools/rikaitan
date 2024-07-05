@@ -611,7 +611,7 @@ button.sidebar-button.sidebar-button-highlight {
 }
 
 .sticky-header {
-    #query-parser-container  {
+    #query-parser-container {
         overflow-y: auto;
     }
     #query-parser-content {
