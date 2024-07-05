@@ -509,6 +509,7 @@ function createProfileOptionsUpdatedTestData1() {
             useTop: false,
             windowType: 'popup',
             windowState: 'normal',
+            searchStickyHeader: true,
         },
         clipboard: {
             enableBackgroundMonitor: false,
