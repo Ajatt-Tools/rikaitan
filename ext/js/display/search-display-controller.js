@@ -115,10 +115,15 @@ export class SearchDisplayController {
             await this._onDisplayOptionsUpdated({options: displayOptions});
         }
 
+        this.setStickyHeaderState();
+    }
+
+    /**
+     *
+     */
+    setStickyHeaderState() {
         try {
-            if (this._display.searchStickyHeader()) {
-                querySelectorNotNull(document, '#sticky_header').classList.add('sticky-header');
-            }
+            querySelectorNotNull(document, '#sticky_header').classList.toggle('sticky-header', this._display.isSearchStickyHeaderEnabled());
         } catch (e) {
             log.error(e);
         }
@@ -183,6 +188,7 @@ export class SearchDisplayController {
         if (query) {
             this._display.searchLast(false);
         }
+        this.setStickyHeaderState();
     }
 
     /**

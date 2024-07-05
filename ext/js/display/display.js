@@ -430,7 +430,7 @@ export class Display extends EventDispatcher {
      * @throws {Error}
      * @returns {boolean}
      */
-    searchStickyHeader() {
+    isSearchStickyHeaderEnabled() {
         if (this._options) {
             return Boolean(this._options.popupWindow.searchStickyHeader);
         } else {
