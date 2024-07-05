@@ -20,6 +20,7 @@ import * as wanakana from '../../lib/wanakana.js';
 import {ClipboardMonitor} from '../comm/clipboard-monitor.js';
 import {createApiMap, invokeApiMapHandler} from '../core/api-map.js';
 import {EventListenerCollection} from '../core/event-listener-collection.js';
+import {log} from '../core/log.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
 
 export class SearchDisplayController {
@@ -112,6 +113,14 @@ export class SearchDisplayController {
         const displayOptions = this._display.getOptions();
         if (displayOptions !== null) {
             await this._onDisplayOptionsUpdated({options: displayOptions});
+        }
+
+        try {
+            if (this._display.searchStickyHeader()) {
+                querySelectorNotNull(document, '#sticky_header').classList.add('sticky-header');
+            }
+        } catch (e) {
+            log.error(e);
         }
     }
 

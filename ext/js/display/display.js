@@ -426,6 +426,18 @@ export class Display extends EventDispatcher {
         await this.updateOptions();
     }
 
+    /**
+     * @throws {Error}
+     * @returns {boolean}
+     */
+    searchStickyHeader() {
+        if (this._options) {
+            return Boolean(this._options.popupWindow.searchStickyHeader);
+        } else {
+            throw new Error('options should be initialized.');
+        }
+    }
+
     /** */
     async updateOptions() {
         const options = await this._application.api.optionsGet(this.getOptionsContext());

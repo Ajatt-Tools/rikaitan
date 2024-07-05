@@ -153,6 +153,7 @@ export type PopupWindowOptions = {
     useTop: boolean;
     windowType: PopupWindowType;
     windowState: PopupWindowState;
+    searchStickyHeader: boolean;
 };
 
 export type AudioOptions = {
