@@ -19,6 +19,7 @@
 import {ThemeController} from '../app/theme-controller.js';
 import {Application} from '../application.js';
 import {getAllPermissions, hasRequiredPermissionsForOptions} from '../data/permissions-util.js';
+import {querySelectorNotNull} from '../dom/query-selector.js';
 import {HotkeyHelpController} from '../input/hotkey-help-controller.js';
 
 class DisplayController {
@@ -74,7 +75,7 @@ class DisplayController {
 
         // Show Rikaitan version.
         // replace version number (<span id="version"></span>)
-        document.querySelector('#version').textContent = `v${manifest.version}`;
+        querySelectorNotNull(document, '#version').textContent = `v${manifest.version}`;
 
         this._updateProfileSelect(profiles, profileCurrent);
 

@@ -503,7 +503,7 @@ select.profile-select {
 /* Small text inside the popup that reports the current version */
 .popup-version {
     font-size: 10px;
-    color: gray;
+    color: #616161;
 }
 
 /* Mobile overrides */

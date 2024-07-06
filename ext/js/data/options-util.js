@@ -835,6 +835,7 @@ export class OptionsUtil {
                 useTop: false,
                 windowType: 'popup',
                 windowState: 'normal',
+                searchStickyHeader: true,
             };
             profile.options.audio.customSourceType = 'audio';
             profile.options.clipboard = {

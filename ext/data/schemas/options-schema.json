@@ -319,7 +319,8 @@
                                     "useLeft",
                                     "useTop",
                                     "windowType",
-                                    "windowState"
+                                    "windowState",
+                                    "searchStickyHeader"
                                 ],
                                 "properties": {
                                     "width": {
@@ -357,6 +358,10 @@
                                         "type": "string",
                                         "enum": ["normal", "maximized", "fullscreen"],
                                         "default": "normal"
+                                    },
+                                    "searchStickyHeader": {
+                                        "type": "boolean",
+                                        "default": true
                                     }
                                 }
                             },
