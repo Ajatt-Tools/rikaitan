@@ -588,6 +588,12 @@ button.sidebar-button.sidebar-button-highlight {
     z-index: 1000;
     padding-top: 10px;
 }
+.sticky-header #query-parser-content {
+    max-height: calc(var(--query-parser-font-size) * 2);
+}
+.sticky-header #query-parser-container {
+    overflow-y: auto;
+}
 .search-header {
     width: var(--content-width);
     display: flex;
@@ -608,15 +614,6 @@ button.sidebar-button.sidebar-button-highlight {
 }
 #query-parser-content[data-term-spacing=true] .query-parser-term {
     margin-right: 0.2em;
-}
-
-.sticky-header {
-    #query-parser-container {
-        overflow-y: auto;
-    }
-    #query-parser-content {
-        max-height: calc(var(--query-parser-font-size) * 2);
-    }
 }
 
 /* Action buttons */
