@@ -4,10 +4,11 @@
 [![Chromium release](https://img.shields.io/badge/Chromium-Release-blue.svg)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
 
-## What's Rikaitan?<!-- omit from toc -->
+📢 **Interested in adding a new language to Rikaitan? See [here](./docs/development/language-features.md) for thorough documentation!**
 
-Rikaitan turns your web browser into a tool for building Japanese language literacy
-by helping you **read** texts that would otherwise be too difficult to tackle.
+## What is Rikaitan?
+
+Rikaitan turns your web browser into a tool for building language literacy by helping you **read** texts that would otherwise be too difficult to tackle in [a variety of supported languages](#multilanguage-support).
 
 Rikaitan provides powerful features not available in other browser-based dictionaries:
 
