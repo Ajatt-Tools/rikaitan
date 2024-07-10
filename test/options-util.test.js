@@ -283,6 +283,7 @@ function createProfileOptionsUpdatedTestData1() {
             termDisplayMode: 'ruby',
             sortFrequencyDictionary: null,
             sortFrequencyDictionaryOrder: 'descending',
+            stickySearchHeader: false,
         },
         audio: {
             enabled: true,
@@ -509,7 +510,6 @@ function createProfileOptionsUpdatedTestData1() {
             useTop: false,
             windowType: 'popup',
             windowState: 'normal',
-            searchStickyHeader: true,
         },
         clipboard: {
             enableBackgroundMonitor: false,
