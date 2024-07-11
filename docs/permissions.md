@@ -18,6 +18,9 @@
   Rikaitan needs to inject content scripts and stylesheets into webpages in order to
   properly display the search popup.
 
+- `contextMenus` <br>
+  Rikaitan adds a context menu interface that lets you look up highlighted words.
+
 - `offscreen` _(Chrome only)_ <br>
   Rikaitan uses this permission to create a secondary backend document that has DOM access, given that Manifest v3
   service workers do not. Service workers can then reach out to out to this document in order to complete
