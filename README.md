@@ -8,7 +8,7 @@
 
 ## What is Rikaitan?
 
-Rikaitan turns your web browser into a tool for building language literacy by helping you **read** texts that would otherwise be too difficult to tackle in [a variety of supported languages](#multilanguage-support).
+Rikaitan turns your web browser into a tool for building language literacy by helping you **read** texts that would otherwise be too difficult to tackle in [a variety of supported languages](./docs/supported-languages.md).
 
 Rikaitan provides powerful features not available in other browser-based dictionaries:
 
