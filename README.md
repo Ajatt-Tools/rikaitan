@@ -58,6 +58,7 @@ You can also find us on [DJT](https://tatsumoto.neocities.org/blog/join-our-comm
   - 🕷️ [Known browser bugs](./docs/browser-bugs.md)
   - ❓ [Frequently asked questions](./docs/faq.md)
 - 🔒 [Browser Permissions](./docs/permissions.md)
+- 🌎 [Supported Languages](./docs/supported-languages.md)
 
 ## Installation
 

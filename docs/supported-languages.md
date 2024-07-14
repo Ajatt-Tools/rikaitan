@@ -35,6 +35,7 @@ These are the languages currently supported by Rikaitan:
 | Serbo-Croatian | sh   |
 | Spanish        | es   |
 | Swedish        | sv   |
+| Tagalog        | tl   |
 | Thai           | th   |
 | Turkish        | tr   |
 | Vietnamese     | vi   |
