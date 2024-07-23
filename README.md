@@ -4,6 +4,8 @@
 [![Chromium release](https://img.shields.io/badge/Chromium-Release-blue.svg)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
 
+❗ **Visit [Rikaitan Wiki](https://rikaitan.github.io) to learn more!**
+
 📢 **Interested in adding a new language to Rikaitan? See [here](./docs/development/language-features.md) for thorough documentation!**
 
 ## What is Rikaitan?
