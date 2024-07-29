@@ -1,0 +1,15 @@
+{
+    "ja": {
+        "terms": [
+            {"name": "JMdict (Jp->En)", "url": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/JMdict_english.zip"}
+        ],
+        "kanji": [
+            {"name": "KANJIDIC (Jp->En)", "url": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/KANJIDIC_english.zip"}
+        ],
+        "frequency": [
+            {"name": "BCCWJ frequency list", "url": "https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary/releases/download/1.0.1/BCCWJ-LUW.zip"}
+        ],
+        "grammar": [],
+        "pronunciation": []
+    }
+}
