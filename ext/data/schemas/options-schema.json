@@ -86,6 +86,7 @@
                                     "debugInfo",
                                     "maxResults",
                                     "showAdvanced",
+                                    "showDebug",
                                     "popupDisplayMode",
                                     "popupWidth",
                                     "popupHeight",
@@ -165,6 +166,10 @@
                                     "showAdvanced": {
                                         "type": "boolean",
                                         "default": true
+                                    },
+                                    "showDebug": {
+                                        "type": "boolean",
+                                        "default": false
                                     },
                                     "popupDisplayMode": {
                                         "type": "string",
