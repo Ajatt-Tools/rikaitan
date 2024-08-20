@@ -1,10 +1,12 @@
 # Rikaitan
 
-[![Firefox release](https://img.shields.io/badge/Firefox-Release-orange.svg)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
-[![Chromium release](https://img.shields.io/badge/Chromium-Release-blue.svg)](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
-[![Chat](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
+[![Get Rikaitan for Firefox](https://img.shields.io/amo/v/rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable))](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+[![Get Rikaitan for Chrome](https://img.shields.io/chrome-web-store/v/pnjdahdadbkhcfamabafkjbjblbgkodk?logo=Google%20Chrome&style=for-the-badge&logoColor=lightblue&color=lightblue&label=get%20rikaitan%20for%20chrome%20(stable))](https://chrome.google.com/webstore/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
+[![Chat](https://img.shields.io/badge/chat-join-green?style=for-the-badge&logo=Element&logoColor=green)](https://tatsumoto.neocities.org/blog/join-our-community)
 
-❗ **Visit [Rikaitan Wiki](https://rikaitan.github.io) to learn more!**
+# Visit [rikaitan wiki](https://rikaitan.github.io) to learn more!
+
+:wave: **Rikaitan is [the successor](https://telegra.ph/Passing-the-Torch-to-Rikaitan-05-23) to Yomichan** which was abandoned by its owner on Feb 26, 2023. We have made a number of foundational changes to ensure **the project stays alive, works on latest browser versions, and is easy to contribute to**.
 
 📢 **Interested in adding a new language to Rikaitan? See [here](./docs/development/language-features.md) for thorough documentation!**
 
@@ -107,9 +109,7 @@ can be used to allow installing extensions directly from Chrome Web Store.
 
     <img src="resources/images/search-popup-kanji.png" width="300" alt="popup with kanji details">
 
-To further enhance your Rikaitan experience,
-it's worth [integrating with Anki](./docs/anki-integration.md),
-a spaced-repetition flashcard program to help solidify the words you encounter.
+To further enhance your Rikaitan experience, it's worth [integrating with Anki](./docs/anki-integration.md), a spaced-repetition flashcard program to help solidify the words you encounter.
 
 ## Contributing
 
