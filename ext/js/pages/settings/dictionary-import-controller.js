@@ -61,8 +61,8 @@ export class DictionaryImportController {
         this._purgeConfirmModal = null;
         /** @type {HTMLElement} */
         this._errorContainer = querySelectorNotNull(document, '#dictionary-error');
-        /** @type {HTMLButtonElement} */
-        this._getDictsButton = querySelectorNotNull(document, '#get-third-party-dictionaries');
+        /** @type {NodeListOf<HTMLButtonElement>} **/
+        this._getDictsButtons = document.querySelectorAll('.get-third-party-dictionaries');
 
         /** @type {[originalMessage: string, newMessage: string][]} */
         this._errorToStringOverrides = [
@@ -91,7 +91,9 @@ export class DictionaryImportController {
         this._importButton.addEventListener('click', this._onImportButtonClick.bind(this), false);
         this._importURLButton.addEventListener('click', this._onImportFromURL.bind(this), false);
         this._importFileInput.addEventListener('change', this._onImportFileChange.bind(this), false);
-        this._getDictsButton.addEventListener('click', this._onGetButtonClick.bind(this), false);
+        for (const link of this._getDictsButtons) {
+            link.addEventListener('click', this._onGetButtonClick.bind(this), false);
+        }
 
         this._importFileDrop.addEventListener('click', this._onImportFileButtonClick.bind(this), false);
         this._importFileDrop.addEventListener('dragenter', this._onFileDropEnter.bind(this), false);
