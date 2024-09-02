@@ -18,7 +18,7 @@
         ],
         "frequency": [
             {
-                "name": "BCCWJ frequency list",
+                "name": "BCCWJ frequency list (Jp)",
                 "downloadUrl": "https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary/releases/download/1.0.1/BCCWJ-LUW.zip",
                 "description": "Based on the Balanced Corpus of Contemporary Written Japanese covering books, magazines, newspapers, blogs, forums, textbooks, and legal documents among others.",
                 "homepage": "https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary/"
