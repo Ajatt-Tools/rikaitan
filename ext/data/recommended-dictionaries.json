@@ -1,13 +1,28 @@
 {
     "ja": {
         "terms": [
-            {"name": "JMdict (Jp->En)", "url": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/JMdict_english.zip"}
+            {
+                "name": "JMdict (Jp->En)",
+                "downloadUrl": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/JMdict_english.zip",
+                "description": "A free and openly licensed Japanese-to-English dictionary with example sentences, usage notes, etymology notes, cross references, antonyms, definition notes.",
+                "homepage": "https://github.com/Ajatt-Tools/jmdict-rikaitan/"
+            }
         ],
         "kanji": [
-            {"name": "KANJIDIC (Jp->En)", "url": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/KANJIDIC_english.zip"}
+            {
+                "name": "KANJIDIC (Jp->En)",
+                "downloadUrl": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/KANJIDIC_english.zip",
+                "description": "An English dictionary with readings, meanings, stroke order diagrams, frequency, grade level, JLPT level and frequency of kanji characters.",
+                "homepage": "https://github.com/Ajatt-Tools/jmdict-rikaitan/"
+            }
         ],
         "frequency": [
-            {"name": "BCCWJ frequency list", "url": "https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary/releases/download/1.0.1/BCCWJ-LUW.zip"}
+            {
+                "name": "BCCWJ frequency list",
+                "downloadUrl": "https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary/releases/download/1.0.1/BCCWJ-LUW.zip",
+                "description": "Based on the Balanced Corpus of Contemporary Written Japanese covering books, magazines, newspapers, blogs, forums, textbooks, and legal documents among others.",
+                "homepage": "https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary/"
+            }
         ],
         "grammar": [],
         "pronunciation": []
