@@ -11,6 +11,7 @@ These are the languages currently supported by Rikaitan:
 | Arabic         | ar   |
 | Cantonese      | yue  |
 | Chinese        | zh   |
+| Danish         | da   |
 | Dutch          | nl   |
 | English        | en   |
 | Finnish        | fi   |
