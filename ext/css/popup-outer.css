@@ -35,6 +35,9 @@ iframe.rikaitan-popup[data-theme=dark] {
 iframe.rikaitan-popup[data-outer-theme=dark] {
     box-shadow: 0 0 10em rgba(255, 255, 255, 0.5);
 }
+iframe.rikaitan-popup[data-outer-theme=none] {
+    box-shadow: none;
+}
 iframe.rikaitan-popup[data-popup-display-mode=full-width] {
     border-left: none;
     border-right: none;
