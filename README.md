@@ -6,20 +6,24 @@
 
 # Visit [rikaitan wiki](https://rikaitan.github.io) to learn more!
 
-:wave: **Rikaitan is [the successor](https://telegra.ph/Passing-the-Torch-to-Rikaitan-05-23) to Yomichan** which was abandoned by its owner on Feb 26, 2023. We have made a number of foundational changes to ensure **the project stays alive, works on latest browser versions, and is easy to contribute to**.
+:wave: **Rikaitan is [the successor](https://telegra.ph/Passing-the-Torch-to-Rikaitan-05-23) to Yomichan**
+which was recklessly abandoned by its owner on Feb 26, 2023.
+Today, The [AJATT](https://tatsumoto.neocities.org/blog/whats-ajatt) community owns the project and maintains it.
+We have made a number of foundational changes to ensure **the project stays alive, works on latest browser versions, and is easy to contribute to**.
 
 📢 **Interested in adding a new language to Rikaitan? See [here](./docs/development/language-features.md) for thorough documentation!**
 
 ## What is Rikaitan?
 
-Rikaitan turns your web browser into a tool for building language literacy by helping you **read** texts that would otherwise be too difficult to tackle in [a variety of supported languages](./docs/supported-languages.md).
+Rikaitan turns your web browser into a tool for building language literacy by helping you **read** texts
+that would otherwise be too difficult to tackle in [a variety of supported languages](https://rikaitan.github.io/supported-languages/).
 
 Rikaitan provides powerful features not available in other browser-based dictionaries:
 
 - 💬 Interactive popup definition window for displaying search results.
-- 🔊 Built-in native pronunciation audio with the ability to add your own [custom audio sources](./docs/audio.md).
+- 🔊 Built-in native pronunciation audio with the ability to add your own [custom audio sources](https://rikaitan.github.io/advanced/#default-audio-sources).
 - ✍️ Kanji stroke order diagrams are just a click away.
-- 📝 [Automatic flashcard creation](./docs/anki-integration.md#anki-integration) for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
+- 📝 [Automatic flashcard creation](https://rikaitan.github.io/anki/) for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
 - 🔍 Custom search page for easily executing custom search queries.
 - 📖 Support for multiple dictionary formats including [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
 - ✨ Clean, modern code makes it easy for developers to [contribute](#contributing) new features and languages.
