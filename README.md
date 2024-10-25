@@ -1,7 +1,7 @@
 # Rikaitan
 
-[![Get Rikaitan for Firefox](https://img.shields.io/amo/v/rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable))](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
-[![Get Rikaitan for Chrome](https://img.shields.io/chrome-web-store/v/pnjdahdadbkhcfamabafkjbjblbgkodk?logo=Google%20Chrome&style=for-the-badge&logoColor=lightblue&color=lightblue&label=get%20rikaitan%20for%20chrome%20(stable))](https://chrome.google.com/webstore/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
+[![Get Rikaitan for Firefox](<https://img.shields.io/amo/v/rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable)>)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+[![Get Rikaitan for Chrome](<https://img.shields.io/chrome-web-store/v/pnjdahdadbkhcfamabafkjbjblbgkodk?logo=Google%20Chrome&style=for-the-badge&logoColor=lightblue&color=lightblue&label=get%20rikaitan%20for%20chrome%20(stable)>)](https://chrome.google.com/webstore/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green?style=for-the-badge&logo=Element&logoColor=green)](https://tatsumoto.neocities.org/blog/join-our-community)
 
 # Visit [rikaitan wiki](https://rikaitan.github.io) to learn more!
@@ -44,7 +44,11 @@ If you want to add or improve support for a language,
 read the documentation on [language features](./docs/development/language-features.md).
 You can also find us on [DJT](https://tatsumoto.neocities.org/blog/join-our-community).
 
-## Helpful information
+## Documentation/How To
+
+Please visit the [Rikaitan Wiki](https://rikaitan.github.io) for the most up-to-date usage documentation.
+
+## Developer documentation
 
 - ✨ [Migrating from Yomichan (legacy)](./docs/yomichan-migration.md)
 - Dictionaries
