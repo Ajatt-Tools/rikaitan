@@ -23,7 +23,7 @@ Rikaitan provides powerful features not available in other browser-based diction
 - 💬 Interactive popup definition window for displaying search results.
 - 🔊 Built-in native pronunciation audio with the ability to add your own [custom audio sources](https://rikaitan.github.io/advanced/#default-audio-sources).
 - ✍️ Kanji stroke order diagrams are just a click away.
-- 📝 [Automatic flashcard creation](https://rikaitan.github.io/anki/) for the [Anki](https://apps.ankiweb.net/) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
+- 📝 [Automatic flashcard creation](https://rikaitan.github.io/anki/) for the [Anki](https://wiki.archlinux.org/title/Anki) flashcard program via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin.
 - 🔍 Custom search page for easily executing custom search queries.
 - 📖 Support for multiple dictionary formats including [EPWING](https://ja.wikipedia.org/wiki/EPWING) via the [Rikaitan Import](https://github.com/Ajatt-Tools/rikaitan-import) tool.
 - ✨ Clean, modern code makes it easy for developers to [contribute](#contributing) new features and languages.
