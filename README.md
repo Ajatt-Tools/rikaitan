@@ -145,6 +145,20 @@ If you want to add or improve support for a language, read the documentation on 
 
 Feel free to join us on [DJT 🍔](https://tatsumoto.neocities.org/blog/join-our-community).
 
+## Building Rikaitan
+
+1. Install [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/).
+
+2. Run `npm ci` to set up the environment.
+
+3. Run `npm run license-report:html` to generate any missing or changed license information.
+
+4. Run `npm run build` for a plain testing build or `npm run-script build -- --all --version {version}` for a release build (replacing `{version}` with a version number).
+
+5. The builds for each browser and release branch can be found in the `builds` directory.
+
+For more information, see [Contributing](./CONTRIBUTING.md#setup).
+
 ## Third-Party Libraries
 
 Rikaitan uses several third-party libraries to function.
