@@ -21,6 +21,7 @@ import {Application} from '../application.js';
 import {getAllPermissions, hasRequiredPermissionsForOptions} from '../data/permissions-util.js';
 import {querySelectorNotNull} from '../dom/query-selector.js';
 import {HotkeyHelpController} from '../input/hotkey-help-controller.js';
+import {HotkeyUtil} from '../input/hotkey-util.js';
 
 class DisplayController {
     /**
@@ -33,6 +34,8 @@ class DisplayController {
         this._optionsFull = null;
         /** @type {ThemeController} */
         this._themeController = new ThemeController(document.documentElement);
+        /** @type {HotkeyUtil} */
+        this._hotkeyUtil = new HotkeyUtil();
     }
 
     /** */
@@ -40,6 +43,9 @@ class DisplayController {
         this._themeController.prepare();
 
         const manifest = chrome.runtime.getManifest();
+
+        const {platform: {os}} = await this._api.getEnvironmentInfo();
+        this._hotkeyUtil.os = os;
 
         this._showExtensionInfo(manifest);
         void this._setupEnvironment();
@@ -59,7 +65,6 @@ class DisplayController {
             ''
         );
         this._setupButtonEvents('.action-open-settings', 'openSettingsPage', chrome.runtime.getURL(optionsPageUrl));
-        this._setupButtonEvents('.action-open-permissions', null, chrome.runtime.getURL('/permissions.html'));
 
         const {profiles, profileCurrent} = optionsFull;
         const defaultProfile = (profileCurrent >= 0 && profileCurrent < profiles.length) ? profiles[profileCurrent] : null;
@@ -85,6 +90,32 @@ class DisplayController {
     }
 
     // Private
+
+    /** */
+    _updateDisplayModifierKey() {
+        const {profiles, profileCurrent} = /** @type {import('settings').Options} */ (this._optionsFull);
+        /** @type {NodeListOf<HTMLElement>} */
+        const modifierKeyHint = document.querySelectorAll('.tooltip');
+
+        const currentModifierKey = profiles[profileCurrent].options.scanning.inputs[0].include;
+
+        /** @type {{ [key: string]: string }} */
+        const modifierKeys = {};
+        for (const value of /** @type {import('input').ModifierKey[]} */ (['alt', 'ctrl', 'shift', 'meta'])) {
+            const name = this._hotkeyUtil.getModifierDisplayValue(value);
+            modifierKeys[value] = name;
+        }
+
+        for (let i = 0; i < modifierKeyHint.length; i++) {
+            modifierKeyHint[i].textContent = currentModifierKey ? 'Hold ' : 'Hover over text to scan';
+            if (currentModifierKey) {
+                const em = document.createElement('em');
+                em.textContent = modifierKeys[currentModifierKey];
+                modifierKeyHint[i].appendChild(em);
+                modifierKeyHint[i].appendChild(document.createTextNode(' to scan'));
+            }
+        }
+    }
 
     /**
      * @param {MouseEvent} e
@@ -207,9 +238,12 @@ class DisplayController {
         const extensionEnabled = options.general.enable;
         const onToggleChanged = () => this._api.commandExec('toggleTextScanning');
         for (const toggle of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('.enable-search,.enable-search2'))) {
-            toggle.checked = extensionEnabled;
+            if (toggle.checked !== extensionEnabled) {
+                toggle.checked = extensionEnabled;
+            }
             toggle.addEventListener('change', onToggleChanged, false);
         }
+        void this._updateDisplayModifierKey();
         void this._updateDictionariesEnabledWarnings(options);
         void this._updatePermissionsWarnings(options);
 
@@ -240,8 +274,7 @@ class DisplayController {
         /** @type {NodeListOf<HTMLSelectElement>} */
         const selects = document.querySelectorAll('.profile-select');
         /** @type {NodeListOf<HTMLElement>} */
-        const optionGroups = document.querySelectorAll('.profile-select-option-group');
-        for (let i = 0; i < Math.min(selects.length, optionGroups.length); i++) {
+        for (let i = 0; i < Math.min(selects.length); i++) {
             const fragment = document.createDocumentFragment();
             for (let j = 0, jj = profiles.length; j < jj; ++j) {
                 const {name} = profiles[j];
@@ -250,8 +283,8 @@ class DisplayController {
                 option.value = `${j}`;
                 fragment.appendChild(option);
             }
-            optionGroups[i].textContent = '';
-            optionGroups[i].appendChild(fragment);
+            selects[i].textContent = '';
+            selects[i].appendChild(fragment);
             selects[i].value = `${profileCurrent}`;
 
             selects[i].addEventListener('change', this._onProfileSelectChange.bind(this), false);
@@ -264,8 +297,16 @@ class DisplayController {
     _onProfileSelectChange(event) {
         const node = /** @type {HTMLInputElement} */ (event.currentTarget);
         const value = Number.parseInt(node.value, 10);
-        if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= /** @type {import('settings').Options} */ (this._optionsFull).profiles.length) {
-            void this._setDefaultProfileIndex(value);
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value < /** @type {import('settings').Options} */ (this._optionsFull).profiles.length) {
+            const optionsFull = this._optionsFull;
+            if (optionsFull && value < optionsFull.profiles.length) {
+                void this._setDefaultProfileIndex(value);
+                optionsFull.profileCurrent = value;
+                const defaultProfile = optionsFull.profiles[optionsFull.profileCurrent];
+                if (defaultProfile !== null) {
+                    this._setupOptions(defaultProfile);
+                }
+            }
         }
     }
 
@@ -288,7 +329,7 @@ class DisplayController {
      * @param {import('settings').ProfileOptions} options
      */
     async _updateDictionariesEnabledWarnings(options) {
-        const noDictionariesEnabledWarnings = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.no-dictionaries-enabled-warning'));
+        const tooltip = document.querySelectorAll('.tooltip');
         const dictionaries = await this._api.getDictionaryInfo();
 
         const enabledDictionaries = new Set();
@@ -305,9 +346,11 @@ class DisplayController {
             }
         }
 
-        const hasEnabledDictionary = (enabledCount > 0);
-        for (const node of noDictionariesEnabledWarnings) {
-            node.hidden = hasEnabledDictionary;
+        if (enabledCount === 0) {
+            for (let i = 0; i < tooltip.length; i++) {
+                tooltip[i].innerHTML = 'No dictionary enabled';
+                tooltip[i].classList.add('enable-dictionary-tooltip');
+            }
         }
     }
 
@@ -318,10 +361,11 @@ class DisplayController {
         const permissions = await getAllPermissions();
         if (hasRequiredPermissionsForOptions(permissions, options)) { return; }
 
-        const warnings = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.action-open-permissions,.permissions-required-warning'));
-        for (const node of warnings) {
-            node.hidden = false;
+        const tooltip = document.querySelectorAll('.tooltip');
+        for (let i = 0; i < tooltip.length; i++) {
+            tooltip[i].innerHTML = '<a class="action-open-permissions">Please enable permissions</a>';
         }
+        this._setupButtonEvents('.action-open-permissions', null, chrome.runtime.getURL('/permissions.html'));
     }
 
     /** @returns {Promise<boolean>} */
