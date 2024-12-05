@@ -320,6 +320,11 @@
             ]
         },
         {
+            "name": "firefox-android",
+            "inherit": "firefox",
+            "fileName": "rikaitan-firefox-android"
+        },
+        {
             "name": "safari",
             "modifications": [
                 {
