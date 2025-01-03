@@ -1,23 +1,31 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # bash script which tags the current commit with a calver version
 # and pushes the tag to the remote repository
 
 # Define color codes
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m' # No Color
 
-if [[ $(git branch --show-current) != "master" ]]; then
-	echo -e "${RED}Please only tag commits on master branch.${NC}"
-	exit 1
-fi
+case $(git branch --show-current) in
+	master|main)
+		true
+		;;
+	*)
+		echo -e "${RED}Please only tag commits on master branch.${NC}"
+		exit 1
+		;;
+esac
 
 echo -e "${YELLOW}Checking if branch is up to date...${NC}"
 
-changed=0
-git remote update origin && git status -uno | grep -q 'Your branch is behind' && changed=1
-if [ $changed = 1 ]; then
+is_changed() {
+	git remote update origin
+	LANG=C git status -uno | grep -q 'Your branch is behind'
+}
+
+if is_changed; then
 	echo -e "${RED}Please git pull before tagging.${NC}"
 	exit 1
 fi
@@ -39,6 +47,7 @@ while git rev-parse "$TAG" >/dev/null 2>&1; do
 	COUNTER=$((COUNTER + 1))
 	TAG="$DATE.$COUNTER"
 done
+
 echo
 echo -e -n "${YELLOW}Tagging current HEAD of master with tag ${TAG}. Are you sure? (y/n): ${NC}"
 read -p "" -n 1 -r
@@ -48,7 +57,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 	exit 1
 fi
 
-git tag -s $TAG
+git tag -s "$TAG"
 
 echo -e -n "${YELLOW}Do you want to push the tag ${TAG} to the remote repository (which will cause a pre-release to get created)? (y/n): ${NC}"
 read -p "" -n 1 -r
@@ -58,4 +67,4 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 	exit 1
 fi
 
-git push origin $TAG
+git push origin "$TAG"
