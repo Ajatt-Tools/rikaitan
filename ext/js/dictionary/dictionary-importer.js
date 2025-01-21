@@ -24,6 +24,7 @@ import {
     ZipReader as ZipReader0,
     configure,
 } from '../../lib/zip.js';
+import {compareRevisions} from './dictionary-data-util.js';
 import {ExtensionError} from '../core/extension-error.js';
 import {parseJson} from '../core/json.js';
 import {toError} from '../core/to-error.js';
@@ -180,8 +181,9 @@ export class DictionaryImporter {
             }
         }
 
+        const rikaitanVersion = details.rikaitanVersion;
         /** @type {import('dictionary-importer').SummaryDetails} */
-        const summaryDetails = {prefixWildcardsSupported, counts, styles};
+        const summaryDetails = {prefixWildcardsSupported, counts, styles, rikaitanVersion};
 
         const summary = this._createSummary(dictionaryTitle, version, index, summaryDetails);
         await dictionaryDatabase.bulkAdd('dictionaries', [summary], 0, 1);
@@ -328,7 +330,15 @@ export class DictionaryImporter {
             styles,
         };
 
-        const {author, url, description, attribution, frequencyMode, isUpdatable, sourceLanguage, targetLanguage} = index;
+        const {minimumRikaitanVersion, author, url, description, attribution, frequencyMode, isUpdatable, sourceLanguage, targetLanguage} = index;
+        if (typeof minimumRikaitanVersion === 'string') {
+            if (details.rikaitanVersion === '0.0.0.0') {
+                // Running a development version of Rikaitan
+            } else if (compareRevisions(details.rikaitanVersion, minimumRikaitanVersion)) {
+                throw new Error(`Dictionary is incompatible with this version of Rikaitan (${details.rikaitanVersion}; minimum required: ${minimumRikaitanVersion})`);
+            }
+            summary.minimumRikaitanVersion = minimumRikaitanVersion;
+        }
         if (typeof author === 'string') { summary.author = author; }
         if (typeof url === 'string') { summary.url = url; }
         if (typeof description === 'string') { summary.description = description; }

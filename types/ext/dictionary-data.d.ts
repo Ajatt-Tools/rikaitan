@@ -24,6 +24,7 @@ export type Index = {
     version?: IndexVersion;
     title: string;
     revision: string;
+    minimumRikaitanVersion?: string;
     sequenced?: boolean;
     isUpdatable?: true;
     indexUrl?: string;

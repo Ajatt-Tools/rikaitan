@@ -40,12 +40,14 @@ export type ImportResult = {
 
 export type ImportDetails = {
     prefixWildcardsSupported: boolean;
+    rikaitanVersion: string;
 };
 
 export type Summary = {
     title: string;
     revision: string;
     sequenced: boolean;
+    minimumRikaitanVersion?: string;
     version: number;
     importDate: number;
     prefixWildcardsSupported: boolean;
@@ -67,6 +69,7 @@ export type SummaryDetails = {
     prefixWildcardsSupported: boolean;
     counts: SummaryCounts;
     styles: string;
+    rikaitanVersion: string;
 };
 
 export type SummaryCounts = {
