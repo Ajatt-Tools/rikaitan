@@ -5,9 +5,11 @@
 ^edge://
 ^about:
 ^data:
+www\.gnu\.org/
 ^https://chrome\.google\.com/webstore/detail/rikaikun/.*$
 ^https://chrome\.google\.com/webstore/detail/rikaitan/.*$
 ^https://chrome\.google\.com/webstore/detail/rikaitan-development-build/.*$
 ^https://forvo\.com/
-www\.gnu\.org/
 ^https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings$
+^https://pixabay.com/sound-effects/error-8-206492/$
+^https://pixabay.com/service/license-summary/$
