@@ -1037,17 +1037,17 @@ class AnkiCardController {
 
         const markers = getStandardFieldMarkers(dictionaryEntryType);
         const markerAliases = new Map([
-            ['expression', ['phrase', 'term', 'word']],
+            ['expression', ['phrase', 'term', 'word', 'vocabkanji']],
             ['reading', ['expression-reading', 'term-reading', 'word-reading']],
-            ['furigana', ['expression-furigana', 'term-furigana', 'word-furigana']],
-            ['glossary', ['definition', 'meaning']],
-            ['audio', ['sound', 'word-audio', 'term-audio', 'expression-audio']],
-            ['dictionary', ['dict']],
-            ['pitch-accents', ['pitch', 'pitch-accent', 'pitch-pattern']],
-            ['sentence', ['example-sentence']],
+            ['furigana', ['expression-furigana', 'term-furigana', 'word-furigana', 'vocabfurigana']],
+            ['glossary', ['definition', 'meaning', 'vocabdef']],
+            ['audio', ['sound', 'word-audio', 'term-audio', 'expression-audio', 'vocabaudio']],
+            ['dictionary', ['dict', 'notes']],
+            ['pitch-accents', ['pitch', 'pitch-accent', 'pitch-pattern', 'vocabpitchpattern']],
+            ['sentence', ['example-sentence', 'sentkanji']],
             ['frequency-harmonic-rank', ['freq', 'frequency', 'freq-sort', 'freqency-sort']],
             ['popup-selection-text', ['selection']],
-            ['pitch-accent-positions', ['pitch-position']],
+            ['pitch-accent-positions', ['pitch-position', 'vocabpitchnum']],
             ['pitch-accent-categories', ['pitch-categories']],
             ['popup-selection-text', ['selection-text']],
         ]);
