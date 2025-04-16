@@ -318,6 +318,12 @@
                 "description": "A free and openly licensed Japanese-to-English dictionary with example sentences, usage notes, etymology notes, cross references, antonyms, definition notes.",
                 "homepage": "https://github.com/Ajatt-Tools/jmdict-rikaitan/",
                 "downloadUrl": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/JMdict_english.zip"
+            },
+            {
+                "name": "JMnedict (Jp->En)",
+                "description": "A dictionary of Japanese proper names.",
+                "homepage": "https://github.com/Ajatt-Tools/jmdict-rikaitan?tab=readme-ov-file#jmnedict-for-rikaitan",
+                "downloadUrl": "https://github.com/Ajatt-Tools/jmdict-rikaitan/releases/latest/download/JMnedict.zip"
             }
         ]
     },
