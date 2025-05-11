@@ -20,7 +20,7 @@ you may consider also importing the English version for better coverage.
 - [JMdict](https://github.com/Ajatt-Tools/jmdict-rikaitan#jmdict-for-rikaitan) - There are daily automatically updated builds of JMdict for Rikaitan available in this repository. It is available in multiple languages and formats.
 - [JMnedict](https://github.com/Ajatt-Tools/jmdict-rikaitan#jmnedict-for-rikaitan) - Lists readings of person/place/organization names and other proper nouns.
 - [KANJIDIC](https://github.com/Ajatt-Tools/jmdict-rikaitan#kanjidic-for-rikaitan) - An English dictionary listing readings, meanings, and other info about kanji characters.
-- [BCCWJ Frequency Dictionary](https://github.com/toasted-nutbread/yomichan-bccwj-frequency-dictionary) - A frequency dictionary based on the Balanced Corpus of Contemporary Written Japanese.
+- [BCCWJ Frequency Dictionary](https://github.com/Ajatt-Tools/yomichan-bccwj-frequency-dictionary) - A frequency dictionary based on the Balanced Corpus of Contemporary Written Japanese.
 
 ### EPWING Dictionaries
 
