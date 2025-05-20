@@ -117,7 +117,7 @@
         "dexie": "^4.0.10",
         "dexie-export-import": "^4.1.4",
         "hangul-js": "^0.2.6",
-        "kanji-processor": "^1.0.2",
+        "kanji-processor": "git+https://github.com/Ajatt-Tools/kanji-processor.git#342987780d8ab59c75d63aca6e3478126f8eea2f",
         "parse5": "^7.2.1",
         "rikaitan-handlebars": "git+https://github.com/Ajatt-Tools/rikaitan-handlebars.git#12aff5e3550954d7d3a98a5917ff7d579f3cce25"
     },
