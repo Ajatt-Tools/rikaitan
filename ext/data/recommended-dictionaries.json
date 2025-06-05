@@ -244,6 +244,32 @@
             }
         ]
     },
+    "haw": {
+        "frequency": [],
+        "grammar": [],
+        "kanji": [],
+        "pronunciation": [],
+        "terms": [
+            {
+                "name": "pukui-elbert-1986",
+                "description": "English to Hawaiian Dictionary from Pukui-Elbert in 1986",
+                "homepage": "https://github.com/bee-san/awesome-hawaiian-language",
+                "downloadUrl": "https://github.com/bee-san/awesome-hawaiian-language/releases/download/0.0.1/Pukui-Elbert-1986-Deduped-Rikaitan.zip"
+            },
+            {
+                "name": "combined-dictionary",
+                "description": "English to Hawaiian Dictionary from Stephen (Kepano) Trussel",
+                "homepage": "https://github.com/bee-san/awesome-hawaiian-language",
+                "downloadUrl": "https://github.com/bee-san/awesome-hawaiian-language/releases/download/0.0.1/rikaitan-combined-dict.zip"
+            },
+            {
+                "name": "hawaiian-place-names-2002",
+                "description": "Hawaiian Place Names, published 2002",
+                "homepage": "https://github.com/bee-san/awesome-hawaiian-language",
+                "downloadUrl": "https://github.com/bee-san/awesome-hawaiian-language/releases/download/0.0.1/Hawaii-place-names-2002-rikaitan.zip"
+            }
+        ]
+    },
     "he": {
         "frequency": [],
         "grammar": [],
