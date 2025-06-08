@@ -167,14 +167,17 @@ and licenses of the exact versions packaged.
 
 <!-- The following table is generated using the command `npm run license-report:markdown`. -->
 
-| Name                | Installed version | License type | Link                                             |
-| :------------------ | :---------------- | :----------- | :----------------------------------------------- |
-| @zip.js/zip.js      | 2.7.32            | BSD-3-Clause | git+https://github.com/gildas-lormeau/zip.js.git |
-| dexie               | 3.2.4             | Apache-2.0   | git+https://github.com/dfahlander/Dexie.js.git   |
-| dexie-export-import | 4.0.7             | Apache-2.0   | git+https://github.com/dexie/Dexie.js.git        |
-| rikaitan-handlebars | 1.0.0             | MIT          | n/a                                              |
-| parse5              | 7.1.2             | MIT          | git://github.com/inikulin/parse5.git             |
-| hangul.js           | 0.2.6             | MIT          | git+https://github.com/e-/Hangul.js.git          |
+| Name                | License type | Link                                                                   |
+| :------------------ | :----------- | :--------------------------------------------------------------------- |
+| @resvg/resvg-wasm   | MPL-2.0      | git+ssh://git@github.com/yisibl/resvg-js.git                           |
+| @zip.js/zip.js      | BSD-3-Clause | git+https://github.com/gildas-lormeau/zip.js.git                       |
+| dexie               | Apache-2.0   | git+https://github.com/dexie/Dexie.js.git                              |
+| dexie-export-import | Apache-2.0   | git+https://github.com/dexie/Dexie.js.git                              |
+| hangul-js           | MIT          | git://github.com/e-/Hangul.js.git                                      |
+| kanji-processor     | n/a          | https://registry.npmjs.org/kanji-processor/-/kanji-processor-1.0.2.tgz |
+| parse5              | MIT          | git://github.com/inikulin/parse5.git                                   |
+| rikaitan-handlebars  | MIT          | n/a                                                                    |
+| linkedom            | ISC          | git+https://github.com/WebReflection/linkedom.git                      |
 
 ## Attribution
 
