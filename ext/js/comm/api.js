@@ -347,6 +347,14 @@ export class API {
     }
 
     /**
+     * @param {string} url
+     * @returns {Promise<import('api').ApiReturn<'testRikaitanApi'>>}
+     */
+    testRikaitanApi(url) {
+        return this._invoke('testRikaitanApi', {url});
+    }
+
+    /**
      * @param {import('api').ApiParam<'isTextLookupWorthy', 'text'>} text
      * @param {import('api').ApiParam<'isTextLookupWorthy', 'language'>} language
      * @returns {Promise<import('api').ApiReturn<'isTextLookupWorthy'>>}

@@ -576,6 +576,7 @@ export class OptionsUtil {
             this._updateVersion62,
             this._updateVersion63,
             this._updateVersion64,
+            this._updateVersion65,
         ];
         /* eslint-enable @typescript-eslint/unbound-method */
         if (typeof targetVersion === 'number' && targetVersion < result.length) {
@@ -1706,6 +1707,18 @@ export class OptionsUtil {
                         break;
                 }
             }
+        }
+    }
+
+    /**
+     *  - Added general.enableRikaitanApi
+     *  - Added general.rikaitanApiServer
+     *  @type {import('options-util').UpdateFunction}
+     */
+    async _updateVersion65(options) {
+        for (const profile of options.profiles) {
+            profile.options.general.enableRikaitanApi = false;
+            profile.options.general.rikaitanApiServer = 'http://127.0.0.1:8766';
         }
     }
 

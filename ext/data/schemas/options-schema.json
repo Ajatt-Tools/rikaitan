@@ -127,7 +127,9 @@
                                     "stickySearchHeader",
                                     "fontFamily",
                                     "fontSize",
-                                    "lineHeight"
+                                    "lineHeight",
+                                    "enableRikaitanApi",
+                                    "rikaitanApiServer"
                                 ],
                                 "properties": {
                                     "enable": {
@@ -336,6 +338,14 @@
                                     "stickySearchHeader": {
                                         "type": "boolean",
                                         "default": false
+                                    },
+                                    "enableRikaitanApi": {
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "rikaitanApiServer": {
+                                        "type": "string",
+                                        "default": "http://127.0.0.1:8766"
                                     }
                                 }
                             },

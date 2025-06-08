@@ -20,6 +20,7 @@ import {AnkiConnect} from '../comm/anki-connect.js';
 import {ClipboardMonitor} from '../comm/clipboard-monitor.js';
 import {ClipboardReader} from '../comm/clipboard-reader.js';
 import {Mecab} from '../comm/mecab.js';
+import {RikaitanApi} from '../comm/rikaitan-api.js';
 import {createApiMap, invokeApiMapHandler} from '../core/api-map.js';
 import {ExtensionError} from '../core/extension-error.js';
 import {fetchText} from '../core/fetch-utilities.js';
@@ -179,6 +180,7 @@ export class Backend {
             ['isTabSearchPopup',             this._onApiIsTabSearchPopup.bind(this)],
             ['triggerDatabaseUpdated',       this._onApiTriggerDatabaseUpdated.bind(this)],
             ['testMecab',                    this._onApiTestMecab.bind(this)],
+            ['testRikaitanApi',               this._onApiTestRikaitanApi.bind(this)],
             ['isTextLookupWorthy',           this._onApiIsTextLookupWorthy.bind(this)],
             ['getTermFrequencies',           this._onApiGetTermFrequencies.bind(this)],
             ['findAnkiNotes',                this._onApiFindAnkiNotes.bind(this)],
@@ -202,6 +204,9 @@ export class Backend {
             ['openSearchPage', this._onCommandOpenSearchPage.bind(this)],
             ['openPopupWindow', this._onCommandOpenPopupWindow.bind(this)],
         ]));
+
+        /** @type {RikaitanApi} */
+        this._rikaitanApi = new RikaitanApi(this._apiMap);
     }
 
     /**
@@ -994,6 +999,43 @@ export class Backend {
         return true;
     }
 
+    /** @type {import('api').ApiHandler<'testRikaitanApi'>} */
+    async _onApiTestRikaitanApi({url}) {
+        if (!this._rikaitanApi.isEnabled()) {
+            throw new Error('Rikaitan Api not enabled');
+        }
+
+        let permissionsOkay = false;
+        try {
+            permissionsOkay = await hasPermissions({permissions: ['nativeMessaging']});
+        } catch (e) {
+            // NOP
+        }
+        if (!permissionsOkay) {
+            throw new Error('Insufficient permissions');
+        }
+
+        const disconnect = !this._rikaitanApi.isConnected();
+        try {
+            const version = await this._rikaitanApi.getRemoteVersion(url);
+            if (version === null) {
+                throw new Error('Could not connect to native Rikaitan API component');
+            }
+
+            const localVersion = this._rikaitanApi.getLocalVersion();
+            if (version !== localVersion) {
+                throw new Error(`Rikaitan API component version not supported: ${version}`);
+            }
+        } finally {
+            // Disconnect if the connection was previously disconnected
+            if (disconnect && this._rikaitanApi.isEnabled()) {
+                this._rikaitanApi.disconnect();
+            }
+        }
+
+        return true;
+    }
+
     /** @type {import('api').ApiHandler<'isTextLookupWorthy'>} */
     _onApiIsTextLookupWorthy({text, language}) {
         return isTextLookupWorthy(text, language);
@@ -1404,6 +1446,8 @@ export class Backend {
         this._anki.apiKey = apiKey;
 
         this._mecab.setEnabled(options.parsing.enableMecabParser && enabled);
+
+        void this._rikaitanApi.setEnabled(options.general.enableRikaitanApi && enabled);
 
         if (options.clipboard.enableBackgroundMonitor && enabled) {
             this._clipboardMonitor.start();
