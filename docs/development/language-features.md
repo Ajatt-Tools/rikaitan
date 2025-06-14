@@ -37,7 +37,7 @@ This is just for some type safety. The first key is the ISO code. Most languages
 
 That's it! Your language should now be selectable from the dropdown, and may work perfectly fine already. If you don't already have a dictionary to test with, check out [Dictionaries](../dictionaries.md). For more advanced features, read on.
 
-## Reccomended Dictionaries
+## Recommended Dictionaries
 
 If you want to suggest to the user some dictionaries to download, you can make a pull request similar to:
 https://github.com/Ajatt-Tools/rikaitan/commit/261a65cf6e65e700930af6653140aaa7401943d1
