@@ -566,6 +566,12 @@
                 "description": "Russian to English dictionary created from Wiktionary data.",
                 "homepage": "https://github.com/Ajatt-Tools/kaikki-to-rikaitan/blob/master/downloads.md",
                 "downloadUrl": "https://github.com/Ajatt-Tools/kaikki-to-rikaitan/releases/latest/download/kty-ru-en.zip"
+            },
+            {
+                "name": "opr-ru-en",
+                "description": "OpenRussian is a user-contributed, libre Russian dictionary including the accents, examples, audio, related words and synonyms.",
+                "homepage": "https://github.com/ImenaOphelia/openrussian-to-rikaitan",
+                "downloadUrl": "https://github.com/ImenaOphelia/openrussian-to-rikaitan/releases/latest/download/opr-ru-en.zip"
             }
         ]
     },
