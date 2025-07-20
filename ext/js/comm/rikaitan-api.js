@@ -285,6 +285,7 @@ export class RikaitanApi {
      * @returns {Promise<import('rikaitan-api.js').apiDictionaryMediaDetails[]>}
      */
     async _fetchDictionaryMedia(dictionaryEntries) {
+        /** @type {import('rikaitan-api.js').apiDictionaryMediaDetails[]} */
         const media = [];
         let mediaCount = 0;
         for (const dictionaryEntry of dictionaryEntries) {
@@ -294,6 +295,7 @@ export class RikaitanApi {
                 targets: mediaRequestTargets,
             });
             for (const mediaFileData of mediaFilesData) {
+                if (media.some((x) => x.dictionary === mediaFileData.dictionary && x.path === mediaFileData.path)) { continue; }
                 const timestamp = Date.now();
                 const ankiFilename = generateAnkiNoteMediaFileName(`rikaitan_dictionary_media_${mediaCount}`, getFileExtensionFromImageMediaType(mediaFileData.mediaType) ?? '', timestamp);
                 media.push({
