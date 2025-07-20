@@ -813,6 +813,52 @@
             }
         ]
     },
+    "yue": {
+        "frequency": [
+            {
+                "name": "Words.hk Frequency",
+                "description": "Frequency list of Cantonese terms and honzi provided by words.hk.",
+                "homepage": "https://github.com/Ajatt-Tools/wordshk-rikaitan",
+                "downloadUrl": "https://github.com/Ajatt-Tools/wordshk-rikaitan/releases/download/2024-09-17/YUE.Freq.Words.hk.Frequency.zip"
+            }
+        ],
+        "grammar": [],
+        "kanji": [
+            {
+                "name": "Words.hk 粵典 漢字",
+                "description": "A free and open Cantonese dictionary with definitions and example sentences in Cantonese and English.",
+                "homepage": "https://github.com/Ajatt-Tools/wordshk-rikaitan",
+                "downloadUrl": "https://github.com/Ajatt-Tools/wordshk-rikaitan/releases/download/2025-07-09/Words.hk.Honzi.2025-07-08.zip"
+            }
+        ],
+        "pronunciation": [],
+        "terms": [
+            {
+                "name": "Words.hk 粵典",
+                "description": "A free and open Cantonese dictionary with definitions and example sentences in Cantonese and English.",
+                "homepage": "https://github.com/Ajatt-Tools/wordshk-rikaitan",
+                "downloadUrl": "https://github.com/Ajatt-Tools/wordshk-rikaitan/releases/download/2025-07-09/Words.hk.2025-07-08.zip"
+            },
+            {
+                "name": "CC-Canto",
+                "description": "CC-Canto is an open source Cantonese dictionary project created by Pleco, intended to be used alongside the CC-CEDICT dictionary. It provides Cantonese specific words and definitions.",
+                "homepage": "https://github.com/Ajatt-Tools/cc-cedict-rikaitan",
+                "downloadUrl": "https://github.com/Ajatt-Tools/cc-cedict-rikaitan/releases/latest/download/CC-Canto.zip"
+            },
+            {
+                "name": "CC-CEDICT Canto",
+                "description": "CC-CEDICT is a continuation of the CEDICT project with the aim to provide a complete downloadable Chinese to English dictionary with pronunciation in pinyin for the Chinese characters. This version includes Cantonese readings provided by Pleco.",
+                "homepage": "https://github.com/Ajatt-Tools/cc-cedict-rikaitan",
+                "downloadUrl": "https://github.com/Ajatt-Tools/cc-cedict-rikaitan/releases/latest/download/CC-CEDICT.Canto.zip"
+            },
+            {
+                "name": "Cantodict",
+                "description": "CantoDict was a Cantonese-English dictionary created and maintained by Adam Sheik and public contributors.",
+                "homepage": "https://github.com/Ajatt-Tools/rikaitan-dictionaries?tab=readme-ov-file#cantodict",
+                "downloadUrl": "https://github.com/Ajatt-Tools/yomichan-dictionaries/raw/master/dl/%5BCantonese%5D%20Cantodict.zip"
+            }
+        ]
+    },
     "zh": {
         "frequency": [],
         "grammar": [],
