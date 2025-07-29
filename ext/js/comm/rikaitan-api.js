@@ -415,7 +415,7 @@ export class RikaitanApi {
                     },
                 },
                 media: {
-                    audio: {value: audioMediaFile},
+                    audio: audioMediaFile.length > 0 ? {value: audioMediaFile} : void 0,
                     textFurigana: [{
                         text: text,
                         readingMode: furiganaReadingMode,
