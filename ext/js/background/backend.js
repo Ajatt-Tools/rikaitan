@@ -206,7 +206,7 @@ export class Backend {
         ]));
 
         /** @type {RikaitanApi} */
-        this._rikaitanApi = new RikaitanApi(this._apiMap);
+        this._rikaitanApi = new RikaitanApi(this._apiMap, this._offscreen);
     }
 
     /**
