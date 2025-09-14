@@ -367,7 +367,7 @@ export class AnkiController {
         /** @type {HTMLSelectElement} */
         const iconSelect = querySelectorNotNull(this._ankiCardPrimary, '.anki-card-icon');
         iconSelect.dataset.setting = ObjectPropertyAccessor.getPathString(['anki', 'cardFormats', cardFormatIndex, 'icon']);
-        iconSelect.dataset.icon = this._ankiOptions?.cardFormats[cardFormatIndex].icon ?? 'big-circle';
+        iconSelect.dataset.icon = this._ankiOptions?.cardFormats[cardFormatIndex]?.icon ?? 'big-circle';
     }
 
     /**
@@ -655,6 +655,9 @@ export class AnkiController {
         if (this._cardFormatIndex > ankiOptions.cardFormats.length) {
             this._cardFormatIndex = ankiOptions.cardFormats.length - 1;
         }
+        if (this._cardFormatIndex < 0) {
+            this._cardFormatIndex = 0;
+        }
 
         for (let i = 0; i < ankiOptions.cardFormats.length; ++i) {
             const cardFormat = ankiOptions.cardFormats[i];
@@ -663,6 +666,8 @@ export class AnkiController {
                 input.checked = true;
             }
         }
+
+        this._cardFormatDeleteButton.disabled = ankiOptions.cardFormats.length <= 1;
 
         this._setCardFormatIndex(this._cardFormatIndex, 'anki-card-term-field-menu');
     }
@@ -738,6 +743,7 @@ export class AnkiController {
      */
     _onCardFormatDeleteClick(e) {
         e.preventDefault();
+        if (this._ankiOptions && this._ankiOptions.cardFormats.length === 1) { return; }
         this.openDeleteCardFormatModal(this._cardFormatIndex);
     }
 
