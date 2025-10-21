@@ -129,7 +129,8 @@
                                     "fontSize",
                                     "lineHeight",
                                     "enableRikaitanApi",
-                                    "rikaitanApiServer"
+                                    "rikaitanApiServer",
+                                    "rikaitanApiAllowCssSanitizationBypass"
                                 ],
                                 "properties": {
                                     "enable": {
@@ -346,6 +347,10 @@
                                     "rikaitanApiServer": {
                                         "type": "string",
                                         "default": "http://127.0.0.1:19633"
+                                    },
+                                    "rikaitanApiAllowCssSanitizationBypass": {
+                                        "type": "boolean",
+                                        "default": false
                                     }
                                 }
                             },

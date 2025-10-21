@@ -314,6 +314,7 @@ function createProfileOptionsUpdatedTestData1() {
             stickySearchHeader: false,
             enableRikaitanApi: false,
             rikaitanApiServer: 'http://127.0.0.1:19633',
+            rikaitanApiAllowCssSanitizationBypass: false,
         },
         audio: {
             enabled: true,

@@ -153,6 +153,7 @@ export type GeneralOptions = {
     sortFrequencyDictionaryOrder: SortFrequencyDictionaryOrder;
     stickySearchHeader: boolean;
     enableRikaitanApi: boolean;
+    rikaitanApiAllowCssSanitizationBypass: boolean;
 };
 
 export type PopupWindowOptions = {
