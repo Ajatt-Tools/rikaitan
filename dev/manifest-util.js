@@ -116,6 +116,7 @@ export class ManifestUtil {
      * @returns {import('dev/manifest').Manifest}
      */
     _applyModifications(manifest, modifications) {
+        manifest = structuredClone(manifest);
         if (Array.isArray(modifications)) {
             for (const modification of modifications) {
                 // Rename to path2 to avoid clashing with imported `node:path` module.
