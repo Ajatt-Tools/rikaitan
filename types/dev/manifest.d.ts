@@ -43,6 +43,7 @@ export type ManifestVariant = {
 
 export type Modification = (
     ModificationReplace |
+    ModificationIncrementPatch |
     ModificationDelete |
     ModificationSet |
     ModificationAdd |
@@ -51,6 +52,11 @@ export type Modification = (
     ModificationCopy |
     ModificationMove
 );
+
+export type ModificationIncrementPatch = {
+    action: 'increment_patch';
+    path: PropertyPath;
+};
 
 export type ModificationReplace = {
     action: 'replace';

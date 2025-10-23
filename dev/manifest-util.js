@@ -147,6 +147,24 @@ export class ManifestUtil {
                             this._setObjectKeyAtIndex(object, key, value, index);
                         }
                         break;
+                    case 'increment_patch':
+                        // Use this when creating selfhosted builds for Firefox.
+                        // Firefox doesn't allow the same version to be hosted on AMO.
+                        {
+                            /** @type {import('core').UnknownObject} */
+                            const value = this._getObjectProperties(manifest, path2, path2.length - 1);
+                            const last = path2[path2.length - 1];
+                            const value2 = value[last];
+                            if (typeof value2 === 'string') {
+                                const arr = value2.split('.');
+                                const patch_ver = Number.parseInt(arr[arr.length - 1], 10);
+                                if (!Number.isNaN(patch_ver)) {
+                                    arr[arr.length - 1] = (patch_ver + 1).toString();
+                                    value[last] = arr.join('.');
+                                }
+                            }
+                        }
+                        break;
                     case 'replace':
                         {
                             const {pattern, patternFlags, replacement} = modification;
