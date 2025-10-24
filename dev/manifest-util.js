@@ -44,24 +44,30 @@ export class ManifestUtil {
 
     /**
      * @param {?string} [variantName]
+     * @param {?string} [rikaitanVersion]
      * @returns {import('dev/manifest').Manifest}
      */
-    getManifest(variantName) {
+    getManifest(variantName, rikaitanVersion) {
+        const manifest_clone = structuredClone(this._manifest);
+        if (rikaitanVersion && typeof rikaitanVersion === 'string') {
+            manifest_clone.version = rikaitanVersion;
+        }
+
         if (typeof variantName === 'string') {
             const variant = this._variantMap.get(variantName);
             if (typeof variant !== 'undefined') {
-                return this._createVariantManifest(this._manifest, variant);
+                return this._createVariantManifest(manifest_clone, variant);
             }
         }
 
         if (typeof this._defaultVariant === 'string') {
             const variant = this._variantMap.get(this._defaultVariant);
             if (typeof variant !== 'undefined') {
-                return this._createVariantManifest(this._manifest, variant);
+                return this._createVariantManifest(manifest_clone, variant);
             }
         }
 
-        return structuredClone(this._manifest);
+        return structuredClone(manifest_clone);
     }
 
     /**

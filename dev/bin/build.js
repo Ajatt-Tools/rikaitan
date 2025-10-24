@@ -180,7 +180,7 @@ async function build(buildDir, extDir, manifestUtil, variantNames, manifestPath,
 
         process.stdout.write(`Building ${name}...\n`);
 
-        const modifiedManifest = manifestUtil.getManifest(variant.name);
+        const modifiedManifest = manifestUtil.getManifest(variant.name, rikaitanVersion);
 
         ensureFilesExist(extDir, excludeFiles);
 
