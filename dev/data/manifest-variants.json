@@ -324,6 +324,34 @@
             ]
         },
         {
+            "name": "firefox-selfhosted",
+            "inherit": "firefox",
+            "fileName": "rikaitan-firefox-selfhosted.zip",
+            "modifications": [
+                {
+                    "action": "increment_patch",
+                    "path": [
+                        "version"
+                    ]
+                },
+                {
+                    "action": "set",
+                    "path": [
+                        "browser_specific_settings",
+                        "gecko",
+                        "update_url"
+                    ],
+                    "value": "https://raw.githubusercontent.com/Ajatt-Tools/rikaitan/metadata_selfhosted/updates.json"
+                }
+            ],
+            "excludeFiles": [
+                "sw.js",
+                "offscreen.html",
+                "js/background/offscreen.js",
+                "js/background/offscreen-main.js"
+            ]
+        },
+        {
             "name": "firefox-android",
             "inherit": "firefox",
             "fileName": "rikaitan-firefox-android"
