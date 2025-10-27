@@ -12,7 +12,7 @@ you may consider also importing the English version for better coverage.
 
 ### Recommended Dictionaries
 
-- [Our recommended dictionaries](https://tatsumoto.neocities.org/blog/yomichan-and-epwing-dictionaries#rikaitan)
+- [Our recommended dictionaries](https://tatsumoto.neocities.org/blog/rikaitan-dictionaries.html)
 - [Other dictionaries](https://github.com/Ajatt-Tools/rikaitan/tree/dictionaries)
 
 ### Japanese beginner dictionaries
