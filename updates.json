@@ -3,6 +3,10 @@
         "{2d13e145-294e-4ead-9bce-b4644b203a00}": {
             "updates": [
                 {
+                    "version": "25.10.13.0",
+                    "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/25.10.13.0/rikaitan-firefox-dev.xpi"
+                },
+                {
                     "version": "25.10.20.0",
                     "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/25.10.20.0/rikaitan-firefox-dev.xpi"
                 }
