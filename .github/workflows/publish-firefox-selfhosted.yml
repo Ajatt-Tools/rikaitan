@@ -1,0 +1,116 @@
+# For the Firefox selfhosted version addon, people install it manually,
+# and updates are distributed via the JSON file created in this
+# action which is stored in the metadata_selfhosted branch of this repo.
+
+name: publish-firefox-selfhosted
+on:
+  workflow_dispatch:
+    inputs:
+      upload_url:
+        description: "The upload_url from the release created by create-prerelease-on-tag.yml"
+        required: true
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: cd
+    permissions:
+      contents: write
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+    steps:
+      - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # pin@v1.12
+        with:
+          tag: ${{ github.ref_name }}
+          fileName: "*"
+
+      - name: Sign Firefox xpi for offline distribution
+        id: ffSignXpi
+        continue-on-error: true
+        uses: cardinalby/webext-buildtools-firefox-sign-xpi-action@6c31e947111a95f05682fc98c6340367cce49cdc # pin@v1.0.8
+        with:
+          timeoutMs: 1200000
+          extensionId: ${{ secrets.FF_EXTENSION_ID }}
+          zipFilePath: rikaitan-firefox-selfhosted.zip
+          xpiFilePath: rikaitan-firefox-selfhosted.xpi
+          jwtIssuer: ${{ secrets.FF_JWT_ISSUER }}
+          jwtSecret: ${{ secrets.FF_JWT_SECRET }}
+
+      - name: Abort on sign error
+        if: |
+          steps.ffSignXpi.outcome == 'failure' &&
+          steps.ffSignXpi.outputs.sameVersionAlreadyUploadedError != 'true'
+        run: exit 1
+
+      - name: Generate hashes
+        id: hash
+        run: |
+          echo "hashes=$(sha256sum rikaitan-firefox-selfhosted.xpi | base64 -w0)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload offline xpi release asset
+        id: uploadReleaseAsset
+        if: steps.ffSignXpi.outcome == 'success'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ inputs.upload_url }}
+          asset_path: rikaitan-firefox-selfhosted.xpi
+          asset_name: rikaitan-firefox-selfhosted.xpi
+          asset_content_type: application/x-xpinstall
+
+      # update updates.json so that all people who have the selfhosted version installed get the new update
+
+      - uses: actions/checkout@v4
+        with:
+          ref: metadata_selfhosted
+
+      # note: change version because firefox doesn't allow duplicate versions
+      # https://extensionworkshop.com/documentation/manage/updating-your-extension/
+      - name: Recreate updates.json
+        run: |
+          if [[ -f prerelease.json ]]; then
+            cp -- prerelease.json updates.json
+          fi
+          if [[ -z "${{ steps.uploadReleaseAsset.outputs.browser_download_url }}" ]]; then
+            exit 1
+          fi
+          # TODO - the version set in manifest is +1 to ref name
+          cat > prerelease.json << EOF
+          {
+              "addons": {
+                  "tatsu@autistici.org": {
+                      "updates": [
+                          {
+                              "version": "${{ github.ref_name }}",
+                              "update_link": "${{ steps.uploadReleaseAsset.outputs.browser_download_url }}"
+                          }
+                      ]
+                  }
+              }
+          }
+          EOF
+
+      - name: Commit files
+        continue-on-error: true
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -a -m "${{ github.ref_name }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@d91a481090679876dfc4178fef17f286781251df # pin@master
+        with:
+          branch: metadata_selfhosted
+
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      upload-assets: true
