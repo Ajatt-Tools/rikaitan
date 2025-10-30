@@ -68,6 +68,9 @@ jobs:
 
       - name: Recreate updates.json
         run: |
+          if [[ -z "${{ steps.uploadReleaseAsset.outputs.browser_download_url }}" ]]; then
+            exit 1
+          fi
           cat > updates.json << EOF
           {
               "addons": {
