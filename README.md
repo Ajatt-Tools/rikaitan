@@ -1,6 +1,6 @@
 # Rikaitan
 
-[![Get Rikaitan for Firefox](<https://img.shields.io/amo/v/rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable)>)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+[![Get Rikaitan for Firefox](<https://img.shields.io/amo/v/rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable)>)](https://github.com/Ajatt-Tools/rikaitan/releases/latest/download/rikaitan-firefox-selfhosted.xpi)
 [![Get Rikaitan for Chrome](<https://img.shields.io/chrome-web-store/v/pnjdahdadbkhcfamabafkjbjblbgkodk?logo=Google%20Chrome&style=for-the-badge&logoColor=lightblue&color=lightblue&label=get%20rikaitan%20for%20chrome%20(stable)>)](https://chrome.google.com/webstore/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green?style=for-the-badge&logo=Element&logoColor=green)](https://tatsumoto.neocities.org/blog/join-our-community)
 
@@ -176,7 +176,7 @@ and licenses of the exact versions packaged.
 | hangul-js           | MIT          | git://github.com/e-/Hangul.js.git                                      |
 | kanji-processor     | n/a          | https://registry.npmjs.org/kanji-processor/-/kanji-processor-1.0.2.tgz |
 | parse5              | MIT          | git://github.com/inikulin/parse5.git                                   |
-| rikaitan-handlebars  | MIT          | n/a                                                                    |
+| rikaitan-handlebars | MIT          | n/a                                                                    |
 | linkedom            | ISC          | git+https://github.com/WebReflection/linkedom.git                      |
 
 ## Attribution
