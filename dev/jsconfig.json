@@ -148,7 +148,8 @@
         "../ext/js/language/translator.js",
         "../ext/js/media/media-util.js",
         "../types/dev/**/*.ts",
-        "../types/other/globals.d.ts"
+        "../types/other/globals.d.ts",
+        "./bin/*.ts"
     ],
     "exclude": [
         "../node_modules",

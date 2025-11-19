@@ -1,0 +1,61 @@
+name: download-firefox-selfhosted
+on:
+  workflow_dispatch:
+    inputs:
+      extensionId:
+        description: "The Firefox extension ID"
+        required: true
+        default: ${{ secrets.FF_EXTENSION_ID }}
+      xpiFilePath:
+        description: "Path where to save the XPI file"
+        required: true
+        default: "Downloads/rikaitan-firefox-selfhosted.xpi"
+      githubRef:
+        description: "The tag to associate with the release"
+        required: true
+        default: ${{ github.ref_name }}
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "package.json"
+
+      # intentially do not use cache to keep the build more comprehensible and sandboxed
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download latest approved self-hosted version
+        run: |
+          npm run-script dl
+        env:
+          extensionId: ${{ inputs.extensionId }}
+          xpiFilePath: ${{ inputs.xpiFilePath }}
+          jwtIssuer: ${{ secrets.FF_JWT_ISSUER }}
+          jwtSecret: ${{ secrets.FF_JWT_SECRET }}
+          githubRef: ${{ inputs.githubRef }}
+
+      # https://github.com/softprops/action-gh-release
+      - name: Upload offline xpi release asset
+        uses: softprops/action-gh-release@v2.4.2
+        with:
+          tag_name: ${{ inputs.githubRef }}
+          files: |
+            ${{ inputs.xpiFilePath }}
+
+      - name: Update updates.json file.
+        uses: aurelien-baudet/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # pin@v2
+        with:
+          workflow: update-updates-json-file
+          token: ${{ secrets.GITHUB_TOKEN }}
+          wait-for-completion: false
+          inputs: |
+            {
+              "githubRef:": "${{ github.ref_name }}",
+              "xpiFilePath": "${{ inputs.xpiFilePath }}"
+            }

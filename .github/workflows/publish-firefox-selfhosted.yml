@@ -63,50 +63,6 @@ jobs:
           asset_name: rikaitan-firefox-selfhosted.xpi
           asset_content_type: application/x-xpinstall
 
-      # update updates.json so that all people who have the selfhosted version installed get the new update
-
-      - uses: actions/checkout@v4
-        with:
-          ref: metadata_selfhosted
-
-      # note: change version because firefox doesn't allow duplicate versions
-      # https://extensionworkshop.com/documentation/manage/updating-your-extension/
-      - name: Recreate updates.json
-        run: |
-          if [[ -f prerelease.json ]]; then
-            cp -- prerelease.json updates.json
-          fi
-          if [[ -z "${{ steps.uploadReleaseAsset.outputs.browser_download_url }}" ]]; then
-            exit 1
-          fi
-          # TODO - the version set in manifest is +1 to ref name
-          cat > prerelease.json << EOF
-          {
-              "addons": {
-                  "tatsu@autistici.org": {
-                      "updates": [
-                          {
-                              "version": "${{ github.ref_name }}",
-                              "update_link": "${{ steps.uploadReleaseAsset.outputs.browser_download_url }}"
-                          }
-                      ]
-                  }
-              }
-          }
-          EOF
-
-      - name: Commit files
-        continue-on-error: true
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -a -m "${{ github.ref_name }}"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@d91a481090679876dfc4178fef17f286781251df # pin@master
-        with:
-          branch: metadata_selfhosted
-
   provenance:
     needs: [build]
     permissions:

@@ -13,6 +13,8 @@
         "anki:css-json:write": "node ./dev/bin/generate-css-json.js --dryRun --all",
         "bench": "vitest bench",
         "build": "node ./dev/bin/build.js",
+        "dl": "node ./dev/bin/download-mozilla-addon.ts",
+        "update_updates_json_file": "node ./dev/bin/update_updates_json_file.ts",
         "build:libs": "node ./dev/bin/build-libs.js",
         "build:serve:firefox-android": "node ./dev/bin/build.js --target firefox-android && web-ext run -s ./builds/rikaitan-firefox-android",
         "build:serve:kiwi-browser": "node ./dev/bin/build.js --target chrome-dev && adb shell mkdir -p /sdcard/rikaitan && adb push ./builds/rikaitan-chrome-dev.zip /sdcard/rikaitan/rikaitan-kiwi-browser.zip",

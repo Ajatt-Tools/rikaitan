@@ -709,6 +709,11 @@ export default [
             }],
 
             '@stylistic/no-extra-parens': ['error', 'all'],
+
+            /* It's unnecessary to repeat types in the JSDoc comments in TypeScript files.
+               Disable the JSDoc type requirement rules for TypeScript files */
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns-type': 'off',
         },
     },
     {

@@ -8,6 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: cd
     steps:
+      - name: Dispatch download selfhosted XPI
+        uses: aurelien-baudet/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # pin@v2
+        with:
+          workflow: download-firefox-selfhosted
+          token: ${{ secrets.GITHUB_TOKEN }}
+          wait-for-completion: false
+          inputs: |
+            {
+              "githubRef:": "${{ github.ref_name }}",
+              "xpiFilePath": "Downloads/rikaitan-firefox-selfhosted.xpi"
+            }
+
       - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # pin@v1.12
         with:
           tag: ${{ github.ref_name }}
@@ -19,8 +31,8 @@ jobs:
         uses: cardinalby/webext-buildtools-firefox-addons-action@987e338100095280ec8daf942e5640aeb55d3647 # pin@v1.0.10
         continue-on-error: true
         with:
-          zipFilePath: rikaitan-firefox.zip
-          sourcesZipFilePath: rikaitan-${{ github.ref_name }}.zip
+          zipFilePath: rikaitan-firefox.zip # Path to packed extension (relative to repository).
+          sourcesZipFilePath: rikaitan-${{ github.ref_name }}.zip # source code of the extension
           extensionId: ${{ secrets.FF_EXTENSION_ID }}
           jwtIssuer: ${{ secrets.FF_JWT_ISSUER }}
           jwtSecret: ${{ secrets.FF_JWT_SECRET }}
