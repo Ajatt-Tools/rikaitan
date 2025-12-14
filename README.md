@@ -13,6 +13,8 @@ We have made a number of foundational changes to ensure **the project stays aliv
 
 📢 **Interested in adding a new language to Rikaitan? See [here](./docs/development/language-features.md) for thorough documentation!**
 
+**Note:** [Avoid fake clones of Rikaitan](https://ajatt.top/blog/avoid-fake-clones-of-rikaitan.html).
+
 ## What is Rikaitan?
 
 Rikaitan turns your web browser into a tool for building language literacy by helping you **read** texts
