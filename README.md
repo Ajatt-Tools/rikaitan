@@ -85,7 +85,7 @@ We recommend [LibreWolf](https://librewolf.net/) as your everyday web browser.
 
 **Download from Firefox Browser add-ons:**
 
-[![image](img/firefox-marketplace.png)](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+[![image](img/firefox-marketplace.png)](https://github.com/Ajatt-Tools/rikaitan/releases/latest/download/rikaitan-firefox-selfhosted.xpi)
 
 **Download from Chrome Web Store:**
 

@@ -22,4 +22,6 @@ Only collaborators with deployment permissions are allowed to deploy.
 1. Go to ["Releases"](https://github.com/Ajatt-Tools/rikaitan/releases) and pick a version you want to promote to stable.
 2. On the top right corner click on "Edit" and on the bottom there are two options `Set as a pre-release` and `Set as the latest release`. Uncheck `Set as a pre-release` and check `Set as the latest release`.
 3. This will trigger the [`release`](https://github.com/Ajatt-Tools/rikaitan/actions/workflows/release.yml) workflow which will in turn trigger the `publish-chrome` and `publish-firefox` GH workflows.
-4. Unblock `publish-chrome` and `publish-firefox` respectively and wait 5 mins to a few hours for the extensions to reflect on [Chrome](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/rikaitan/)
+4. Unblock `publish-chrome` and `publish-firefox` respectively and wait 5 mins to a few hours for the extensions to reflect on
+   [Chrome](https://chromewebstore.google.com/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk) and
+   [Firefox](https://ajatt.top/blog/setting-up-yomichan.html#gecko-based)
