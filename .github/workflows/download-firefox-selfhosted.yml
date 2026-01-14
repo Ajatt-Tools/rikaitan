@@ -16,6 +16,7 @@ on:
 jobs:
   download:
     runs-on: ubuntu-latest
+    environment: cd
     steps:
       - uses: actions/checkout@v4
 

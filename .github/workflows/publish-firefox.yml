@@ -8,18 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: cd
     steps:
-      - name: Dispatch download selfhosted XPI
-        uses: aurelien-baudet/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # pin@v2
-        with:
-          workflow: download-firefox-selfhosted
-          token: ${{ secrets.GITHUB_TOKEN }}
-          wait-for-completion: false
-          inputs: |
-            {
-              "githubRef:": "${{ github.ref_name }}",
-              "xpiFilePath": "Downloads/rikaitan-firefox-selfhosted.xpi"
-            }
-
       - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # pin@v1.12
         with:
           tag: ${{ github.ref_name }}
