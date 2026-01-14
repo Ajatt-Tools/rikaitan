@@ -1,12 +1,16 @@
 {
-    "addons": {
-        "tatsu@autistici.org": {
-            "updates": [
-                {
-                    "version": "25.11.4.0",
-                    "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/25.11.4.0/rikaitan-firefox-selfhosted.xpi"
-                }
-            ]
+  "addons": {
+    "tatsu@autistici.org": {
+      "updates": [
+        {
+          "version": "25.11.4.0",
+          "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/25.11.4.0/rikaitan-firefox-selfhosted.xpi"
+        },
+        {
+          "version": "25.12.31.0",
+          "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/25.12.31.0/rikaitan-firefox-selfhosted.xpi"
         }
+      ]
     }
+  }
 }
