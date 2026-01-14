@@ -5,7 +5,6 @@ on:
       extensionId:
         description: "The Firefox extension ID"
         required: true
-        default: ${{ secrets.FF_EXTENSION_ID }}
       xpiFilePath:
         description: "Path where to save the XPI file"
         required: true
@@ -13,7 +12,6 @@ on:
       githubRef:
         description: "The tag to associate with the release"
         required: true
-        default: ${{ github.ref_name }}
 
 jobs:
   download:

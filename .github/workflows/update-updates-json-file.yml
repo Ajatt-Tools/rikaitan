@@ -5,7 +5,6 @@ on:
       githubRef:
         description: "The tag to associate with the release"
         required: true
-        default: ${{ github.ref_name }}
       xpiFilePath:
         description: "Path to the XPI file"
         required: true
