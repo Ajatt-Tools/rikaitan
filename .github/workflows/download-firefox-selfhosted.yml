@@ -55,6 +55,6 @@ jobs:
           wait-for-completion: false
           inputs: |
             {
-              "githubRef:": "${{ github.ref_name }}",
+              "githubRef": "${{ inputs.githubRef }}",
               "xpiFilePath": "${{ inputs.xpiFilePath }}"
             }
