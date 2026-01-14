@@ -1,6 +1,10 @@
 name: publish-firefox
 on:
   workflow_dispatch:
+    inputs:
+      githubRef:
+        description: "The tag to associate with the release"
+        required: true
 permissions:
   contents: read
 jobs:
@@ -10,7 +14,7 @@ jobs:
     steps:
       - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # pin@v1.12
         with:
-          tag: ${{ github.ref_name }}
+          tag: ${{ inputs.githubRef }}
           zipBall: true
           fileName: "*"
 
@@ -20,7 +24,7 @@ jobs:
         continue-on-error: true
         with:
           zipFilePath: rikaitan-firefox.zip # Path to packed extension (relative to repository).
-          sourcesZipFilePath: rikaitan-${{ github.ref_name }}.zip # source code of the extension
+          sourcesZipFilePath: rikaitan-${{ inputs.githubRef }}.zip # source code of the extension
           extensionId: ${{ secrets.FF_EXTENSION_ID }}
           jwtIssuer: ${{ secrets.FF_JWT_ISSUER }}
           jwtSecret: ${{ secrets.FF_JWT_SECRET }}
