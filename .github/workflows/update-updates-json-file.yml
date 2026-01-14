@@ -18,7 +18,18 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.metadataBranch }}
+
+      - name: Get updates.json from metadata branch
+        shell: bash
+        run: |
+          # Get the updates.json file from the specified metadata branch
+          mkdir -p -- "${{ runner.temp }}"
+          cp -- updates.json "${{ runner.temp }}/updates.json"
+
+      - uses: actions/checkout@v6
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -29,31 +40,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Get updates.json from metadata branch
-        run: |
-          # Get the updates.json file from the specified metadata branch
-          mkdir -p Downloads
-          git show ${{ inputs.metadataBranch }}:updates.json > Downloads/updates.json
-
       - name: Run update_updates_json_file.ts script
         run: |
           npm run-script update_updates_json_file
         env:
           githubRef: ${{ inputs.githubRef }}
           xpiFilePath: ${{ inputs.xpiFilePath }}
-          updatesFilePath: Downloads/updates.json
+          updatesFilePath: ${{ runner.temp }}/updates.json
 
       # update updates.json so that all people who have
       # the selfhosted version installed get the new update
       # https://extensionworkshop.com/documentation/manage/updating-your-extension/
       - name: Checkout metadata branch for commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.metadataBranch }}
 
       - name: Copy updated updates.json to metadata branch
         run: |
-          mv -f -- Downloads/updates.json updates.json
+          mv -f -- "${{ runner.temp }}/updates.json" updates.json
 
       - name: Commit updated updates.json
         run: |
