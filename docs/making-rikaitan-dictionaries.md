@@ -2,6 +2,7 @@
 
 This document provides an overview on how to create your own Rikaitan dictionary.
 
+- [Tools](#tools)
 - [Read the Schemas](#read-the-schemas)
 - [Packaging A Dictionary](#packaging-a-dictionary)
 - [Examples](#examples)
@@ -9,14 +10,20 @@ This document provides an overview on how to create your own Rikaitan dictionary
 - [Conjugation](#conjugation)
 - [Tag Categories](#tag-categories)
 
+## Tools
+
+- [Rikaitan Dictionary Builder](https://github.com/Ajatt-Tools/rikaitan-dict-builder/): A node package that simplifies the process of making dictionaries, particularly useful for those using TypeScript or JavaScript.
+- [hasUTF16SurrogatePairAt](https://www.npmjs.com/package/@stdlib/assert-has-utf16-surrogate-pair-at): Important for checking if a kanji/hanzi is a surrogate pair, which affects string operations in JavaScript.
+- [japanese-furigana-normalize](https://github.com/Ajatt-Tools/japanese-furigana-normalize): A utility function to normalize Japanese readings containing furigana, ensuring proper alignment with kanji characters.
+
 ## Read the Schemas
 
 Familiarity with the [Rikaitan schemas](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas) is essential. These schemas define the structure of Rikaitan dictionaries. Helpful resources for interpreting JSON schemas include [codebeautify](https://codebeautify.org/jsonviewer/), [json-schema-viewer](https://json-schema-viewer.vercel.app/), and [jsonhero](https://jsonhero.io/).
 
 Below is a list of Rikaitan dictionary schemas, their expected filenames, and their usage:
 
-| Schema                                                                                                                                                      | Expected Filename                | Usage                                                                                  |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------- |
+| Schema                                                                                                                                                    | Expected Filename                | Usage                                                                                  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------- |
 | [`dictionary-index-schema.json`](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas/dictionary-index-schema.json)                           | `index.json`                     | Metadata about the dictionary. Please include as much detail as possible.              |
 | [`dictionary-kanji-bank-v3-schema.json`](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas/dictionary-kanji-bank-v3-schema.json)           | `kanji_bank_${number}.json`      | Information used in the kanji viewer - meanings, readings, statistics, and codepoints. |
 | [`dictionary-kanji-meta-bank-v3-schema.json`](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas/dictionary-kanji-meta-bank-v3-schema.json) | `kanji_meta-bank_${number}.json` | Stores kanji frequency data.                                                           |
@@ -85,7 +92,6 @@ The second item in the array of the tag bank schema determines the tag category,
 - partOfSpeech
 - search
 - pronunciation-dictionary
-- search
 
 You can view the tag colors [here](https://github.com/Ajatt-Tools/rikaitan/blob/e60ec04b262301caaee0ecc9289ad5c3ddd15d7d/ext/css/display.css#L136-L149).
 
