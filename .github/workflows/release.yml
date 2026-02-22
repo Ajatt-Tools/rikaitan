@@ -6,6 +6,7 @@ permissions: {}
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: cd
     permissions:
       actions: write
     steps:
