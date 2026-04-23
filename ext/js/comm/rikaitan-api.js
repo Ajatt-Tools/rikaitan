@@ -431,7 +431,7 @@ export class RikaitanApi {
 
             commonDatas.push({
                 dictionaryEntry: dictionaryEntry,
-                resultOutputMode: 'group',
+                resultOutputMode: options.general.resultOutputMode,
                 cardFormat: {
                     type: 'term',
                     name: '',
@@ -440,8 +440,8 @@ export class RikaitanApi {
                     fields: {},
                     icon: 'big-circle',
                 },
-                glossaryLayoutMode: 'default',
-                compactTags: false,
+                glossaryLayoutMode: options.general.glossaryLayoutMode,
+                compactTags: options.general.compactTags,
                 context: {
                     url: '',
                     documentTitle: '',
