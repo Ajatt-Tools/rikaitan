@@ -1,6 +1,6 @@
 # Rikaitan
 
-[![Get Rikaitan for Firefox](<https://img.shields.io/amo/v/rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable)>)](https://github.com/Ajatt-Tools/rikaitan/releases/latest/download/rikaitan-firefox-selfhosted.xpi)
+[![Get Rikaitan for Firefox](<https://img.shields.io/badge/stable-rikaitan?logo=Firefox&style=for-the-badge&color=orange&label=get%20rikaitan%20for%20firefox%20(stable)>)](https://github.com/Ajatt-Tools/rikaitan/releases/latest/download/rikaitan-firefox-selfhosted.xpi)
 [![Get Rikaitan for Chrome](<https://img.shields.io/chrome-web-store/v/pnjdahdadbkhcfamabafkjbjblbgkodk?logo=Google%20Chrome&style=for-the-badge&logoColor=lightblue&color=lightblue&label=get%20rikaitan%20for%20chrome%20(stable)>)](https://chrome.google.com/webstore/detail/rikaitan/pnjdahdadbkhcfamabafkjbjblbgkodk)
 [![Chat](https://img.shields.io/badge/chat-join-green?style=for-the-badge&logo=Element&logoColor=green)](https://tatsumoto.neocities.org/blog/join-our-community)
 
