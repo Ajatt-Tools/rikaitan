@@ -67,7 +67,7 @@
         "@eslint/compat": "^1.2.4",
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.17.0",
-        "@playwright/test": "^1.49.1",
+        "@playwright/test": "^1.57.0",
         "@stylistic/eslint-plugin": "^2.12.1",
         "@stylistic/stylelint-plugin": "^3.1.1",
         "@types/assert": "^1.5.11",
