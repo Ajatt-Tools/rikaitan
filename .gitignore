@@ -16,3 +16,6 @@ ext/manifest.json
 
 ext/lib/*
 *.old
+*TODO*
+/*.md
+!/README.md
