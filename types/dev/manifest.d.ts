@@ -21,9 +21,14 @@
  */
 export type ManifestOverrides = {
     author?: chrome.runtime.Manifest['author'] | string;
+    content_scripts?: ManifestContentScript[];
 };
 
 export type Manifest = Omit<chrome.runtime.Manifest, keyof ManifestOverrides> & ManifestOverrides;
+
+export type ManifestContentScript = NonNullable<chrome.runtime.Manifest['content_scripts']>[number] & {
+    match_origin_as_fallback?: boolean;
+};
 
 export type ManifestConfig = {
     manifest: Manifest;

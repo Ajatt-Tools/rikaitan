@@ -210,7 +210,7 @@ export class AnkiController {
 
     /**
      * @param {string} fieldValue
-     * @returns {chrome.runtime.ManifestPermission[]}
+     * @returns {chrome.runtime.ManifestPermissions[]}
      */
     getRequiredPermissions(fieldValue) {
         return getRequiredPermissionsForAnkiFieldValue(fieldValue);
@@ -1223,7 +1223,7 @@ class AnkiCardController {
     }
 
     /**
-     * @param {chrome.runtime.ManifestPermission[]} permissions
+     * @param {chrome.runtime.ManifestPermissions[]} permissions
      */
     async _requestPermissions(permissions) {
         try {
@@ -1266,7 +1266,7 @@ class AnkiCardController {
             const {inputField} = this._fieldEntries[i];
             const {requiredPermission} = inputField.dataset;
             if (typeof requiredPermission !== 'string') { continue; }
-            const requiredPermissionArray = /** @type {chrome.runtime.ManifestPermission[]} */ (requiredPermission.length === 0 ? [] : requiredPermission.split(' '));
+            const requiredPermissionArray = /** @type {chrome.runtime.ManifestPermissions[]} */ (requiredPermission.length === 0 ? [] : requiredPermission.split(' '));
 
             let hasPermissions2 = true;
             for (const permission of requiredPermissionArray) {

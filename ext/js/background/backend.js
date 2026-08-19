@@ -476,7 +476,7 @@ export class Backend {
 
 
     /**
-     * @param {chrome.tabs.OnZoomChangeInfo} event
+     * @param {chrome.tabs.ZoomChangeInfo} event
      */
     _onZoomChange({tabId, oldZoomFactor, newZoomFactor}) {
         this._sendMessageTabIgnoreResponse(tabId, {action: 'applicationZoomChanged', params: {oldZoomFactor, newZoomFactor}}, {});

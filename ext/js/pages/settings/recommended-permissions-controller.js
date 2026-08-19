@@ -81,7 +81,7 @@ export class RecommendedPermissionsController {
     async _onOptionalPermissionsToggleChange(e) {
         const node = /** @type {HTMLInputElement} */ (e.currentTarget);
         const value = node.checked;
-        /** @type {chrome.runtime.ManifestPermission[]} */
+        /** @type {chrome.runtime.ManifestPermissions[]} */
         const permissions = ['clipboardRead', 'nativeMessaging'];
         await setPermissionsGranted({permissions}, value);
         await this._updatePermissions();

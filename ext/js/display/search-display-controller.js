@@ -588,7 +588,7 @@ export class SearchDisplayController {
     }
 
     /**
-     * @param {chrome.runtime.ManifestPermission[]} permissions
+     * @param {chrome.runtime.ManifestPermissions[]} permissions
      * @returns {Promise<boolean>}
      */
     _requestPermissions(permissions) {
