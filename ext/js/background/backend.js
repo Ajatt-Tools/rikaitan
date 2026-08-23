@@ -45,6 +45,7 @@ import {ClipboardReaderProxy, DictionaryDatabaseProxy, OffscreenProxy, Translato
 import {createSchema, normalizeContext} from './profile-conditions-util.js';
 import {RequestBuilder} from './request-builder.js';
 import {injectStylesheet} from './script-manager.js';
+import {SearchPageWindowController} from './search-page-window-controller.js';
 
 /**
  * This class controls the core logic of the extension, including API calls
@@ -108,6 +109,15 @@ export class Backend {
         this._optionsUtil = new OptionsUtil();
         /** @type {AccessibilityController} */
         this._accessibilityController = new AccessibilityController();
+        // The controller owns only new-page creation. Existing-page discovery stays
+        // in the command handler so moved search tabs remain discoverable globally.
+        /** @type {SearchPageWindowController} */
+        this._searchPageWindowController = new SearchPageWindowController({
+            getProfileOptions: this._getProfileOptions.bind(this),
+            createTab: this._createTab.bind(this),
+            createWindow: this._createWindow.bind(this),
+            updateWindow: this._updateWindow.bind(this),
+        });
 
         /** @type {?number} */
         this._searchPopupTabId = null;
@@ -1249,7 +1259,7 @@ export class Backend {
                 } catch (e) {
                     // NOP
                 }
-                await this._createTab(queryUrl);
+                await this._searchPageWindowController.createSearchTabOrWindow(queryUrl);
                 return;
             case 'existingOrCurrentTab':
                 try {

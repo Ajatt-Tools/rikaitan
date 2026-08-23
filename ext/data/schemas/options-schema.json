@@ -126,6 +126,9 @@
                                     "sortFrequencyDictionary",
                                     "sortFrequencyDictionaryOrder",
                                     "stickySearchHeader",
+                                    "openSearchPageInNewWindow",
+                                    "searchPageWindowType",
+                                    "searchPageWindowState",
                                     "fontFamily",
                                     "fontSize",
                                     "lineHeight",
@@ -345,6 +348,20 @@
                                     "stickySearchHeader": {
                                         "type": "boolean",
                                         "default": false
+                                    },
+                                    "openSearchPageInNewWindow": {
+                                        "type": "boolean",
+                                        "default": true
+                                    },
+                                    "searchPageWindowType": {
+                                        "type": "string",
+                                        "enum": ["normal", "popup"],
+                                        "default": "normal"
+                                    },
+                                    "searchPageWindowState": {
+                                        "type": "string",
+                                        "enum": ["normal", "maximized", "fullscreen"],
+                                        "default": "normal"
                                     },
                                     "enableRikaitanApi": {
                                         "type": "boolean",

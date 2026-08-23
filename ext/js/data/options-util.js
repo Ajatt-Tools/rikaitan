@@ -589,6 +589,7 @@ export class OptionsUtil {
             this._updateVersion75,
             this._updateVersion76,
             this._updateVersion77,
+            this._updateVersion78,
         ];
         /* eslint-enable @typescript-eslint/unbound-method */
         if (typeof targetVersion === 'number' && targetVersion < result.length) {
@@ -1844,6 +1845,22 @@ export class OptionsUtil {
      */
     async _updateVersion77(options) {
         await this._applyAnkiFieldTemplatesPatch(options, '/data/templates/anki-field-templates-upgrade-v77.handlebars');
+    }
+
+    /**
+     * - Added general.openSearchPageInNewWindow.
+     * - Added general.searchPageWindowType.
+     * - Added general.searchPageWindowState.
+     * - Defaulted search-page commands to a dedicated window.
+     * @type {import('options-util').UpdateFunction}
+     */
+    async _updateVersion78(options) {
+        for (const profile of options.profiles) {
+            // This feature intentionally changes the default even for profiles that already contain valid values.
+            profile.options.general.openSearchPageInNewWindow = true;
+            profile.options.general.searchPageWindowType = 'normal';
+            profile.options.general.searchPageWindowState = 'normal';
+        }
     }
 
     /**

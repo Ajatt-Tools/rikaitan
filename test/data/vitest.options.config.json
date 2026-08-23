@@ -1,7 +1,8 @@
 {
     "test": {
         "include": [
-            "test/options-util.test.js"
+            "test/options-util.test.js",
+            "test/options-util-search-window.test.js"
         ]
     }
 }

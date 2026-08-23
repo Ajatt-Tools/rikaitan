@@ -32,7 +32,7 @@
             <a href="#appearance"       class="button outline-item"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="palette"></span></span><span class="outline-item-label">Appearance</span></a>
             <a href="#result-display"   class="button outline-item"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="monitor"></span></span><span class="outline-item-label">Result Display</span></a>
             <a href="#popup-size"       class="button outline-item"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="popup-size"></span></span><span class="outline-item-label">Position &amp; Size</span></a>
-            <a href="#window"           class="button outline-item advanced-only"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="window"></span></span><span class="outline-item-label">Search Window</span></a>
+            <a href="#window"           class="button outline-item"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="window"></span></span><span class="outline-item-label">Search Window</span></a>
             <a href="#audio"            class="button outline-item"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="speaker"></span></span><span class="outline-item-label">Audio</span></a>
             <a href="#text-parsing"     class="button outline-item"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="text-parsing"></span></span><span class="outline-item-label">Text Parsing</span></a>
             <a href="#translation"      class="button outline-item advanced-only"><span class="outline-item-left"><span class="outline-item-icon icon" data-icon="translation"></span></span><span class="outline-item-label">Translation</span></a>
@@ -1429,10 +1429,55 @@
     </div>
 
     <!-- Search Window -->
-    <div class="heading-container advanced-only">
+    <div class="heading-container">
         <div class="heading-container-icon"><span class="icon" data-icon="window"></span></div>
         <div class="heading-container-left"><h2 id="window"><a href="#window">Search Window</a></h2></div>
-        <div class="heading-container-right"><a tabindex="0" class="heading-link-light" id="test-window-open-link">Open&hellip;</a></div>
+        <div class="heading-container-right advanced-only"><a tabindex="0" class="heading-link-light" id="test-window-open-link">Open&hellip;</a></div>
+    </div>
+    <div class="settings-group">
+        <div class="settings-item"><div class="settings-item-inner">
+            <div class="settings-item-left">
+                <div class="settings-item-label">Open the search page in a new window</div>
+                <div class="settings-item-description">When no search page is already open, open the <a href="/search.html" target="_blank" rel="noopener">search page</a> in a new window instead of a new tab when using the keyboard shortcut or toolbar button.</div>
+            </div>
+            <div class="settings-item-right">
+                <label class="toggle"><input type="checkbox" data-setting="general.openSearchPageInNewWindow"
+                    data-transform='{
+                        "type": "setVisibility",
+                        "selector": "#search-page-window-style-container",
+                        "condition": {"op": "===", "value": true}
+                    }'
+                ><span class="toggle-body"><span class="toggle-track"></span><span class="toggle-knob"></span></span></label>
+            </div>
+        </div></div>
+        <div id="search-page-window-style-container" hidden>
+            <div class="settings-item"><div class="settings-item-inner settings-item-inner-wrappable">
+                <div class="settings-item-left">
+                    <div class="settings-item-label">Search page window style</div>
+                    <div class="settings-item-description">Change the appearance of the window used for the search page.</div>
+                </div>
+                <div class="settings-item-right">
+                    <div class="settings-item-group">
+                        <div class="settings-item-group-item">
+                            <div class="settings-item-group-item-label">Type</div>
+                            <!-- Keep these options synchronized with the scan-popup window type and state controls below. -->
+                            <select class="short-width short-height" data-setting="general.searchPageWindowType">
+                                <option value="normal">Normal</option>
+                                <option value="popup">Popup</option>
+                            </select>
+                        </div>
+                        <div class="settings-item-group-item">
+                            <div class="settings-item-group-item-label">State</div>
+                            <select class="short-width short-height" data-setting="general.searchPageWindowState">
+                                <option value="normal">Normal</option>
+                                <option value="maximized">Maximized</option>
+                                <option value="fullscreen">Fullscreen</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+        </div>
     </div>
     <div class="settings-group advanced-only">
         <div class="settings-item">

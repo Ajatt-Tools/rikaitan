@@ -153,6 +153,9 @@ export type GeneralOptions = {
     sortFrequencyDictionary: string | null;
     sortFrequencyDictionaryOrder: SortFrequencyDictionaryOrder;
     stickySearchHeader: boolean;
+    openSearchPageInNewWindow: boolean;
+    searchPageWindowType: PopupWindowType;
+    searchPageWindowState: PopupWindowState;
     enableRikaitanApi: boolean;
     rikaitanApiAllowCssSanitizationBypass: boolean;
 };

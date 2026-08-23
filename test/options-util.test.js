@@ -314,6 +314,9 @@ function createProfileOptionsUpdatedTestData1() {
             sortFrequencyDictionary: null,
             sortFrequencyDictionaryOrder: 'descending',
             stickySearchHeader: false,
+            openSearchPageInNewWindow: true,
+            searchPageWindowType: 'normal',
+            searchPageWindowState: 'normal',
             enableRikaitanApi: false,
             rikaitanApiServer: 'http://127.0.0.1:19633',
             rikaitanApiAllowCssSanitizationBypass: false,
@@ -707,7 +710,7 @@ function createOptionsUpdatedTestData1() {
             },
         ],
         profileCurrent: 0,
-        version: 77,
+        version: 78,
         global: {
             database: {
                 prefixWildcardsSupported: false,
