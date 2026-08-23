@@ -22,8 +22,8 @@ Familiarity with the [Rikaitan schemas](https://github.com/Ajatt-Tools/rikaitan/
 
 Below is a list of Rikaitan dictionary schemas, their expected filenames, and their usage:
 
-| Schema                                                                                                                                                    | Expected Filename                | Usage                                                                                  |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------- |
+| Schema                                                                                                                                                      | Expected Filename                | Usage                                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------- |
 | [`dictionary-index-schema.json`](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas/dictionary-index-schema.json)                           | `index.json`                     | Metadata about the dictionary. Please include as much detail as possible.              |
 | [`dictionary-kanji-bank-v3-schema.json`](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas/dictionary-kanji-bank-v3-schema.json)           | `kanji_bank_${number}.json`      | Information used in the kanji viewer - meanings, readings, statistics, and codepoints. |
 | [`dictionary-kanji-meta-bank-v3-schema.json`](https://github.com/Ajatt-Tools/rikaitan/tree/main/ext/data/schemas/dictionary-kanji-meta-bank-v3-schema.json) | `kanji_meta-bank_${number}.json` | Stores kanji frequency data.                                                           |
