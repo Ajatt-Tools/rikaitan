@@ -18,6 +18,8 @@
 import type {DictionaryController} from '../../ext/js/pages/settings/dictionary-controller';
 import type {ScanInputsController} from '../../ext/js/pages/settings/scan-inputs-controller';
 import type {ScanInputsSimpleController} from '../../ext/js/pages/settings/scan-inputs-simple-controller';
+// The schema generator only loads this declaration's imports, including Chrome type compatibility.
+import type {} from '../other/globals';
 import type * as Core from './core';
 import type * as Settings from './settings';
 import type * as SettingsModifications from './settings-modifications';

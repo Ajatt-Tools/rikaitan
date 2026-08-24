@@ -17,6 +17,18 @@
 
 declare global {
     function clearTimeout(timeoutId: NodeJS.Timeout | string | number | undefined): void;
+
+    namespace chrome {
+        namespace runtime {
+            // @types/chrome renamed this established project alias in version 0.2.2.
+            type ManifestPermissions = ManifestPermission;
+        }
+
+        namespace tabs {
+            // Preserve the existing event type name while using the renamed upstream declaration.
+            type ZoomChangeInfo = OnZoomChangeInfo;
+        }
+    }
 }
 
 export { };

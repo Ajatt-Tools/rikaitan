@@ -8,6 +8,10 @@
     "engines": {
         "node": ">=22.0.0"
     },
+    "allowScripts": {
+        "esbuild@0.25.1": true,
+        "github:Ajatt-Tools/kanji-processor#342987780d8ab59c75d63aca6e3478126f8eea2f": true
+    },
     "type": "module",
     "scripts": {
         "anki:css-json:write": "node ./dev/bin/generate-css-json.js --dryRun --all",
