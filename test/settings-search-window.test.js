@@ -38,13 +38,12 @@ async function withSettingsDom(callback) {
 }
 
 /**
- * Loads the generic settings binder with the supplied search-window values.
- * @param {boolean} enabled
+ * Loads the generic settings binder with dedicated-window values.
  * @returns {Promise<{dispose: () => void, modifySettings: import('vitest').Mock}>}
  */
-async function prepareGenericSettingController(enabled) {
+async function prepareGenericSettingController() {
     const settingsController = new MutableSettingsController({
-        'general.openSearchPageInNewWindow': enabled,
+        'general.openSearchPageInNewWindow': true,
         'general.searchPageWindowType': 'popup',
         'general.searchPageWindowState': 'maximized',
     });
@@ -62,17 +61,17 @@ async function prepareGenericSettingController(enabled) {
 }
 
 describe('Search Window settings visibility', () => {
-    domTest('keeps the sidebar link and section visible in basic mode', ({window}) => {
+    domTest('keeps the sidebar link and section advanced-only', ({window}) => {
         const {document} = window;
         const sidebarLink = document.querySelector('.sidebar a[href="#window"]');
         const section = document.querySelector('#window')?.closest('.heading-container');
         // Scope the query to prevent the heading anchor from masking a missing sidebar link.
         expect(sidebarLink).not.toBeNull();
-        expect(sidebarLink?.classList.contains('advanced-only')).toBe(false);
-        expect(section?.classList.contains('advanced-only')).toBe(false);
+        expect(sidebarLink?.classList.contains('advanced-only')).toBe(true);
+        expect(section?.classList.contains('advanced-only')).toBe(true);
     });
 
-    domTest('keeps pre-existing Search Window controls advanced-only', ({window}) => {
+    domTest('keeps all Search Window controls in the original advanced group', ({window}) => {
         const {document} = window;
         const controlSelectors = [
             '[data-setting="general.stickySearchHeader"]',
@@ -85,16 +84,19 @@ describe('Search Window settings visibility', () => {
             '[data-setting="popupWindow.useTop"]',
             '[data-setting="popupWindow.windowType"]',
             '[data-setting="popupWindow.windowState"]',
+            '[data-setting="general.openSearchPageInNewWindow"]',
+            '[data-setting="general.searchPageWindowType"]',
+            '[data-setting="general.searchPageWindowState"]',
         ];
         const testWindowLink = document.querySelector('#test-window-open-link');
-        expect(testWindowLink?.closest('.heading-container-right')?.classList.contains('advanced-only')).toBe(true);
+        expect(testWindowLink?.closest('.heading-container-right')?.classList.contains('advanced-only')).toBe(false);
         for (const selector of controlSelectors) {
             const control = document.querySelector(selector);
             expect(control?.closest('.settings-group')?.classList.contains('advanced-only')).toBe(true);
         }
     });
 
-    domTest('renders all basic Search Window controls', ({window}) => {
+    domTest('renders dedicated Search Window controls', ({window}) => {
         const {document} = window;
         for (const {setting, tagName, values} of [
             {setting: 'general.openSearchPageInNewWindow', tagName: 'INPUT', values: []},
@@ -103,71 +105,8 @@ describe('Search Window settings visibility', () => {
         ]) {
             const control = document.querySelector(`[data-setting="${setting}"]`);
             expect(control?.tagName).toBe(tagName);
-            expect(control?.closest('.settings-group')?.classList.contains('advanced-only')).toBe(false);
+            expect(control?.closest('.settings-group')?.classList.contains('advanced-only')).toBe(true);
             expect([...control?.querySelectorAll('option') ?? []].map(({value}) => value)).toStrictEqual(values);
-        }
-    });
-
-    test.each([
-        {name: 'enabled', enabled: true, hidden: false},
-        {name: 'disabled', enabled: false, hidden: true},
-    ])('initially $name shows window style controls only when dedicated windows are enabled', async ({enabled, hidden}) => {
-        await withSettingsDom(async (window) => {
-            const {document} = window;
-            const {dispose} = await prepareGenericSettingController(enabled);
-            try {
-                const toggle = document.querySelector('[data-setting="general.openSearchPageInNewWindow"]');
-                expect(toggle?.getAttribute('type')).toBe('checkbox');
-                const styleContainer = /** @type {HTMLElement} */ (document.querySelector('#search-page-window-style-container'));
-                expect(styleContainer.hidden).toBe(hidden);
-                expect(/** @type {HTMLInputElement} */ (toggle).checked).toBe(enabled);
-                const windowType = /** @type {HTMLSelectElement} */ (document.querySelector('[data-setting="general.searchPageWindowType"]'));
-                const windowState = /** @type {HTMLSelectElement} */ (document.querySelector('[data-setting="general.searchPageWindowState"]'));
-                expect(windowType.value).toBe('popup');
-                expect(windowState.value).toBe('maximized');
-            } finally {
-                // Disconnect even when an initial binding assertion fails before DOM teardown.
-                dispose();
-            }
-        });
-    });
-
-    domTest('updates window-style visibility and persists the setting after toggling the checkbox', async ({window}) => {
-        const {document} = window;
-        const {dispose, modifySettings} = await prepareGenericSettingController(true);
-        const toggle = /** @type {HTMLInputElement} */ (document.querySelector('[data-setting="general.openSearchPageInNewWindow"]'));
-        const container = /** @type {HTMLElement} */ (document.querySelector('#search-page-window-style-container'));
-
-        try {
-            toggle.checked = false;
-            toggle.dispatchEvent(new Event('change'));
-            await vi.waitFor(() => expect(modifySettings).toHaveBeenCalled());
-
-            expect(container.hidden).toBe(true);
-            expect(modifySettings).toHaveBeenCalledWith([{
-                action: 'set',
-                path: 'general.openSearchPageInNewWindow',
-                scope: 'profile',
-                optionsContext: null,
-                value: false,
-            }]);
-
-            // A live false-to-true transition must reveal the controls after persistence.
-            toggle.checked = true;
-            toggle.dispatchEvent(new Event('change'));
-            await vi.waitFor(() => expect(modifySettings).toHaveBeenCalledTimes(2));
-
-            expect(container.hidden).toBe(false);
-            expect(modifySettings).toHaveBeenLastCalledWith([{
-                action: 'set',
-                path: 'general.openSearchPageInNewWindow',
-                scope: 'profile',
-                optionsContext: null,
-                value: true,
-            }]);
-        } finally {
-            // Event listeners must not outlive an assertion failure in this DOM fixture.
-            dispose();
         }
     });
 
@@ -177,7 +116,7 @@ describe('Search Window settings visibility', () => {
     ])('persists $setting through the generic settings binder', async ({setting, value}) => {
         await withSettingsDom(async (window) => {
             const {document} = window;
-            const {dispose, modifySettings} = await prepareGenericSettingController(true);
+            const {dispose, modifySettings} = await prepareGenericSettingController();
             const control = /** @type {HTMLSelectElement} */ (document.querySelector(`[data-setting="${setting}"]`));
             try {
                 control.value = value;
@@ -198,11 +137,35 @@ describe('Search Window settings visibility', () => {
         });
     });
 
-    domTest('keeps scan-popup geometry controls out of the basic Search Window group', ({window}) => {
+    domTest('persists the dedicated-window preference through the generic settings binder', async ({window}) => {
+        const {document} = window;
+        const {dispose, modifySettings} = await prepareGenericSettingController();
+        const toggle = /** @type {HTMLInputElement} */ (document.querySelector('[data-setting="general.openSearchPageInNewWindow"]'));
+
+        try {
+            toggle.checked = false;
+            toggle.dispatchEvent(new Event('change'));
+            await vi.waitFor(() => expect(modifySettings).toHaveBeenCalledTimes(1));
+
+            expect(modifySettings).toHaveBeenCalledWith([{
+                action: 'set',
+                path: 'general.openSearchPageInNewWindow',
+                scope: 'profile',
+                optionsContext: null,
+                value: false,
+            }]);
+        } finally {
+            // Disconnect before the DOM fixture removes browser globals after a failed assertion.
+            dispose();
+        }
+    });
+
+    domTest('keeps dedicated controls in the legacy Search Window group', ({window}) => {
         const {document} = window;
         const toggle = document.querySelector('[data-setting="general.openSearchPageInNewWindow"]');
-        const basicGroup = toggle?.closest('.settings-group');
-        const geometryControls = basicGroup?.querySelectorAll('[data-setting^="popupWindow."]');
-        expect([...geometryControls ?? []]).toStrictEqual([]);
+        const group = toggle?.closest('.settings-group');
+        const stickyHeader = document.querySelector('[data-setting="general.stickySearchHeader"]');
+        expect(group).toBe(stickyHeader?.closest('.settings-group'));
+        expect(group?.classList.contains('advanced-only')).toBe(true);
     });
 });
