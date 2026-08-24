@@ -17,18 +17,25 @@
 
 import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 import {SearchPageWindowController} from '../ext/js/background/search-page-window-controller.js';
+import {createSearchWindowBrowserMock, malformedPrivateBrowsingContexts} from './fixtures/search-window-browser.js';
 
-const chromeMock = {
-    runtime: {lastError: /** @type {object|undefined} */ (void 0)},
-    windows: /** @type {object|undefined} */ ({}),
-};
+/** @type {import('core').SafeAny} */
+let chromeMock;
 
 beforeEach(() => {
     // Keep this browser-global mock local to each test worker and test case.
-    vi.stubGlobal('chrome', chromeMock);
-    chromeMock.runtime.lastError = void 0;
-    setLastFocusedWindow({incognito: false});
+    setChromeMock();
 });
+
+/**
+ * Replaces the callback-only browser APIs for a specific controller scenario.
+ * @param {import('./fixtures/search-window-browser.js').SearchWindowBrowserOptions} [options]
+ * @returns {void}
+ */
+function setChromeMock(options = {}) {
+    ({chromeMock} = createSearchWindowBrowserMock(options));
+    vi.stubGlobal('chrome', chromeMock);
+}
 
 afterEach(() => {
     vi.unstubAllGlobals();
@@ -40,7 +47,7 @@ const testUrl = 'https://example.invalid/search.html';
 /**
  * @typedef {object} SearchWindowOutcome
  * @property {string} name
- * @property {() => void} [prepare]
+ * @property {import('./fixtures/search-window-browser.js').SearchWindowBrowserOptions} [browserOptions]
  * @property {() => Partial<import('search-page-window-controller').BackendDeps>} createOverrides
  * @property {number} tabCalls
  * @property {number} windowCalls
@@ -55,24 +62,6 @@ const defaultSearchPageWindowOptions = {
     searchPageWindowType: 'normal',
     searchPageWindowState: 'normal',
 };
-
-/**
- * @param {unknown} window
- * @param {object|undefined} [error]
- * @returns {void}
- */
-function setLastFocusedWindow(window, error = void 0) {
-    chromeMock.windows = {
-        getLastFocused: (
-            /** @type {unknown} */ options,
-            /** @type {(window: object) => void} */ callback,
-        ) => {
-            void options;
-            chromeMock.runtime.lastError = error;
-            callback(/** @type {object} */ (window));
-        },
-    };
-}
 
 /**
  * @param {Partial<import('search-page-window-controller').SearchPageWindowOptions>} [overrides]
@@ -119,10 +108,11 @@ function windowWithoutId() {
 
 describe('SearchPageWindowController.createSearchTabOrWindow', () => {
     test.each([
-        {name: 'the option is disabled', optionOverrides: {openSearchPageInNewWindow: false}, windows: {}},
-        {name: 'windows are unavailable', optionOverrides: {}, windows: void 0},
-    ])('creates a tab when $name', async ({optionOverrides, windows}) => {
-        chromeMock.windows = windows;
+        // Keep usable APIs here so this row fails if the preference is ignored.
+        {name: 'the option is disabled', optionOverrides: {openSearchPageInNewWindow: false}, windowsAvailable: true},
+        {name: 'windows are unavailable', optionOverrides: {}, windowsAvailable: false},
+    ])('creates a tab when $name', async ({optionOverrides, windowsAvailable}) => {
+        if (!windowsAvailable) { chromeMock.windows = void 0; }
         const {controller, deps} = createController({getProfileOptions: profileOptionsWith(optionOverrides)});
 
         await controller.createSearchTabOrWindow(testUrl);
@@ -145,7 +135,7 @@ describe('SearchPageWindowController.createSearchTabOrWindow', () => {
     });
 
     test('preserves the private browsing context', async () => {
-        setLastFocusedWindow({incognito: true});
+        setChromeMock({incognito: true});
         const {controller, deps} = createController();
 
         await controller.createSearchTabOrWindow(testUrl);
@@ -172,15 +162,15 @@ describe('SearchPageWindowController.createSearchTabOrWindow', () => {
         },
         {
             name: 'the private browsing context cannot be determined',
-            prepare: () => setLastFocusedWindow({}),
+            browserOptions: {lastFocusedWindowResult: {}},
             createOverrides: () => ({}),
             tabCalls: 1,
             windowCalls: 0,
             updateCalls: 0,
         },
-        ...[null, 0, 'false'].map((incognito) => ({
+        ...malformedPrivateBrowsingContexts.map((incognito) => ({
             name: `the private browsing context is malformed (${JSON.stringify(incognito)})`,
-            prepare: () => setLastFocusedWindow({incognito}),
+            browserOptions: {incognito},
             createOverrides: () => ({}),
             tabCalls: 1,
             windowCalls: 0,
@@ -188,7 +178,7 @@ describe('SearchPageWindowController.createSearchTabOrWindow', () => {
         })),
         {
             name: 'getting the last-focused window reports an error',
-            prepare: () => setLastFocusedWindow({}, {message: 'getLastFocused is unsupported'}),
+            browserOptions: {getLastFocusedError: {message: 'getLastFocused is unsupported'}},
             createOverrides: () => ({}),
             tabCalls: 1,
             windowCalls: 0,
@@ -197,7 +187,7 @@ describe('SearchPageWindowController.createSearchTabOrWindow', () => {
         {
             name: 'the last-focused window API is unavailable',
             // A partially implemented windows namespace must not create a regular window.
-            prepare: () => { chromeMock.windows = {}; },
+            browserOptions: {getLastFocused: false},
             createOverrides: () => ({}),
             tabCalls: 1,
             windowCalls: 0,
@@ -222,8 +212,8 @@ describe('SearchPageWindowController.createSearchTabOrWindow', () => {
         },
     ];
 
-    test.each(outcomes)('handles the outcome when $name', async ({prepare, createOverrides, tabCalls, windowCalls, updateCalls}) => {
-        prepare?.();
+    test.each(outcomes)('handles the outcome when $name', async ({browserOptions, createOverrides, tabCalls, windowCalls, updateCalls}) => {
+        if (browserOptions) { setChromeMock(browserOptions); }
         const {controller, deps} = createController(createOverrides());
 
         await controller.createSearchTabOrWindow(testUrl);
@@ -231,6 +221,10 @@ describe('SearchPageWindowController.createSearchTabOrWindow', () => {
         expect(deps.createTab).toHaveBeenCalledTimes(tabCalls);
         expect(deps.createWindow).toHaveBeenCalledTimes(windowCalls);
         expect(deps.updateWindow).toHaveBeenCalledTimes(updateCalls);
+        if (tabCalls > 0) {
+            // Every failed window path must preserve the original search-page destination.
+            expect(deps.createTab).toHaveBeenCalledWith(testUrl);
+        }
     });
 
     test('does not update a window whose configured state is normal', async () => {

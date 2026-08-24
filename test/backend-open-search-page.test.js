@@ -17,8 +17,7 @@
 
 import {afterEach, describe, expect, test, vi} from 'vitest';
 import {Backend} from '../ext/js/background/backend.js';
-
-/* eslint-disable jsdoc/no-undefined-types */
+import {createSearchWindowBrowserMock, malformedPrivateBrowsingContexts} from './fixtures/search-window-browser.js';
 
 afterEach(() => {
     vi.unstubAllGlobals();
@@ -65,62 +64,12 @@ function createCommandTestContext(overrides = {}) {
 /**
  * Creates a command backend using the constructor-created window controller
  * and Backend callback wrappers.
- * @param {{incognito?: unknown, optionsAvailable?: boolean, createWindow?: boolean, createWindowError?: object, updateWindowError?: object}} [options]
- * @returns {{backend: Backend, createTab: import('vitest').Mock, createWindow: import('vitest').Mock, updateWindow: import('vitest').Mock}}
+ * @param {import('./fixtures/search-window-browser.js').SearchWindowBrowserOptions & {optionsAvailable?: boolean}} [options]
+ * @returns {{backend: Backend, createTab: import('vitest').Mock, createWindow: import('vitest').Mock, getLastFocused: import('vitest').Mock, updateWindow: import('vitest').Mock}}
  */
 function createIntegratedCommandTestContext(options = {}) {
-    const {incognito = false, optionsAvailable = true, createWindow = true, createWindowError, updateWindowError} = options;
-    const createTab = vi.fn(
-        /**
-         * @param {chrome.tabs.CreateProperties} createProperties
-         * @param {(tab: chrome.tabs.Tab) => void} callback
-         * @returns {void}
-         */
-        (createProperties, callback) => {
-            callback(/** @type {chrome.tabs.Tab} */ (/** @type {unknown} */ ({id: 1, url: createProperties.url})));
-        },
-    );
-    const createWindowCallback = vi.fn(
-        /**
-         * @param {chrome.windows.CreateData} createData
-         * @param {(window: chrome.windows.Window) => void} callback
-         * @returns {void}
-         */
-        (createData, callback) => {
-            chromeMock.runtime.lastError = createWindowError;
-            callback(/** @type {chrome.windows.Window} */ (/** @type {unknown} */ ({id: 2, ...createData})));
-            chromeMock.runtime.lastError = void 0;
-        },
-    );
-    const updateWindow = vi.fn(
-        /**
-         * @param {number} windowId
-         * @param {chrome.windows.UpdateInfo} updateInfo
-         * @param {(window: chrome.windows.Window) => void} callback
-         * @returns {void}
-         */
-        (windowId, updateInfo, callback) => {
-            chromeMock.runtime.lastError = updateWindowError;
-            void updateInfo;
-            callback(/** @type {chrome.windows.Window} */ (/** @type {unknown} */ ({id: windowId})));
-            chromeMock.runtime.lastError = void 0;
-        },
-    );
-    const chromeMock = {
-        runtime: {
-            getURL: vi.fn(() => 'chrome-extension://test/search.html'),
-            lastError: /** @type {object|undefined} */ (void 0),
-        },
-        tabs: {create: createTab},
-        windows: {
-            getLastFocused: (/** @type {unknown} */ windowOptions, /** @type {(window: chrome.windows.Window) => void} */ callback) => {
-                void windowOptions;
-                callback(/** @type {chrome.windows.Window} */ (/** @type {unknown} */ ({incognito})));
-            },
-            ...(createWindow ? {create: createWindowCallback} : {}),
-            update: updateWindow,
-        },
-    };
+    const {optionsAvailable = true, updateWindowError, updateWindow: updateWindowAvailable = true} = options;
+    const {chromeMock, createTab, createWindow, getLastFocused, updateWindow} = createSearchWindowBrowserMock(options);
     vi.stubGlobal('chrome', chromeMock);
     // Use the constructor so this test detects broken controller dependency wiring.
     const backend = new Backend(/** @type {import('../ext/js/extension/web-extension.js').WebExtension} */ ({}));
@@ -132,17 +81,16 @@ function createIntegratedCommandTestContext(options = {}) {
                 general: {
                     openSearchPageInNewWindow: true,
                     searchPageWindowType: 'normal',
-                    searchPageWindowState: updateWindowError ? 'maximized' : 'normal',
+                    // A non-normal state ensures unavailable update APIs exercise Backend's wrapper path.
+                    searchPageWindowState: updateWindowError || !updateWindowAvailable ? 'maximized' : 'normal',
                 },
             }}],
         }));
     }
     backend._findTabs = vi.fn(async () => null);
     /* eslint-enable no-underscore-dangle */
-    return {backend, createTab, createWindow: createWindowCallback, updateWindow};
+    return {backend, createTab, createWindow, getLastFocused, updateWindow};
 }
-
-/* eslint-enable jsdoc/no-undefined-types */
 
 describe('Backend._onCommandOpenSearchPage', () => {
     test.each([
@@ -198,7 +146,7 @@ describe('Backend._onCommandOpenSearchPage', () => {
         {name: 'a regular window', incognito: false},
         {name: 'a private window', incognito: true},
     ])('opens a dedicated search window from $name through Backend callback wrappers', async ({incognito}) => {
-        const {backend, createTab, createWindow} = createIntegratedCommandTestContext({incognito});
+        const {backend, createTab, createWindow, getLastFocused} = createIntegratedCommandTestContext({incognito});
 
         // eslint-disable-next-line no-underscore-dangle, no-undefined, unicorn/no-useless-undefined
         await backend._onCommandOpenSearchPage(undefined);
@@ -206,6 +154,8 @@ describe('Backend._onCommandOpenSearchPage', () => {
         expect(createWindow).toHaveBeenCalledWith({
             url: 'chrome-extension://test/search.html', type: 'normal', state: 'normal', incognito,
         }, expect.any(Function));
+        expect(getLastFocused).toHaveBeenCalledWith({}, expect.any(Function));
+        expect(createWindow).toHaveBeenCalledTimes(1);
         expect(createTab).not.toHaveBeenCalled();
     });
 
@@ -218,7 +168,12 @@ describe('Backend._onCommandOpenSearchPage', () => {
         // These must traverse Backend's callback wrappers, not just controller mocks.
         {name: 'the windows.create API is missing', options: {createWindow: false}, windowCalls: 0},
         {name: 'options are unavailable during service-worker startup', options: {optionsAvailable: false}, windowCalls: 0},
-        {name: 'the private browsing context is malformed', options: {incognito: 'false'}, windowCalls: 0},
+        {name: 'the last-focused-window API is missing', options: {getLastFocused: false}, windowCalls: 0},
+        {name: 'getting the last-focused window reports a browser error', options: {getLastFocusedError: {message: 'lookup failed'}}, windowCalls: 0},
+        {name: 'the private browsing context is missing', options: {lastFocusedWindowResult: {}}, windowCalls: 0},
+        ...malformedPrivateBrowsingContexts.map((incognito) => ({
+            name: `the private browsing context is malformed (${JSON.stringify(incognito)})`, options: {incognito}, windowCalls: 0,
+        })),
     ])('falls back to a tab when $name through Backend callback wrappers', async ({options, windowCalls}) => {
         const {backend, createTab, createWindow} = createIntegratedCommandTestContext(options);
 
@@ -226,7 +181,19 @@ describe('Backend._onCommandOpenSearchPage', () => {
         await backend._onCommandOpenSearchPage(undefined);
 
         expect(createTab).toHaveBeenCalledWith({url: 'chrome-extension://test/search.html'}, expect.any(Function));
+        expect(createTab).toHaveBeenCalledTimes(1);
         expect(createWindow).toHaveBeenCalledTimes(windowCalls);
+    });
+
+    test('does not create a second page when windows.create omits its result', async () => {
+        const {backend, createTab, createWindow} = createIntegratedCommandTestContext({windowResult: void 0});
+
+        // The browser accepted creation; retrying in a tab could create a duplicate search page.
+        // eslint-disable-next-line no-underscore-dangle, no-undefined, unicorn/no-useless-undefined
+        await backend._onCommandOpenSearchPage(undefined);
+
+        expect(createWindow).toHaveBeenCalledTimes(1);
+        expect(createTab).not.toHaveBeenCalled();
     });
 
     test('does not open a fallback tab when applying the optional window state reports a browser error', async () => {
@@ -238,7 +205,20 @@ describe('Backend._onCommandOpenSearchPage', () => {
         await backend._onCommandOpenSearchPage(undefined);
 
         expect(createWindow).toHaveBeenCalledTimes(1);
-        expect(updateWindow).toHaveBeenCalledTimes(1);
+        // Assert wrapper arguments as well as the fallback behavior at the Backend/controller seam.
+        expect(updateWindow).toHaveBeenCalledWith(2, {state: 'maximized'}, expect.any(Function));
+        expect(createTab).not.toHaveBeenCalled();
+    });
+
+    test('does not open a fallback tab when windows.update is unavailable after creation', async () => {
+        const {backend, createTab, createWindow, updateWindow} = createIntegratedCommandTestContext({updateWindow: false});
+
+        // State application is optional; a partially implemented API must not duplicate the created page.
+        // eslint-disable-next-line no-underscore-dangle, no-undefined, unicorn/no-useless-undefined
+        await backend._onCommandOpenSearchPage(undefined);
+
+        expect(createWindow).toHaveBeenCalledTimes(1);
+        expect(updateWindow).not.toHaveBeenCalled();
         expect(createTab).not.toHaveBeenCalled();
     });
 
@@ -294,7 +274,6 @@ describe('Backend._onCommandOpenSearchPage', () => {
         const focusTab = vi.fn(async () => {});
         const updateSearchQuery = vi.fn(async () => {});
         const {backend, createSearchTabOrWindow} = createCommandTestContext({
-            _normalizeOpenSettingsPageMode: vi.fn(() => 'existingOrNewTab'),
             _focusTab: focusTab,
             _updateSearchQuery: updateSearchQuery,
             // Keep discovery real so the command remains protected against a future current-window query.
@@ -314,8 +293,9 @@ describe('Backend._onCommandOpenSearchPage', () => {
         // This is intentionally callback-only: Backend must support browsers without the Promise overload.
         chrome.tabs = /** @type {import('core').SafeAny} */ ({query: queryTabs});
 
-        // eslint-disable-next-line no-underscore-dangle
-        await backend._onCommandOpenSearchPage({mode: 'existingOrNewTab'});
+        // The parameterless command is the default path whose global discovery must survive tab moves.
+        // eslint-disable-next-line no-underscore-dangle, no-undefined, unicorn/no-useless-undefined
+        await backend._onCommandOpenSearchPage(undefined);
 
         expect(queryTabs).toHaveBeenCalledWith({}, expect.any(Function));
         expect(focusTab).toHaveBeenCalledWith({id: 42, windowId: 99});

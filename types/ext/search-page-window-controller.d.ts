@@ -24,7 +24,8 @@ export type BackendDeps = {
         useSchema: boolean,
     ) => {general: SearchPageWindowOptions};
     createTab: (url: string) => Promise<unknown>;
-    createWindow: (createData: chrome.windows.CreateData) => Promise<Pick<chrome.windows.Window, 'id'>>;
+    // Browsers can accept creation but omit a result; callers must not open a duplicate fallback tab.
+    createWindow: (createData: chrome.windows.CreateData) => Promise<Pick<chrome.windows.Window, 'id'> | undefined>;
     updateWindow: (
         windowId: number,
         updateInfo: chrome.windows.UpdateInfo,

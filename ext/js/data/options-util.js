@@ -1851,7 +1851,7 @@ export class OptionsUtil {
      * - Added general.openSearchPageInNewWindow.
      * - Added general.searchPageWindowType.
      * - Added general.searchPageWindowState.
-     * - Defaulted search-page commands to a dedicated window.
+     * - Defaulted the standard open-search-page command to a dedicated window.
      * @type {import('options-util').UpdateFunction}
      */
     async _updateVersion78(options) {

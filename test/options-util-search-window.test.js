@@ -66,34 +66,58 @@ describe('OptionsUtil search page window options', () => {
         ]);
     });
 
+    test('preserves valid non-default search page window preferences at the current version', async () => {
+        const optionsUtil = await createOptionsUtil();
+        const options = optionsUtil.getDefault();
+        const {general} = options.profiles[0].options;
+        // Migration establishes the new default once; later validation must preserve a user's opt-out and style choices.
+        general.openSearchPageInNewWindow = false;
+        general.searchPageWindowType = 'popup';
+        general.searchPageWindowState = 'fullscreen';
+
+        const updatedOptions = await optionsUtil.update(options);
+
+        expect(getSearchPageWindowOptions(updatedOptions)).toStrictEqual([
+            {openSearchPageInNewWindow: false, searchPageWindowType: 'popup', searchPageWindowState: 'fullscreen'},
+        ]);
+    });
+
     test.each([
         {
             name: 'the dedicated-window toggle has the wrong type',
             setInvalidValue: (/** @type {import('settings').GeneralOptions} */ general) => {
                 general.openSearchPageInNewWindow = /** @type {boolean} */ (/** @type {unknown} */ ('true'));
             },
+            expected: {openSearchPageInNewWindow: true, searchPageWindowType: 'popup', searchPageWindowState: 'fullscreen'},
         },
         {
             name: 'the window type is invalid',
             setInvalidValue: (/** @type {import('settings').GeneralOptions} */ general) => {
                 general.searchPageWindowType = /** @type {import('settings').PopupWindowType} */ (/** @type {unknown} */ ('panel'));
             },
+            expected: {openSearchPageInNewWindow: false, searchPageWindowType: 'normal', searchPageWindowState: 'fullscreen'},
         },
         {
             name: 'the window state is invalid',
             setInvalidValue: (/** @type {import('settings').GeneralOptions} */ general) => {
                 general.searchPageWindowState = /** @type {import('settings').PopupWindowState} */ (/** @type {unknown} */ ('minimized'));
             },
+            expected: {openSearchPageInNewWindow: false, searchPageWindowType: 'popup', searchPageWindowState: 'normal'},
         },
-    ])('normalizes defaults when $name', async ({setInvalidValue}) => {
+    ])('normalizes only the invalid setting when $name', async ({setInvalidValue, expected}) => {
         const optionsUtil = await createOptionsUtil();
         const options = optionsUtil.getDefault();
-        setInvalidValue(options.profiles[0].options.general);
+        const {general} = options.profiles[0].options;
+        // Preserve non-default siblings to detect broad resets during schema normalization.
+        general.openSearchPageInNewWindow = false;
+        general.searchPageWindowType = 'popup';
+        general.searchPageWindowState = 'fullscreen';
+        setInvalidValue(general);
 
         const updatedOptions = await optionsUtil.update(options);
 
         expect(getSearchPageWindowOptions(updatedOptions)).toStrictEqual([
-            {openSearchPageInNewWindow: true, searchPageWindowType: 'normal', searchPageWindowState: 'normal'},
+            expected,
         ]);
     });
 });

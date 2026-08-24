@@ -113,7 +113,7 @@ export class SearchPageWindowController {
     }
 
     /**
-     * Gets the window from which a keyboard command or toolbar action originated.
+     * Gets the last-focused window whose private-browsing context is inherited.
      * @returns {Promise<chrome.windows.Window>}
      */
     _getLastFocusedWindow() {
