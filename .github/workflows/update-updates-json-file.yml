@@ -9,6 +9,9 @@ on:
         description: "Path to the XPI file"
         required: true
         default: "Downloads/rikaitan-firefox-selfhosted.xpi"
+      xpiFileVersion:
+        description: "Version read from the self-hosted XPI manifest"
+        required: true
       metadataBranch:
         description: "Branch to get updates.json from"
         required: true
@@ -46,6 +49,7 @@ jobs:
         env:
           githubRef: ${{ inputs.githubRef }}
           xpiFilePath: ${{ inputs.xpiFilePath }}
+          xpiFileVersion: ${{ inputs.xpiFileVersion }}
           updatesFilePath: ${{ runner.temp }}/updates.json
 
       # update updates.json so that all people who have

@@ -26,6 +26,7 @@ import type {SerializableObject} from '../../types/ext/core.d.ts';
 async function main(): Promise<void> {
     // Get environment variables
     const githubRef = process.env.githubRef;
+    const xpiFileVersion = process.env.xpiFileVersion;
     const xpiFilePath = process.env.xpiFilePath || 'Downloads/rikaitan-firefox-selfhosted.xpi';
     const updatesFilePath = process.env.updatesFilePath || 'Downloads/updates.json';
 
@@ -34,6 +35,10 @@ async function main(): Promise<void> {
 
     if (!githubRef) {
         console.error('Error: githubRef environment variable is required');
+        process.exit(1);
+    }
+    if (!xpiFileVersion) {
+        console.error('Error: xpiFileVersion environment variable is required');
         process.exit(1);
     }
 
@@ -60,7 +65,8 @@ async function main(): Promise<void> {
     const updates = (addon.updates || []) as SerializableObject[];
 
     const newUpdate = {
-        version: githubRef,
+        // Mozilla's signed manifest is authoritative; the Git tag identifies only the release asset.
+        version: xpiFileVersion,
         update_link: `${githubDownloadUrl}/${githubRef}/${xpiFilePath.split('/').pop()}`,
     };
 

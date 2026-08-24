@@ -18,6 +18,7 @@
         "bench": "vitest bench",
         "build": "node ./dev/bin/build.js",
         "dl": "node ./dev/bin/download-mozilla-addon.ts",
+        "extract-addon-version": "node ./dev/bin/extract-addon-version.ts",
         "update_updates_json_file": "node ./dev/bin/update_updates_json_file.ts",
         "build:libs": "node ./dev/bin/build-libs.js",
         "build:serve:firefox-android": "node ./dev/bin/build.js --target firefox-android && web-ext run -s ./builds/rikaitan-firefox-android",

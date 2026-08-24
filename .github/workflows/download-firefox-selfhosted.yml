@@ -39,6 +39,14 @@ jobs:
           jwtSecret: ${{ secrets.FF_JWT_SECRET }}
           githubRef: ${{ inputs.githubRef }}
 
+      - name: Read XPI version
+        id: xpi-version
+        env:
+          XPI_FILE_PATH: ${{ inputs.xpiFilePath }}
+        run: |
+          version="$(npm run-script --silent extract-addon-version -- "$XPI_FILE_PATH")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       # https://github.com/softprops/action-gh-release
       - name: Upload offline xpi release asset
         uses: softprops/action-gh-release@v2.4.2
@@ -56,5 +64,6 @@ jobs:
           inputs: |
             {
               "githubRef": "${{ inputs.githubRef }}",
-              "xpiFilePath": "${{ inputs.xpiFilePath }}"
+              "xpiFilePath": "${{ inputs.xpiFilePath }}",
+              "xpiFileVersion": "${{ steps.xpi-version.outputs.version }}"
             }
