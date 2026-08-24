@@ -6,7 +6,7 @@
         "test": "test"
     },
     "engines": {
-        "node": ">=22.0.0"
+        "node": ">=26.0.0"
     },
     "allowScripts": {
         "esbuild@0.25.1": true,
