@@ -34,6 +34,20 @@ function compileAST(template) {
     return Handlebars.compileAST(template);
 }
 
+/**
+ * Creates an AST whose NumberLiteral value is not a number.
+ * @returns {import('test/handlebars').HandlebarsProgram}
+ */
+function createAstWithInvalidNumberLiteral() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const ast = /** @type {import('test/handlebars').HandlebarsProgramWithNumberLiteral} */ (
+        Handlebars.parse('{{lookup this 1}}')
+    );
+    // Handlebars 4.7.9 rejects this value instead of emitting it as JavaScript.
+    ast.body[0].params[1].value = '{},{})) + globalThis.__rikaitanHandlebarsInjection = true //';
+    return ast;
+}
+
 describe('Handlebars', () => {
     test('compile vs compileAST 1', ({expect}) => {
         const template = '{{~test1~}}';
@@ -68,5 +82,17 @@ describe('Handlebars', () => {
 
         expect.soft(result1).equals('&lt;div style&#x3D;&quot;font-size: 4em;&quot;&gt;Test&lt;/div&gt;');
         expect.soft(result2).equals('&lt;div style&#x3D;&quot;font-size: 4em;&quot;&gt;Test&lt;/div&gt;');
+    });
+    test('compile does not execute a crafted AST NumberLiteral value', ({expect}) => {
+        const marker = '__rikaitanHandlebarsInjection';
+        const globals = /** @type {Record<string, unknown>} */ (globalThis);
+        delete globals[marker];
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const template = Handlebars.compile(createAstWithInvalidNumberLiteral());
+        expect(() => template({}))
+            .toThrow('Invalid AST: NumberLiteral.value must be a number');
+
+        expect(globals[marker]).toBeUndefined();
     });
 });
