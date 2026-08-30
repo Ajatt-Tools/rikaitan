@@ -227,13 +227,34 @@ function areArraysEqual(value1, value2, visited1) {
  * @returns {string} A string of random characters.
  */
 export function generateId(length) {
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
+    const array = generateRandomValues(length);
     let id = '';
     for (const value of array) {
         id += value.toString(16).padStart(2, '0');
     }
     return id;
+}
+
+/**
+ * Generates an array using the browser's secure random generator.
+ * @param {number} length
+ * @returns {Uint8Array}
+ * @throws {Error} If secure random generation fails twice or reports a non-operation error.
+ */
+function generateRandomValues(length) {
+    const array = new Uint8Array(length);
+    try {
+        return crypto.getRandomValues(array);
+    } catch (error) {
+        if (!(error instanceof DOMException) || error.name !== 'OperationError') { throw error; }
+        try {
+            // Retry once for transient browser cryptography initialization failures.
+            return crypto.getRandomValues(new Uint8Array(length));
+        } catch (retryError) {
+            if (!(retryError instanceof DOMException) || retryError.name !== 'OperationError') { throw retryError; }
+            throw new Error('Secure random number generation failed. Restart the browser and try again.', {cause: retryError});
+        }
+    }
 }
 
 /**
