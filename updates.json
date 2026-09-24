@@ -37,6 +37,10 @@
         {
           "version": "26.8.24.3",
           "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/26.8.24.2/rikaitan-firefox-selfhosted.xpi"
+        },
+        {
+          "version": "26.9.8.1",
+          "update_link": "https://github.com/Ajatt-Tools/rikaitan/releases/download/26.9.8.0/rikaitan-firefox-selfhosted.xpi"
         }
       ]
     }
