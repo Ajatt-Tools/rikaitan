@@ -17,13 +17,7 @@
  */
 
 import * as ajvSchemas0 from '../../lib/validate-schemas.js';
-import {
-    BlobWriter as BlobWriter0,
-    TextWriter as TextWriter0,
-    Uint8ArrayReader as Uint8ArrayReader0,
-    ZipReader as ZipReader0,
-    configure,
-} from '../../lib/zip.js';
+import * as bundledZip from '../../lib/zip.js';
 import {ExtensionError} from '../core/extension-error.js';
 import {parseJson} from '../core/json.js';
 import {toError} from '../core/to-error.js';
@@ -32,10 +26,8 @@ import {getFileExtensionFromImageMediaType, getImageMediaTypeFromFileName} from 
 import {compareRevisions} from './dictionary-data-util.js';
 
 const ajvSchemas = /** @type {import('dictionary-importer').CompiledSchemaValidators} */ (/** @type {unknown} */ (ajvSchemas0));
-const BlobWriter = /** @type {typeof import('@zip.js/zip.js').BlobWriter} */ (/** @type {unknown} */ (BlobWriter0));
-const TextWriter = /** @type {typeof import('@zip.js/zip.js').TextWriter} */ (/** @type {unknown} */ (TextWriter0));
-const Uint8ArrayReader = /** @type {typeof import('@zip.js/zip.js').Uint8ArrayReader} */ (/** @type {unknown} */ (Uint8ArrayReader0));
-const ZipReader = /** @type {typeof import('@zip.js/zip.js').ZipReader} */ (/** @type {unknown} */ (ZipReader0));
+// The shipped bundle has no declarations; check its export surface against the upstream library types.
+const {BlobWriter, TextWriter, Uint8ArrayReader, ZipReader, configure} = /** @type {typeof import('@zip.js/zip.js')} */ (/** @type {unknown} */ (bundledZip));
 
 const INDEX_FILE_NAME = 'index.json';
 

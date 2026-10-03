@@ -45,7 +45,8 @@ export async function createDictionaryArchiveData(dictionaryDirectory, dictionar
             await zipWriter.add(fileName, new TextReader(JSON.stringify(json, null, 0)));
         } else {
             const content = readFileSync(join(dictionaryDirectory, fileName), {encoding: null});
-            await zipWriter.add(fileName, new Blob([content]).stream());
+            // Node Buffers can share a larger backing store; use an exact ArrayBuffer-backed view for Blob.
+            await zipWriter.add(fileName, new Blob([Uint8Array.from(content)]).stream());
         }
     }
     const blob = await zipWriter.close();

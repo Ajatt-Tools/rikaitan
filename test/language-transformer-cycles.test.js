@@ -103,7 +103,8 @@ function arraysAreEqual(rules1, rules2) {
 const languagesWithTransforms = getAllLanguageTransformDescriptors();
 
 describe.each(languagesWithTransforms)('Cycles Test $iso', ({languageTransforms}) => {
-    test('Check for cycles', ({expect}) => {
+    // Vitest 4 requires per-test options before the callback.
+    test('Check for cycles', {timeout: 30 * 1000}, ({expect}) => {
         const languageTransformer = new LanguageTransformer();
         languageTransformer.addDescriptor(languageTransforms);
 
@@ -168,5 +169,5 @@ describe.each(languagesWithTransforms)('Cycles Test $iso', ({languageTransforms}
                 deinflectionNodes.push(newDeinflectionNode);
             }
         }
-    }, {timeout: 30 * 1000});
+    });
 });

@@ -269,6 +269,8 @@ export class AnkiNoteBuilder {
             return str;
         }
         parts.push(str.substring(index));
+        // Promise.all accepts both resolved string segments and asynchronous replacements.
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         return (await Promise.all(parts)).join('');
     }
 

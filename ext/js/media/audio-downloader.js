@@ -536,7 +536,8 @@ export class AudioDownloader {
             throw new Error(`Invalid response: ${response.status}`);
         }
 
-        const arrayBuffer = await RequestBuilder.readFetchResponseArrayBuffer(response, onProgress);
+        // The response reader returns a byte view; copy it into an ArrayBuffer for hashing and base64 encoding.
+        const arrayBuffer = new Uint8Array(await RequestBuilder.readFetchResponseArrayBuffer(response, onProgress)).buffer;
 
         if (idleTimer !== null) {
             clearTimeout(idleTimer);

@@ -27,10 +27,6 @@ export default defineConfig({
             'test/playwright/**',
             'test/json.test.js',
         ],
-        poolOptions: {
-            threads: {
-                useAtomics: true,
-            },
-        },
+        // Vitest 4 manages thread synchronization internally; the old useAtomics option is gone.
     },
 });

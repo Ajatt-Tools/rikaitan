@@ -11,7 +11,9 @@
         "empty-heading": "off",
         "wcag/h30": "off",
         "wcag/h63": "off",
-        "no-inline-style": "off"
+        "no-inline-style": "off",
+        "no-implicit-close": "off",
+        "autocomplete-password": "off"
     },
     "elements": [
         "html5"

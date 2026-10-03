@@ -129,6 +129,8 @@ export class RequestBuilder {
 
         const contentLengthString = response.headers.get('Content-Length');
         const contentLength = contentLengthString !== null ? Number.parseInt(contentLengthString, 10) : null;
+        // Stream chunks may use any ArrayBufferLike backing store; the joined result has the same byte-view contract.
+        /** @type {Uint8Array|null} */
         let target = contentLength !== null && Number.isFinite(contentLength) ? new Uint8Array(contentLength) : null;
         let targetPosition = 0;
         let totalLength = 0;

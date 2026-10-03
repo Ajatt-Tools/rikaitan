@@ -267,7 +267,8 @@ export class GenericSettingController {
      */
     _getTransformDataArray(transformRaw) {
         if (typeof transformRaw === 'string') {
-            const transforms = parseJson(transformRaw);
+            // Settings supply transform descriptors; JSON parsing cannot infer that domain-specific shape.
+            const transforms = /** @type {import('generic-setting-controller').TransformData | import('generic-setting-controller').TransformData[]} */ (parseJson(transformRaw));
             return Array.isArray(transforms) ? transforms : [transforms];
         }
         return [];

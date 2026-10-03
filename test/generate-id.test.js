@@ -23,11 +23,12 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
+// Keep Vitest's inferred callable/constructable mock type rather than forcing an incompatible return annotation.
+/* eslint-disable jsdoc/require-returns */
 /**
  * Creates a deterministic Web Crypto mock from a sequence of outcomes.
  * @param {(Uint8Array|Error)[]} outcomes
  * @param {Uint8Array[]} arrays
- * @returns {import('vitest').Mock<(array: Uint8Array) => Uint8Array>}
  * @throws {Error} When the configured outcome is an error.
  */
 function createGetRandomValuesMock(outcomes, arrays) {
@@ -39,6 +40,7 @@ function createGetRandomValuesMock(outcomes, arrays) {
         return array;
     });
 }
+/* eslint-enable jsdoc/require-returns */
 
 /**
  * Returns an error thrown synchronously by an action.
