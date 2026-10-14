@@ -103,7 +103,7 @@
         "eslint-plugin-unused-imports": "^4.1.4",
         "fake-indexeddb": "^6.2.5",
         "globals": "^15.14.0",
-        "handlebars": "^4.7.9",
+        "handlebars": "^4.7.10",
         "html-validate": "^11.13.0",
         "husky": "^9.1.7",
         "jsdom": "^25.0.1",
