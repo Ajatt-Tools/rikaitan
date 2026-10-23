@@ -74,7 +74,7 @@
         "@eslint/js": "^9.17.0",
         "@playwright/test": "^1.55.1",
         "@stylistic/eslint-plugin": "^2.12.1",
-        "@stylistic/stylelint-plugin": "^3.1.1",
+        "@stylistic/stylelint-plugin": "^5.3.1",
         "@types/assert": "^1.5.11",
         "@types/browserify": "^12.0.40",
         "@types/chrome": "^0.2.2",
@@ -85,7 +85,7 @@
         "@types/jsdom": "^21.1.7",
         "@types/node": "22.10.2",
         "@types/zip.js": "^2.0.33",
-        "@vitest/coverage-v8": "^4.1.11",
+        "@vitest/coverage-v8": "^4.1.12",
         "@vitest/eslint-plugin": "^1.1.21",
         "ajv": "^8.17.1",
         "css": "^3.0.0",
@@ -111,12 +111,12 @@
         "license-report": "^6.7.1",
         "lint-staged": "^15.3.0",
         "prettier": "^3.4.2",
-        "stylelint": "^16.12.0",
-        "stylelint-config-recommended": "^14.0.1",
+        "stylelint": "^17.14.1",
+        "stylelint-config-recommended": "^18.0.0",
         "ts-json-schema-generator": "^2.3.0",
         "typescript": "~5.9.3",
         "typescript-eslint": "^8.18.2",
-        "vitest": "^4.1.11"
+        "vitest": "^4.1.12"
     },
     "dependencies": {
         "@resvg/resvg-wasm": "^2.6.2",

@@ -43,7 +43,7 @@ function createAstWithInvalidNumberLiteral() {
     const ast = /** @type {import('test/handlebars').HandlebarsProgramWithNumberLiteral} */ (
         Handlebars.parse('{{lookup this 1}}')
     );
-    // Handlebars 4.7.9 rejects this value instead of emitting it as JavaScript.
+    // Handlebars rejects this value instead of emitting it as JavaScript.
     ast.body[0].params[1].value = '{},{})) + globalThis.__rikaitanHandlebarsInjection = true //';
     return ast;
 }
@@ -91,8 +91,40 @@ describe('Handlebars', () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const template = Handlebars.compile(createAstWithInvalidNumberLiteral());
         expect(() => template({}))
-            .toThrow('Invalid AST: NumberLiteral.value must be a number');
+            .toThrow('Invalid AST: NumberLiteral value must be a number');
 
         expect(globals[marker]).toBeUndefined();
+    });
+    test('compile rejects an AST with an injected block parameter count', ({expect}) => {
+        // The compiler must validate nested program metadata before using it in generated JavaScript.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const ast = /** @type {import('test/handlebars').HandlebarsProgramWithBlockParams} */ (
+            Handlebars.parse('{{#missingHelper}}x{{/missingHelper}}')
+        );
+        const globals = /** @type {Record<string, unknown>} */ (globalThis);
+        const marker = '__rikaitanHandlebarsInjection';
+        delete globals[marker];
+        ast.body[0].program.blockParams = /** @type {string[]} */ (/** @type {unknown} */ ({
+            length: `(()=>{globalThis.${marker}=true;return 0})()`,
+        }));
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const template = Handlebars.compile(ast);
+        expect(() => template({})).toThrow('Invalid AST: Program blockParams must be an array');
+        expect(globals[marker]).toBeUndefined();
+    });
+    test('own prototype constructors stay blocked even when prototype methods are permitted', ({expect}) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const template = Handlebars.compile(
+            '{{#if (lookup (lookup fn "__proto__") "constructor")}}leak{{else}}safe{{/if}}',
+        );
+        // A Function.prototype.constructor is an own property, but must still be denied.
+        expect(template({fn: () => {}}, {allowProtoMethodsByDefault: true})).toBe('safe');
+    });
+    test('precompiled templates cannot close their inline script element', ({expect}) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const source = Handlebars.precompile('</script><script>alert(1)</script>');
+        expect(source).not.toContain('</script>');
+        expect(source).toContain('\\u003C/script>');
     });
 });

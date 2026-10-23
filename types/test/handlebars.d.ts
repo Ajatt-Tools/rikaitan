@@ -22,3 +22,7 @@ export type HandlebarsProgram = ReturnType<typeof parse>;
 export type HandlebarsProgramWithNumberLiteral = HandlebarsProgram & {
     body: [{params: [unknown, {value: unknown}]}];
 };
+
+export type HandlebarsProgramWithBlockParams = HandlebarsProgram & {
+    body: [{program: {blockParams: string[]}}];
+};
