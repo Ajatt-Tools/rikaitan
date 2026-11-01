@@ -1246,6 +1246,7 @@ export class Backend {
                     if (queryParams.query) {
                         await this._updateSearchQuery(id, queryParams.query, true);
                     }
+                    await this._selectSearch(id);
                     return true;
                 }
             }
@@ -1534,6 +1535,18 @@ export class Backend {
         await this._sendMessageTabPromise(
             tabId,
             {action: 'searchDisplayControllerUpdateSearchQuery', params: {text, animate}},
+            {frameId: 0},
+        );
+    }
+
+    /**
+     * @param {number} tabId
+     * @returns {Promise<void>}
+     */
+    async _selectSearch(tabId) {
+        await this._sendMessageTabPromise(
+            tabId,
+            {action: 'searchDisplayControllerSelectSearch'},
             {frameId: 0},
         );
     }
