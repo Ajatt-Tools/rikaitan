@@ -1246,7 +1246,11 @@ export class Backend {
                     if (queryParams.query) {
                         await this._updateSearchQuery(id, queryParams.query, true);
                     }
-                    await this._selectSearch(id);
+                    try {
+                        await this._selectSearch(id);
+                    } catch (e) {
+                        // The tab is already open and focused. A failed text-selection message must not create another page.
+                    }
                     return true;
                 }
             }
