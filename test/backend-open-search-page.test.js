@@ -44,20 +44,25 @@ function createBackend(overrides) {
  *     backend: Backend,
  *     createTab: import('vitest').Mock,
  *     createSearchTabOrWindow: import('vitest').Mock,
+ *     selectSearch: import('vitest').Mock,
  * }}
  */
 function createCommandTestContext(overrides = {}) {
     vi.stubGlobal('chrome', {runtime: {getURL: vi.fn(() => 'chrome-extension://test/search.html')}});
     const createTab = vi.fn(async () => {});
     const createSearchTabOrWindow = vi.fn(async () => {});
+    const selectSearch = vi.fn(async () => {});
     return {
         backend: createBackend({
             _createTab: createTab,
             _searchPageWindowController: {createSearchTabOrWindow},
+            // The existing-tab path sends a best-effort selection message after focusing the tab.
+            _selectSearch: selectSearch,
             ...overrides,
         }),
         createTab,
         createSearchTabOrWindow,
+        selectSearch,
     };
 }
 
@@ -256,7 +261,7 @@ describe('Backend._onCommandOpenSearchPage', () => {
     test('focuses an existing search tab and updates its query', async () => {
         const focusTab = vi.fn(async () => {});
         const updateSearchQuery = vi.fn(async () => {});
-        const {backend, createSearchTabOrWindow} = createCommandTestContext({
+        const {backend, createSearchTabOrWindow, selectSearch} = createCommandTestContext({
             _normalizeOpenSettingsPageMode: vi.fn(() => 'existingOrNewTab'),
             _findTabs: vi.fn(async () => ({tab: {id: 42}})),
             _focusTab: focusTab,
@@ -267,13 +272,56 @@ describe('Backend._onCommandOpenSearchPage', () => {
 
         expect(focusTab).toHaveBeenCalledWith({id: 42});
         expect(updateSearchQuery).toHaveBeenCalledWith(42, 'query', true);
+        expect(selectSearch).toHaveBeenCalledWith(42);
         expect(createSearchTabOrWindow).not.toHaveBeenCalled();
+    });
+
+    test.each([
+        {mode: /** @type {import('backend').Mode} */ ('existingOrNewTab')},
+        {mode: /** @type {import('backend').Mode} */ ('existingOrCurrentTab')},
+    ])('does not open another page when selecting search text fails in $mode mode', async ({mode}) => {
+        const focusTab = vi.fn(async () => {});
+        const updateSearchQuery = vi.fn(async () => {});
+        const updateTab = vi.fn(async () => {});
+        const {backend, createTab, createSearchTabOrWindow} = createCommandTestContext({
+            _normalizeOpenSettingsPageMode: vi.fn(() => mode),
+            _findTabs: vi.fn(async () => ({tab: {id: 42}})),
+            _focusTab: focusTab,
+            _updateSearchQuery: updateSearchQuery,
+            // Exercise the actual tab-message wrapper so a failed callback cannot trigger a duplicate page.
+            // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/unbound-method
+            _selectSearch: Backend.prototype._selectSearch,
+            _updateTab: updateTab,
+        });
+        const sendMessage = vi.fn((
+            /** @type {number} */ tabId,
+            /** @type {unknown} */ message,
+            /** @type {unknown} */ options,
+            /** @type {(response: unknown) => void} */ callback,
+        ) => {
+            callback(null);
+            void tabId;
+            void message;
+            void options;
+        });
+        chrome.tabs = /** @type {import('core').SafeAny} */ ({sendMessage});
+
+        // A failed optional message must not turn an already focused page into a new tab or window.
+        // eslint-disable-next-line no-underscore-dangle
+        await backend._onCommandOpenSearchPage({mode, query: 'query'});
+
+        expect(focusTab).toHaveBeenCalledWith({id: 42});
+        expect(updateSearchQuery).toHaveBeenCalledWith(42, 'query', true);
+        expect(sendMessage).toHaveBeenCalledWith(42, {action: 'searchDisplayControllerSelectSearch'}, {frameId: 0}, expect.any(Function));
+        expect(createSearchTabOrWindow).not.toHaveBeenCalled();
+        expect(updateTab).not.toHaveBeenCalled();
+        expect(createTab).not.toHaveBeenCalled();
     });
 
     test('discovers and focuses an ordinary search page after it moves to another window', async () => {
         const focusTab = vi.fn(async () => {});
         const updateSearchQuery = vi.fn(async () => {});
-        const {backend, createSearchTabOrWindow} = createCommandTestContext({
+        const {backend, createSearchTabOrWindow, selectSearch} = createCommandTestContext({
             _focusTab: focusTab,
             _updateSearchQuery: updateSearchQuery,
             // Keep discovery real so the command remains protected against a future current-window query.
@@ -300,6 +348,7 @@ describe('Backend._onCommandOpenSearchPage', () => {
         expect(queryTabs).toHaveBeenCalledWith({}, expect.any(Function));
         expect(focusTab).toHaveBeenCalledWith({id: 42, windowId: 99});
         expect(updateSearchQuery).not.toHaveBeenCalled();
+        expect(selectSearch).toHaveBeenCalledWith(42);
         expect(createSearchTabOrWindow).not.toHaveBeenCalled();
     });
 });
